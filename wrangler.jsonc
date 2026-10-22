@@ -33,7 +33,7 @@
   // secret 不写在这里，用 `wrangler secret put TURNSTILE_SECRET_KEY` 设置。
   // 本地开发在 .dev.vars 里用官方测试 key 覆盖这两个值。
   "vars": {
-    "TURNSTILE_SITE_KEY": "",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFg-NppAAMnOcVwJ",
   },
   "observability": {
     "enabled": true,
