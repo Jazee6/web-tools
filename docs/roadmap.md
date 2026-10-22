@@ -113,7 +113,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 - Cloudflare Web Analytics。
 - `/api/e`：事件抽样 10%，错误全量上报并在同一会话内去重，写入 Analytics Engine。
-- `@lhci/cli` 预算门禁全量开启（首屏 JS ≤ 50 KB gzip，LCP ≤ 2.0s，CLS ≤ 0.05，TBT ≤ 150ms）。
+- `@lhci/cli` 预算门禁全量开启（首屏 JS 按 architecture §15：Tool 页 ≤ 160 KB、其他页 ≤ 10 KB gzip，LCP ≤ 2.0s，CLS ≤ 0.05，TBT ≤ 150ms）。
 - 补齐首发 Tool（见下方候选清单）。
 - 上线清单：
   - Search Console 与 Bing Webmaster 验证，提交 sitemap。
@@ -170,5 +170,5 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - Background Remover、Speech to Text、OCR 所用模型的许可证（必须允许商用）。
 - Rate Limiting binding 在 Free 计划上是否可用（M2 实测）。
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
-- 首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突：M1 实测 Tool 页约 152 KB，首页约 88 KB，其中 React 运行时约 67 KB，待决策。
+- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB。
 - 内容近似度阈值（M4 根据样本确定）。

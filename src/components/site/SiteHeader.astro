@@ -1,8 +1,10 @@
 ---
+import { SearchIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import { defaultLocale, isLocale, localizePath } from "@/lib/i18n/locales";
 import { m } from "@/paraglide/messages";
-
-import SearchCommand from "./SearchCommand";
 
 const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : defaultLocale;
 ---
@@ -12,6 +14,26 @@ const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : defaultLoca
     <a href={localizePath(locale)} class="font-semibold tracking-tight">
       {m.site_name()}
     </a>
-    <SearchCommand client:idle indexUrl={localizePath(locale, "/search.json")} />
+    {/* 按钮静态渲染，不水合；对话框（React + cmdk）在第一次打开时才加载 */}
+    <Button variant="outline" data-search-index={localizePath(locale, "/search.json")}>
+      <SearchIcon />
+      {m.search_open()}
+      <Kbd className="hidden md:inline-flex">⌘K</Kbd>
+    </Button>
   </div>
 </header>
+
+<script>
+  const trigger = document.querySelector<HTMLButtonElement>("[data-search-index]")!;
+  const open = async () => {
+    const { toggleSearch } = await import("./search-mount");
+    toggleSearch(trigger.dataset.searchIndex!);
+  };
+  trigger.addEventListener("click", () => void open());
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      void open();
+    }
+  });
+</script>

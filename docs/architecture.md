@@ -358,7 +358,10 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 
 ## 15. 性能预算（CI 强制）
 
-- 内容页首屏 JS（不含按需加载的引擎）≤ 50 KB gzip。
+- 首屏 JS（gzip，不含按需加载的引擎，2026-10-22 调整）：
+  - Tool / Variant 页 ≤ 160 KB。React island 是底线：React 运行时本身约 67 KB，原定的 50 KB 无法满足，M1 实测约 150 KB。
+  - 没有 Tool island 的页面（首页、Category 页等）≤ 10 KB。⌘K 对话框在第一次打开时才加载 React。
+  - 加新依赖或新组件时优先控制 island 体积，用户体验以 LCP、TBT、CLS 等指标为准。
 - Lab 指标：LCP ≤ 2.0s、CLS ≤ 0.05、TBT ≤ 150ms（`@lhci/cli`，移动端配置）。
 - Field 指标目标（Web Analytics 的 CWV）：p75 LCP ≤ 2.0s、INP ≤ 150ms、CLS ≤ 0.05。
 

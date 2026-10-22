@@ -12,3 +12,11 @@ for (const locale of locales) {
     await expect(page.locator("h1")).toBeVisible();
   });
 }
+
+test("⌘K search loads on demand and navigates to a tool", async ({ page }) => {
+  await page.goto(localizePath("zh"));
+  await page.locator("[data-search-index]").click();
+  await page.getByRole("combobox").fill("json");
+  await page.getByRole("option").first().click();
+  await expect(page).toHaveURL(/\/zh\/json-formatter$/);
+});
