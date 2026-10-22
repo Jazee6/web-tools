@@ -2,5 +2,21 @@
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "site_name": "Web Tools",
   "home_title": "在浏览器中运行的免费在线工具",
-  "home_description": "面向图片、PDF、音视频和开发者的快速、私密工具。全部在浏览器中运行，文件不会离开你的设备。"
+  "home_description": "面向图片、PDF、音视频和开发者的快速、私密工具。全部在浏览器中运行，文件不会离开你的设备。",
+  "nav_home": "首页",
+  "nav_breadcrumb": "面包屑导航",
+  "category_tools": "工具",
+  "tool_steps": "使用方法",
+  "tool_faq": "常见问题",
+  "tool_related": "相关工具",
+  "page_updated": "最后更新：{date}",
+  "form_required": "此项为必填项。",
+  "form_invalid": "此值无效。",
+  "tool_error": "出了点问题，请重试。",
+  "tool_copy": "复制",
+  "tool_copied": "已复制",
+  "search_open": "搜索工具",
+  "search_placeholder": "搜索工具…",
+  "search_empty": "没有找到工具。",
+  "search_loading": "加载中…"
 }

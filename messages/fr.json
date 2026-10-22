@@ -2,5 +2,21 @@
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "site_name": "Web Tools",
   "home_title": "Des outils en ligne gratuits qui fonctionnent dans votre navigateur",
-  "home_description": "Des outils rapides et privés pour les images, les PDF, l’audio, la vidéo et les développeurs. Tout s’exécute dans votre navigateur : vos fichiers ne quittent jamais votre appareil."
+  "home_description": "Des outils rapides et privés pour les images, les PDF, l’audio, la vidéo et les développeurs. Tout s’exécute dans votre navigateur : vos fichiers ne quittent jamais votre appareil.",
+  "nav_home": "Accueil",
+  "nav_breadcrumb": "Fil d’Ariane",
+  "category_tools": "Outils",
+  "tool_steps": "Mode d’emploi",
+  "tool_faq": "Questions fréquentes",
+  "tool_related": "Outils associés",
+  "page_updated": "Dernière mise à jour : {date}",
+  "form_required": "Ce champ est obligatoire.",
+  "form_invalid": "Cette valeur n’est pas valide.",
+  "tool_error": "Un problème est survenu. Veuillez réessayer.",
+  "tool_copy": "Copier",
+  "tool_copied": "Copié",
+  "search_open": "Rechercher des outils",
+  "search_placeholder": "Rechercher des outils…",
+  "search_empty": "Aucun outil trouvé.",
+  "search_loading": "Chargement…"
 }

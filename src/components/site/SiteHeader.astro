@@ -1,0 +1,17 @@
+---
+import { defaultLocale, isLocale, localizePath } from "@/lib/i18n/locales";
+import { m } from "@/paraglide/messages";
+
+import SearchCommand from "./SearchCommand";
+
+const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : defaultLocale;
+---
+
+<header class="border-b">
+  <div class="mx-auto flex h-14 max-w-3xl items-center justify-between gap-4 px-4">
+    <a href={localizePath(locale)} class="font-semibold tracking-tight">
+      {m.site_name()}
+    </a>
+    <SearchCommand client:idle indexUrl={localizePath(locale, "/search.json")} />
+  </div>
+</header>

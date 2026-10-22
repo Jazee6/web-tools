@@ -5,13 +5,20 @@
     "correctness": "error",
     "suspicious": "warn"
   },
-  "ignorePatterns": ["src/paraglide/**", "worker-configuration.d.ts", ".astro/**", "dist/**"],
+  "ignorePatterns": [
+    "src/paraglide/**",
+    "worker-configuration.d.ts",
+    ".astro/**",
+    "dist/**",
+    "src/components/ui/**"
+  ],
   "rules": {
     "import/no-unassigned-import": [
       "warn",
       {
         "allow": ["**/*.css"]
       }
-    ]
+    ],
+    "react/react-in-jsx-scope": "off"
   }
 }

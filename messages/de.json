@@ -2,5 +2,21 @@
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "site_name": "Web Tools",
   "home_title": "Kostenlose Online-Tools, die in deinem Browser laufen",
-  "home_description": "Schnelle, private Tools für Bilder, PDFs, Audio, Video und Entwickler. Alles läuft in deinem Browser – deine Dateien verlassen nie dein Gerät."
+  "home_description": "Schnelle, private Tools für Bilder, PDFs, Audio, Video und Entwickler. Alles läuft in deinem Browser – deine Dateien verlassen nie dein Gerät.",
+  "nav_home": "Startseite",
+  "nav_breadcrumb": "Brotkrümelnavigation",
+  "category_tools": "Tools",
+  "tool_steps": "So funktioniert’s",
+  "tool_faq": "Häufige Fragen",
+  "tool_related": "Ähnliche Tools",
+  "page_updated": "Zuletzt aktualisiert: {date}",
+  "form_required": "Dieses Feld ist erforderlich.",
+  "form_invalid": "Dieser Wert ist ungültig.",
+  "tool_error": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+  "tool_copy": "Kopieren",
+  "tool_copied": "Kopiert",
+  "search_open": "Tools durchsuchen",
+  "search_placeholder": "Tools durchsuchen…",
+  "search_empty": "Keine Tools gefunden.",
+  "search_loading": "Wird geladen…"
 }

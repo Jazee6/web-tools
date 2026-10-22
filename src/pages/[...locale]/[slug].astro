@@ -1,0 +1,28 @@
+---
+import type { GetStaticPaths } from "astro";
+
+import CategoryPage from "@/components/pages/CategoryPage.astro";
+import ToolPage from "@/components/pages/ToolPage.astro";
+import { getCatalog, publishedPages } from "@/lib/catalog";
+import { defaultLocale } from "@/lib/i18n/locales";
+
+// Tool 与 Category 共用顶层 slug 命名空间（ADR-0013），冲突已在注册表中校验。
+// 只为有内容的 Locale 生成页面，缺失翻译由 _redirects 跳到 en（ADR-0007）。
+export const getStaticPaths = (async () => {
+  const catalog = await getCatalog();
+  return [...catalog.tools, ...catalog.categories].flatMap((node) =>
+    publishedPages(node).map((page) => ({
+      params: { locale: page.locale === defaultLocale ? undefined : page.locale, slug: node.id },
+      props: { catalog, node, locale: page.locale },
+    })),
+  );
+}) satisfies GetStaticPaths;
+
+const { catalog, node, locale } = Astro.props;
+---
+
+{node.kind === "tool" ? (
+  <ToolPage catalog={catalog} node={node} locale={locale} />
+) : (
+  <CategoryPage catalog={catalog} node={node} locale={locale} />
+)}

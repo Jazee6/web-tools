@@ -1,0 +1,69 @@
+---
+import { render } from "astro:content";
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { type Catalog, type CategoryNode, toolsInCategory } from "@/lib/catalog";
+import { hreflang, type Locale, localizePath } from "@/lib/i18n/locales";
+import { alternates, isIndexable } from "@/lib/seo/indexing";
+import { breadcrumbJsonLd, collectionJsonLd } from "@/lib/seo/json-ld";
+import { m } from "@/paraglide/messages";
+
+import PageBreadcrumb from "./PageBreadcrumb.astro";
+
+interface Props {
+  catalog: Catalog;
+  node: CategoryNode;
+  locale: Locale;
+}
+
+const { catalog, node, locale } = Astro.props;
+const entry = node.entries[locale]!;
+const data = entry.data;
+const path = localizePath(locale, node.path);
+const { Content } = await render(entry);
+
+const items = toolsInCategory(catalog, node.id, locale).map((tool) => ({
+  name: tool.entries[locale]!.data.name,
+  summary: tool.entries[locale]!.data.answer,
+  path: localizePath(locale, tool.path),
+}));
+const crumbs = [
+  { name: m.nav_home(), path: localizePath(locale) },
+  { name: data.name, path },
+];
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  indexable={isIndexable(node.statuses, locale)}
+  alternates={alternates(node.statuses, locale, node.path)}
+  markdown={`${path}.md`}
+  jsonLd={[
+    collectionJsonLd({
+      name: data.name,
+      description: data.description,
+      path,
+      lang: hreflang[locale],
+      items,
+    }),
+    breadcrumbJsonLd(crumbs),
+  ]}
+>
+  <main class="typeset mx-auto max-w-3xl px-4 py-8">
+    <PageBreadcrumb crumbs={crumbs} />
+    <h1>{data.name}</h1>
+    <p>{data.intro}</p>
+
+    <h2>{m.category_tools()}</h2>
+    <ul>
+      {items.map((item) => (
+        <li>
+          <a href={item.path}>{item.name}</a>: {item.summary}
+        </li>
+      ))}
+    </ul>
+
+    <Content />
+  </main>
+</BaseLayout>

@@ -1,0 +1,125 @@
+---
+import { render } from "astro:content";
+
+import { loadTool } from "@/components/tool/tool-loader";
+import ToolIsland, { type ToolStrings } from "@/components/tool/ToolIsland";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { type Catalog, categoryOf, type ToolNode } from "@/lib/catalog";
+import { hreflang, type Locale, localizePath } from "@/lib/i18n/locales";
+import { ogImagePath } from "@/lib/og";
+import { alternates, isIndexable } from "@/lib/seo/indexing";
+import { breadcrumbJsonLd, faqJsonLd, webApplicationJsonLd } from "@/lib/seo/json-ld";
+import { m } from "@/paraglide/messages";
+
+import PageBreadcrumb from "./PageBreadcrumb.astro";
+
+interface Props {
+  catalog: Catalog;
+  node: ToolNode;
+  locale: Locale;
+}
+
+const { catalog, node, locale } = Astro.props;
+const entry = node.entries[locale]!;
+const data = entry.data;
+const path = localizePath(locale, node.path);
+const category = categoryOf(catalog, node);
+const categoryEntry = category.entries[locale];
+const { Content } = await render(entry);
+
+// island 服务端渲染需要同步拿到 Tool（见 tool-loader.ts）
+await loadTool(node.id);
+const strings: ToolStrings = {
+  action: data.action,
+  fields: data.fields,
+  output: data.output,
+  errors: data.errors,
+};
+
+const crumbs = [
+  { name: m.nav_home(), path: localizePath(locale) },
+  ...(categoryEntry
+    ? [{ name: categoryEntry.data.name, path: localizePath(locale, category.path) }]
+    : []),
+  { name: data.name, path },
+];
+
+// 相关 Tool：同一主 Category 下、该 Locale 已发布的其他 Tool
+const related = catalog.tools.filter(
+  (other) =>
+    other.id !== node.id && other.tool.category === node.tool.category && other.entries[locale],
+);
+
+const updated = new Intl.DateTimeFormat(hreflang[locale], { dateStyle: "long" }).format(
+  data.updated,
+);
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  indexable={isIndexable(node.statuses, locale)}
+  alternates={alternates(node.statuses, locale, node.path)}
+  ogImage={ogImagePath(locale, node.id)}
+  markdown={`${path}.md`}
+  jsonLd={[
+    webApplicationJsonLd({
+      name: data.name,
+      description: data.description,
+      path,
+      lang: hreflang[locale],
+      updated: data.updated,
+      featureList: Object.values(data.fields).map((field) => field.label),
+    }),
+    breadcrumbJsonLd(crumbs),
+    faqJsonLd(data.faq),
+  ]}
+>
+  <main class="typeset mx-auto max-w-3xl px-4 py-8">
+    <PageBreadcrumb crumbs={crumbs} />
+    <h1>{data.name}</h1>
+    <p>{data.answer}</p>
+
+    <div class="not-typeset py-6">
+      <ToolIsland client:load toolId={node.id} strings={strings} />
+    </div>
+
+    <h2>{m.tool_steps()}</h2>
+    <ol>
+      {data.steps.map((step) => (
+        <li>{step}</li>
+      ))}
+    </ol>
+
+    <Content />
+
+    <h2>{m.tool_faq()}</h2>
+    {data.faq.map(({ q, a }) => (
+      <>
+        <h3>{q}</h3>
+        <p>{a}</p>
+      </>
+    ))}
+
+    {related.length > 0 && (
+      <>
+        <h2>{m.tool_related()}</h2>
+        <ul>
+          {related.map((other) => (
+            <li>
+              <a href={localizePath(locale, other.path)}>{other.entries[locale]!.data.name}</a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+
+    <p>
+      <small>
+        <time datetime={data.updated.toISOString().slice(0, 10)}>
+          {m.page_updated({ date: updated })}
+        </time>
+      </small>
+    </p>
+  </main>
+</BaseLayout>
