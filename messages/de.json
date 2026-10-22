@@ -13,6 +13,8 @@
   "form_required": "Dieses Feld ist erforderlich.",
   "form_invalid": "Dieser Wert ist ungültig.",
   "tool_error": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+  "tool_rate_limited": "Zu viele Anfragen. Bitte warte eine Minute und versuche es erneut.",
+  "tool_verification_failed": "Die Überprüfung ist fehlgeschlagen. Bitte lade die Seite neu und versuche es erneut.",
   "tool_copy": "Kopieren",
   "tool_copied": "Kopiert",
   "search_open": "Tools durchsuchen",

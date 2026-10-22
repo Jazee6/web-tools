@@ -67,6 +67,28 @@ describe("checkContent", () => {
     expect(errors.some((error) => error.includes("fields.mode.options"))).toBe(true);
   });
 
+  it("requires column labels for table outputs", () => {
+    const tableTool = {
+      ...tool,
+      output: v.object({ rows: v.array(v.object({ name: v.string(), value: v.string() })) }),
+    } as unknown as AnyTool;
+    const output = (columns: Record<string, string>) =>
+      checkContent({
+        tools: [tableTool],
+        categories: ["developer"],
+        toolContent: [
+          toolFile({
+            data: { ...toolFile().data, output: { rows: { label: "Rows", columns } } },
+          }),
+        ],
+        categoryContent: [categoryFile],
+      }).errors;
+    expect(output({ name: "Name", value: "Value" })).toEqual([]);
+    expect(output({ name: "Name" }).some((error) => error.includes("output.rows.columns"))).toBe(
+      true,
+    );
+  });
+
   it("rejects broken internal links and bodies without sections", () => {
     const errors = run([toolFile({ body: "See [missing](/nope)." })]).errors;
     expect(errors.some((error) => error.includes("/nope"))).toBe(true);

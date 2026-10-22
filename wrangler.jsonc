@@ -2,7 +2,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "web-tools",
   "compatibility_date": "2026-10-12",
-  "compatibility_flags": ["global_fetch_strictly_public"],
+  "compatibility_flags": ["global_fetch_strictly_public", "nodejs_als"],
   "main": "@astrojs/cloudflare/entrypoints/server",
   // 不设 run_worker_first：Free 计划超出配额时静态请求不受影响（architecture §20）
   "assets": {
@@ -12,6 +12,23 @@
   "routes": [{ "pattern": "tools.jaze.top", "custom_domain": true }],
   "workers_dev": true,
   "preview_urls": true,
+  // 按 Cloudflare 节点近似计数，周期只能是 10 或 60 秒（architecture §20）。阈值按 Free 每天 10 万次请求配额定。
+  "ratelimits": [
+    // /api/tools/*：每个 IP 每个 Tool（网页调用另需 Turnstile）
+    {
+      "name": "TOOL_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 10, "period": 60 },
+    },
+    // Server-assisted Tool 对外请求：每个目标主机，防止被当作代理反复请求同一网站
+    {
+      "name": "TARGET_RATE_LIMITER",
+      "namespace_id": "1002",
+      "simple": { "limit": 30, "period": 60 },
+    },
+    // /mcp：每个 IP（匿名、无 Turnstile）
+    { "name": "MCP_RATE_LIMITER", "namespace_id": "1003", "simple": { "limit": 30, "period": 60 } },
+  ],
   "observability": {
     "enabled": true,
   },

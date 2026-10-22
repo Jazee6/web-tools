@@ -13,6 +13,8 @@
   "form_required": "此项为必填项。",
   "form_invalid": "此值无效。",
   "tool_error": "出了点问题，请重试。",
+  "tool_rate_limited": "请求过于频繁，请稍等一分钟再试。",
+  "tool_verification_failed": "人机验证失败，请刷新页面后重试。",
   "tool_copy": "复制",
   "tool_copied": "已复制",
   "search_open": "搜索工具",

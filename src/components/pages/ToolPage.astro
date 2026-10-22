@@ -2,13 +2,14 @@
 import { render } from "astro:content";
 
 import { loadTool } from "@/components/tool/tool-loader";
-import ToolIsland, { type ToolStrings } from "@/components/tool/ToolIsland";
+import ToolIsland, { type ToolAgentProps, type ToolStrings } from "@/components/tool/ToolIsland";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { type Catalog, categoryOf, type ToolNode } from "@/lib/catalog";
 import { hreflang, type Locale, localizePath } from "@/lib/i18n/locales";
 import { ogImagePath } from "@/lib/og";
 import { alternates, isIndexable } from "@/lib/seo/indexing";
 import { breadcrumbJsonLd, faqJsonLd, webApplicationJsonLd } from "@/lib/seo/json-ld";
+import { toolJsonSchemas } from "@/lib/tool-contract/json-schema";
 import { m } from "@/paraglide/messages";
 
 import PageBreadcrumb from "./PageBreadcrumb.astro";
@@ -35,6 +36,10 @@ const strings: ToolStrings = {
   output: data.output,
   errors: data.errors,
 };
+// WebMCP 的 inputSchema 在构建期派生后作为 props 传入 island
+const agent: ToolAgentProps | undefined = node.tool.agent.webmcp
+  ? { inputSchema: toolJsonSchemas(node.tool).input }
+  : undefined;
 
 const crumbs = [
   { name: m.nav_home(), path: localizePath(locale) },
@@ -81,7 +86,7 @@ const updated = new Intl.DateTimeFormat(hreflang[locale], { dateStyle: "long" })
     <p>{data.answer}</p>
 
     <div class="not-typeset py-6">
-      <ToolIsland client:load toolId={node.id} strings={strings} />
+      <ToolIsland client:load toolId={node.id} strings={strings} agent={agent} />
     </div>
 
     <h2>{m.tool_steps()}</h2>

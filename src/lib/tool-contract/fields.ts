@@ -3,17 +3,23 @@ import * as v from "valibot";
 import type { FieldMetadata, ToolSchema } from "./define-tool";
 
 // 表单派生只支持轻量 Tool 用到的基本类型；遇到其他类型直接报错，避免静默渲染成错误控件。
+// table 是对象数组（每列是字符串或数字），只用于输出。
 export type FieldSpec =
-  | { name: string; kind: "text" | "code" }
+  | { name: string; kind: "text" | "code" | "url" }
   | { name: string; kind: "number" }
   | { name: string; kind: "boolean" }
-  | { name: string; kind: "select"; options: string[] };
+  | { name: string; kind: "select"; options: string[] }
+  | { name: string; kind: "table"; columns: string[] };
 
 type AnySchema = v.GenericSchema & {
   wrapped?: AnySchema;
+  item?: AnySchema;
+  entries?: Record<string, AnySchema>;
   options?: readonly string[];
   pipe?: readonly { kind: string; type: string }[];
 };
+
+const isScalar = (schema: AnySchema) => schema.type === "string" || schema.type === "number";
 
 const unwrap = (schema: AnySchema): AnySchema =>
   schema.type === "optional" || schema.type === "nullish" ? unwrap(schema.wrapped!) : schema;
@@ -24,7 +30,7 @@ export const describeFields = (schema: ToolSchema): FieldSpec[] =>
     switch (base.type) {
       case "string": {
         const metadata = v.getMetadata(base) as FieldMetadata;
-        return { name, kind: metadata.widget === "code" ? "code" : "text" };
+        return { name, kind: metadata.widget ?? "text" };
       }
       case "number":
         return { name, kind: "number" };
@@ -32,6 +38,14 @@ export const describeFields = (schema: ToolSchema): FieldSpec[] =>
         return { name, kind: "boolean" };
       case "picklist":
         return { name, kind: "select", options: [...base.options!] };
+      case "array": {
+        const item = base.item!;
+        const columns = item.type === "object" ? Object.entries(item.entries!) : [];
+        if (columns.length > 0 && columns.every(([, column]) => isScalar(unwrap(column)))) {
+          return { name, kind: "table", columns: columns.map(([column]) => column) };
+        }
+        throw new Error(`字段 ${name} 的数组元素必须是字符串 / 数字列组成的对象`);
+      }
       default:
         throw new Error(`字段 ${name} 的类型 ${base.type} 不支持表单派生`);
     }
@@ -44,7 +58,13 @@ export const initialValues = (schema: ToolSchema): Record<string, unknown> => {
     describeFields(schema).map((field) => [
       field.name,
       defaults[field.name] ??
-        (field.kind === "boolean" ? false : field.kind === "select" ? field.options[0] : ""),
+        (field.kind === "boolean"
+          ? false
+          : field.kind === "select"
+            ? field.options[0]
+            : field.kind === "table"
+              ? []
+              : ""),
     ]),
   );
 };

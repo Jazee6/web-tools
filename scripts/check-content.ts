@@ -78,9 +78,22 @@ export const checkContent = ({ tools, categories, toolContent, categoryContent }
         );
       }
     }
-    const outputs = describeFields(tool.output).map((field) => field.name);
-    if (!sameKeys(Object.keys((file.data.output ?? {}) as object), outputs)) {
+    const outputFields = describeFields(tool.output);
+    const outputs = outputFields.map((field) => field.name);
+    const outputLabels = (file.data.output ?? {}) as Record<
+      string,
+      { columns?: Record<string, string> }
+    >;
+    if (!sameKeys(Object.keys(outputLabels), outputs)) {
       errors.push(`${file.path}：output 必须与 output 字段一一对应（${outputs.join(", ")}）`);
+    }
+    for (const field of outputFields) {
+      if (field.kind !== "table") continue;
+      if (!sameKeys(Object.keys(outputLabels[field.name]?.columns ?? {}), field.columns)) {
+        errors.push(
+          `${file.path}：output.${field.name}.columns 必须覆盖 ${field.columns.join(", ")}`,
+        );
+      }
     }
     // 骨架第 4 段：正文至少一个 H2（规格、限制与隐私说明）
     if (!/^## \S/m.test(file.body)) errors.push(`${file.path}：正文至少需要一个 "## " 小节`);

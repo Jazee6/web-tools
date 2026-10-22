@@ -31,7 +31,11 @@ const tools = defineCollection({
       z.string(),
       label.extend({ options: z.record(z.string(), z.string()).optional() }),
     ),
-    output: z.record(z.string(), label),
+    // 表格输出（对象数组）的列标题写在 columns
+    output: z.record(
+      z.string(),
+      label.extend({ columns: z.record(z.string(), z.string()).optional() }),
+    ),
     errors: z.record(z.string(), z.string()).default({}),
     steps: z.array(z.string().min(1)).min(2),
     faq: z.array(z.object({ q: z.string().min(1), a: z.string().min(1) })).min(3),

@@ -16,10 +16,17 @@ export default defineConfig({
         extends: true,
         plugins: [
           cloudflareTest({
-            // 暂无 Worker 路由；M2 起改为从 wrangler.jsonc 加载 Worker
+            // Worker 入口是 Astro 构建产物，测试直接调用 src/lib 下的路由逻辑（handleToolApi、handleMcp），
+            // 绑定在这里按 wrangler.jsonc 声明；限流阈值调低，便于测试 429。
             miniflare: {
               compatibilityDate: "2026-10-12",
-              compatibilityFlags: ["global_fetch_strictly_public"],
+              compatibilityFlags: ["global_fetch_strictly_public", "nodejs_als"],
+              bindings: { TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA" },
+              ratelimits: {
+                TOOL_RATE_LIMITER: { namespace_id: "1001", simple: { limit: 3, period: 60 } },
+                TARGET_RATE_LIMITER: { namespace_id: "1002", simple: { limit: 30, period: 60 } },
+                MCP_RATE_LIMITER: { namespace_id: "1003", simple: { limit: 3, period: 60 } },
+              },
             },
           }),
         ],

@@ -61,7 +61,7 @@
 | Q42 | Locale 路径代码 | 短代码 `/zh/`、`/pt/` 等 |
 | Q43 | 性能预算 | 按 §15 的数值执行 |
 | Q44 | Free 下的 Variant 渲染 | 先预渲染成静态文件，达到阈值再切换到按需 SSR |
-| Q45 | 远程 MCP 实现 | Cloudflare `agents` 的 `createMcpHandler`（无状态） |
+| Q45 | 远程 MCP 实现 | 官方 `@modelcontextprotocol/server` v2 的 `createMcpHandler`（无状态，不引入 `agents`，见 ADR-0014） |
 | Q46 | Service Worker / OG 图 | Service Worker 手写；OG 图用 takumi 在构建期输出 PNG |
 | Q47 | 小依赖 | 引入 Tailwind CSS v4、`@valibot/to-json-schema`、`schema-dts`、`@lhci/cli`；sitemap 生成和内容近似度检测自己写 |
 
@@ -99,7 +99,7 @@
 
 ## 4. 技术栈
 
-所有依赖均已确认（§1 Q17–Q20、Q25、Q32、Q45–Q47）。
+所有依赖均已确认（§1 Q17–Q20、Q25、Q32、Q45–Q47）；M2 起新增 `@modelcontextprotocol/server`、`@tanstack/react-table`（2026-10-22 确认）。
 
 | 层 | 选型 |
 |---|---|
@@ -113,7 +113,7 @@
 | 音视频 | Mediabunny + WebCodecs；ffmpeg.wasm 只给小众格式按需回退 |
 | PDF | pdf.js（渲染、提取文字）+ pdf-lib 活跃 fork（合并、拆分、编辑） |
 | 端侧 AI | Transformers.js（ONNX Runtime Web + WebGPU）；有浏览器内置 AI 时优先用 |
-| 远程 MCP | Cloudflare `agents` 的 `createMcpHandler`（无状态 Streamable HTTP，不使用 Durable Objects） |
+| 远程 MCP | `@modelcontextprotocol/server` v2 的 `createMcpHandler`（无状态 Streamable HTTP，不使用 Durable Objects；ADR-0014） |
 | SEO | `schema-dts`（JSON-LD 类型）、takumi（`@takumi-rs/core`，构建期生成 OG 图 PNG）、自写的 sitemap / hreflang / llms.txt 生成器 |
 | 部署 | Cloudflare Workers Free（→ Paid）+ Static Assets、R2、Rate Limiting、Turnstile、Analytics Engine、Web Analytics |
 | 工具链 | Bun（包管理、脚本）、oxlint + oxfmt、Vitest + `@cloudflare/vitest-plugin`、Playwright、`@lhci/cli` |
@@ -150,7 +150,8 @@
     ├── categories/              # Category 定义与各 Locale 内容
     ├── lib/
     │   ├── tool-contract/       # defineTool、JSON Schema 派生、表单派生
-    │   ├── agent/               # WebMCP 适配层、远程 MCP 适配
+    │   ├── agent/               # WebMCP 适配层（webmcp.ts）、远程 MCP（mcp.ts）
+│   ├── server/              # /api/tools 入口、共用执行器、SSRF 防护（safe-fetch）、Turnstile 校验
     │   ├── seo/                 # JSON-LD、hreflang、sitemap、llms.txt、OG 图生成
     │   ├── runtime/             # Worker RPC、能力探测、OPFS、模型加载
     │   └── telemetry/
@@ -184,7 +185,8 @@ export default defineTool({
     crossOriginIsolated: true,         // 需要 SharedArrayBuffer → 该页开启 COOP/COEP
     requires: ['wasm'],                // 能力探测：'webgpu' | 'webcodecs' | ...
   },
-  agent: { webmcp: true, remote: false },
+  // description：Agent Interface 的英文说明，和字段的 v.description() 一样写在契约里
+  agent: { webmcp: true, remote: false, description: 'Compress a JPEG, PNG, WebP or AVIF image…' },
   run: () => import('./core').then((m) => m.compress),
 })
 ```
@@ -195,6 +197,7 @@ export default defineTool({
 |---|---|
 | 页面表单（TanStack Form + Valibot） | `input`（含默认值）；字段提示写在 `v.metadata()`，文案来自内容 frontmatter |
 | JSON Schema（WebMCP / 远程 MCP 的 inputSchema、outputSchema，经 `@valibot/to-json-schema`） | `input`、`output` |
+| WebMCP / 远程 MCP 的 description | `agent.description` |
 | JSON-LD `WebApplication` | 元数据 + Locale 内容 |
 | ⌘K 索引、sitemap、llms.txt | 注册表 + 内容 + Review Status |
 | Playwright 冒烟测试 | `examples` |
@@ -203,7 +206,7 @@ export default defineTool({
 
 约束：
 
-- `core.ts` 不能 import UI、DOM 或 Astro；需要的环境能力（进度、取消、OPFS）通过 `ctx` 参数注入。
+- `core.ts` 不能 import UI、DOM 或 Astro；需要的环境能力（进度、取消、OPFS）通过 `ctx` 参数注入。Server-assisted Tool 的对外请求只能用服务端注入的 `ctx.fetch`（带 SSRF 防护和按目标限流），契约测试用同目录 `fixtures.ts` 的假 fetch 跑 `examples`。
 - `agent.remote: true` 要求输入输出都可以 JSON 序列化、不含文件，并且能在 Workers CPU 预算内跑完（Free 计划下每个请求只有 10ms）。
 - 文件型输入在 WebMCP 中以 Blob 传递，所以只能在页面内调用。
 - 契约里没有 `ui` 字段：页面表单从 `input` 派生，island 通过 `tool-loader` 按 id 懒加载 `tool.ts`（每个 Tool 一个分块）；服务端渲染前先加载好，客户端水合时挂起并保留服务端 HTML。
@@ -299,8 +302,8 @@ Variant 有两种渲染模式，由一个配置开关切换（路由的 `prerend
 
 ### 可被 agent 调用
 
-- **WebMCP（页面内）**：Tool island 挂载时，经 `lib/agent/webmcp.ts` 适配层注册当前 Tool：名称、描述、从 Valibot 生成的 JSON Schema，执行时调用同一个 `core`。API 名称还没稳定（`navigator.modelContext` 与 `document.modelContext` 两种说法并存，Chrome 仍处于试验阶段），所以适配层只做特性探测和渐进增强，以 developer.chrome.com 的最新文档为准，业务代码不直接依赖任何一个名字。
-- **远程 MCP（`/mcp`）**：和站点在同一个 Worker 内，用 Cloudflare `agents` 的 `createMcpHandler` 实现无状态 Streamable HTTP（具体 API 以实现时的 Cloudflare Agents 文档为准）；工具列表由注册表里 `agent.remote: true` 的 Tool 自动生成；匿名可用，按 IP/ASN 限流；Free 计划下，每次调用都占用每天的请求配额，并受 10ms CPU 约束。
+- **WebMCP（页面内）**：Tool island 挂载时，经 `lib/agent/webmcp.ts` 适配层注册当前 Tool：名称（Tool id）、`agent.description`、构建期从 Valibot 生成并作为 props 传入的 JSON Schema（浏览器不打包 `@valibot/to-json-schema`），执行时走和表单相同的调用入口（轻量 Tool 跑 `core`，Server-assisted Tool 经 Turnstile 调 `/api/tools`），结果同步显示在表单上；卸载时通过 `registerTool` 的 `signal` 注销。2026-10 的 Chrome 文档（origin trial，Chrome 149+）用的是 `document.modelContext.registerTool(tool, { signal })`，适配层同时探测 `navigator.modelContext`，以 developer.chrome.com 的最新文档为准。调用方看不到 `execute` reject 的原因，所以可预期错误以 `{ error: { code, … } }` 的 JSON 结果返回。
+- **远程 MCP（`/mcp`）**：和站点在同一个 Worker 内，用官方 SDK v2 的 `createMcpHandler` 实现无状态 Streamable HTTP（ADR-0014），同时兼容 2025 与 2026-07-28 两版协议；工具列表由注册表里 `agent.remote: true` 的 Tool 自动生成，结果同时给 `structuredContent` 和 JSON 文本，`ToolError` 以 `isError` 结果返回；匿名可用，按 IP 限流；Free 计划下，每次调用都占用每天的请求配额，并受 10ms CPU 约束。抓取任意网址的 Server-assisted Tool 不开放远程 MCP（ADR-0015）。
 - 重型媒体 Tool 不在服务端运行，只通过 WebMCP 在访客的浏览器里被调用。
 - Tool Variant 不注册独立的 Agent Interface；它的预设作为 Tool 描述里的调用示例。
 
@@ -351,10 +354,13 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 
 ## 14. Server-assisted Tool 与防滥用
 
-- 统一入口 `POST /api/tools/{id}`，用该 Tool 的 Valibot schema 校验输入，执行它的 `core`。
-- 网页调用需要附带无感 Turnstile token，并经过 Workers Rate Limiting 限流；远程 MCP 不需要 token，只按 IP/ASN 限流。
+- 统一入口 `POST /api/tools/{id}`（只接受 `runtime.where: 'server'` 的 Tool，避免变成轻量 Tool 的免费算力）：按 IP 限流 → 校验 Turnstile → 用该 Tool 的 Valibot schema 校验输入 → 执行它的 `core`。限流放在 Turnstile 之前，被拒的请求不再消耗 siteverify 子请求。
+- 错误统一为 `{ error: { code, field?, detail? } }`：400 输入无效、403 Turnstile 失败、404、405、413 请求体超过 16 KB、422 `ToolError`、429 限流（带 `Retry-After`）。平台级错误码（`rate_limited`、`verification_failed`）的文案在 `messages/*.json`，Tool 自身的错误码文案在内容 frontmatter。
+- 网页调用需要附带 Turnstile token（`x-turnstile-token` 头）：脚本在首次聚焦表单时按需加载，每次提交渲染一个 `execution: 'execute'`、`appearance: 'interaction-only'` 的 widget，拿到 token 后移除。site key 在 `src/lib/site.ts`，secret 是 Worker secret `TURNSTILE_SECRET_KEY`（未配置时拒绝所有调用）；开发和 CI 用官方测试 key。
+- 限流用三个 Rate Limiting binding：`TOOL_RATE_LIMITER`（每 IP 每 Tool）、`TARGET_RATE_LIMITER`（每个对外请求的目标主机）、`MCP_RATE_LIMITER`（`/mcp` 每 IP），阈值见 `wrangler.jsonc`。
 - 不记录请求体，只记录 Tool id、耗时、结果类别。
-- 对外请求（抓取 URL 等）要防 SSRF：拒绝内网地址，限制超时和响应大小。Free 计划下每个请求最多 50 个子请求。
+- 对外请求一律经 `lib/server/safe-fetch.ts`：只允许 http/https 和 80/443 端口，拒绝 IP 字面量中的内网和保留地址、`localhost`、单标签主机名、`.local` / `.internal` 等内网后缀以及本站；不自动跟随重定向，由 `core` 逐跳重新校验；主机名解析到内网的情况由 `global_fetch_strictly_public` 兜底；带 `WebToolsBot` User-Agent；总时长 8 秒。Free 计划下每个请求最多 50 个子请求。
+- 抓取任意网址的 Tool 只发 HEAD、按目标主机限流、不开放远程 MCP（ADR-0015）。
 
 ## 15. 性能预算（CI 强制）
 
@@ -436,9 +442,9 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 - 首发 7 个 Locale 都是从左到右书写，首期不处理 RTL。
 - hreflang 的 `x-default` 指向 en。
 - Variant 内容近似度阈值的具体数值，实现时根据样本确定。
-- **Workers Rate Limiting binding**：2025-09 已 GA，官方文档没有写计划限制，也没写 Free 有额度上限。推断 Free 可以用，第一次部署时实测确认；如果不可用，限流暂时改用 KV 计数。
+- **Workers Rate Limiting binding**：2025-09 已 GA，官方文档没有写计划限制，也没写 Free 有额度上限。M2 已按 binding 实现（本地 miniflare 测试通过），推断 Free 可以用，第一次部署时实测确认；如果不可用，限流暂时改用 KV 计数。
 - **Analytics Engine 写入和 Rate Limiting 调用**：文档没说是否计入每个请求 50 次的子请求上限。按计费规则推断，它们不占用每天的 Worker 请求配额。
-- `agents` 的 `createMcpHandler` 和 takumi 的具体 API 与 CSS 支持程度，以实现时的官方文档为准。
+- takumi 的具体 API 与 CSS 支持程度，以实现时的官方文档为准（已在 M1 验证）。`/mcp` 与 `/api/tools` 的实际 CPU 耗时，部署后在 Workers Observability 中核实不超过 10ms。
 
 ## 22. 风险与开放问题
 

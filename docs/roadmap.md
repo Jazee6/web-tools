@@ -65,15 +65,15 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 ### M2 Agent Interface 与 Server-assisted Tool
 
-- WebMCP 适配层：特性探测 `document.modelContext` 和 `navigator.modelContext`，渐进增强；在 Chrome 试验环境中实测。
-- 远程 MCP：在 `/mcp` 用 `agents` 的 `createMcpHandler` 实现，工具列表由 `agent.remote` 自动生成。
+- ✅ WebMCP 适配层（`src/lib/agent/webmcp.ts`）：特性探测 `document.modelContext` 和 `navigator.modelContext`，渐进增强；e2e 用桩对象验证注册与调用。⏳ 在 Chrome origin trial（149+）中实测。
+- ✅ 远程 MCP：`/mcp` 改用官方 `@modelcontextprotocol/server` v2 的 `createMcpHandler`（ADR-0014），工具列表由 `agent.remote` 自动生成；Agent Interface 的说明写在契约的 `agent.description`。
 - 防滥用：
-  - Rate Limiting binding，**在 Free 计划上实测是否可用**；不可用就退回 KV 计数。
-  - Turnstile。
-- 第一个 Server-assisted Tool（建议 DNS Lookup），包括 SSRF 防护和 10ms CPU 验证。
-- Paraglide 的 Locale 改为按请求隔离（例如 AsyncLocalStorage）：M0 用的 `globalVariable` 策略只适合逐页预渲染，Worker 并发处理请求时会串 Locale。
+  - ✅ Rate Limiting binding（每 IP 每 Tool、每目标主机、`/mcp` 每 IP），miniflare 测试通过。⏳ **在 Free 计划上实测是否可用**；不可用就退回 KV 计数。
+  - ✅ Turnstile：开发和 CI 用官方测试 key。⏳ 在 Cloudflare 后台创建 widget，更新 `src/lib/site.ts` 的 site key，并 `wrangler secret put TURNSTILE_SECRET_KEY`。
+- ✅ 第一个 Server-assisted Tool 改为 **HTTP Header Checker**（DNS Lookup 可以直接在浏览器里查询 DoH，不需要服务端，见 ADR-0002；改为后续的客户端 Tool）。包括 SSRF 防护（`src/lib/server/safe-fetch.ts`）、只发 HEAD、按目标主机限流，且不开放远程 MCP（ADR-0015）。⏳ 部署后在 Observability 中核实 10ms CPU。
+- ✅ Paraglide 的 Locale 改为按请求隔离：middleware 用 AsyncLocalStorage（`nodejs_als`），去掉 `globalVariable` 策略；workerd 中有并发不同 Locale 的测试。
 
-**退出条件**：MCP 客户端能列出并调用所有轻量 Tool；WebMCP 能在页面内调用 Tool；超过限流阈值后能正确拒绝。
+**退出条件**：MCP 客户端能列出并调用所有轻量 Tool；WebMCP 能在页面内调用 Tool；超过限流阈值后能正确拒绝。本地均已验证（workers 测试 + e2e）；Free 计划上的限流与 CPU、真实 Chrome 中的 WebMCP 待部署后确认。
 
 ### M3 重型客户端运行时 + PWA
 
@@ -95,7 +95,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - `variant.ts` 的 schema：预设、独有数据、`demand` 字段。
 - 准入门槛：预设校验、差异校验、独有数据非空、内容近似度检测（自写 shingling / MinHash，阈值根据样本确定）。
 - static 模式渲染、Variant 内链和面包屑、OG 图复用所属 Tool 的图。
-- **on-demand 模式同步实现，但默认关闭**：Variant 内容按 Tool × Locale 打包成 JSON，Worker 通过 `env.ASSETS` 读取后 SSR，写入带部署版本号的 Cache API。用 `@cloudflare/vitest-plugin` 测试，确保随时可以切换。前提是 Paraglide Locale 已按请求隔离（见 M2），并有并发不同 Locale 请求的测试，否则错 Locale 的页面会被写进缓存。
+- **on-demand 模式同步实现，但默认关闭**：Variant 内容按 Tool × Locale 打包成 JSON，Worker 通过 `env.ASSETS` 读取后 SSR，写入带部署版本号的 Cache API。用 `@cloudflare/vitest-plugin` 测试，确保随时可以切换。前提是 Paraglide Locale 已按请求隔离（见 M2），并有并发不同 Locale 请求的测试，否则错 Locale 的页面会被写进缓存。M2 的测试只验证了 AsyncLocalStorage 机制本身（手写的交错 await），还要补一个经过真实 Astro SSR 页面（流式渲染）的并发 Locale 测试。
 
 **退出条件**：样板 Variant 能通过准入门槛，故意构造的薄内容 Variant 会让构建失败；切换开关后两种模式的输出（HTML、sitemap、hreflang）一致。
 
@@ -128,13 +128,13 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 | Category | Tool | 备注 |
 |---|---|---|
-| 开发者 / 文本 / 换算 | JSON Formatter（M1 样板）、Base64 Encode/Decode、URL Encode/Decode、Hash Generator、UUID Generator、JWT Decoder、Regex Tester、Timestamp Converter、Color Converter、Word Counter、Case Converter、Unit Converter | 全部可设 `agent.remote: true` |
-| 开发者 | DNS Lookup | M2 样板 Server-assisted Tool |
+| 开发者 / 文本 / 换算 | JSON Formatter（M1 样板）、Base64 Encode/Decode、URL Encode/Decode、Hash Generator、UUID Generator、JWT Decoder、Regex Tester、Timestamp Converter、Color Converter、Word Counter、Case Converter、Unit Converter、DNS Lookup | 全部可设 `agent.remote: true`；DNS Lookup 在浏览器里查询 DoH |
+| 开发者 | HTTP Header Checker | M2 样板 Server-assisted Tool（已实现，`agent.remote: false`） |
 | 图片 | Image Compressor（M3 样板）、Image Converter、Image Resizer、Image Cropper、Background Remover | Background Remover 用 Transformers.js，需核对模型许可证 |
 | PDF / 文档 | Merge PDF（M3 样板）、Split PDF、PDF to Image、Image to PDF、Organize PDF（旋转、排序、删除页） | Image to PDF 的主 Category 是 PDF，同时列在图片下 |
 | 音视频 + 端侧 AI | Video Converter（M3 样板）、Trim Video、Extract Audio、Audio Converter、Speech to Text（M3 样板）、Image to Text（OCR） | 两个 AI Tool 都需核对模型许可证 |
 
-共 29 个。这些 Tool 都只用已确认的库；HEIC 解码、PDF 重压缩之类需要新依赖的 Tool 放到 P1，届时单独确认。
+共 30 个。这些 Tool 都只用已确认的库；HEIC 解码、PDF 重压缩之类需要新依赖的 Tool 放到 P1，届时单独确认。
 
 ---
 
@@ -168,7 +168,8 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 - 首发 Tool 候选清单需要确认。
 - Background Remover、Speech to Text、OCR 所用模型的许可证（必须允许商用）。
-- Rate Limiting binding 在 Free 计划上是否可用（M2 实测）。
+- Rate Limiting binding 在 Free 计划上是否可用（M2 已实现，待部署实测）。
+- Turnstile 正式 widget 与 secret（M2 目前用测试 key）。
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
-- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB。
+- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB）。
 - 内容近似度阈值（M4 根据样本确定）。

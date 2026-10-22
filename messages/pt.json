@@ -13,6 +13,8 @@
   "form_required": "Este campo é obrigatório.",
   "form_invalid": "Este valor não é válido.",
   "tool_error": "Algo deu errado. Tente novamente.",
+  "tool_rate_limited": "Muitas requisições. Aguarde um minuto e tente de novo.",
+  "tool_verification_failed": "A verificação falhou. Recarregue a página e tente de novo.",
   "tool_copy": "Copiar",
   "tool_copied": "Copiado",
   "search_open": "Buscar ferramentas",

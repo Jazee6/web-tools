@@ -13,6 +13,8 @@
   "form_required": "この項目は必須です。",
   "form_invalid": "この値は無効です。",
   "tool_error": "問題が発生しました。もう一度お試しください。",
+  "tool_rate_limited": "リクエストが多すぎます。1 分ほど待ってから再度お試しください。",
+  "tool_verification_failed": "確認に失敗しました。ページを再読み込みしてもう一度お試しください。",
   "tool_copy": "コピー",
   "tool_copied": "コピーしました",
   "search_open": "ツールを検索",

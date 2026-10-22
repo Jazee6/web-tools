@@ -38,6 +38,11 @@ export default defineTool({
     },
   ],
   runtime: { where: "client" },
-  agent: { webmcp: true, remote: true },
+  agent: {
+    webmcp: true,
+    remote: true,
+    description:
+      "Validate a JSON document and pretty-print it with 2 or 4 spaces or tabs, or minify it to one line, optionally sorting object keys recursively. Fails with error code invalid_json when the input is not valid JSON.",
+  },
   run: () => import("./core").then((m) => m.formatJson),
 });

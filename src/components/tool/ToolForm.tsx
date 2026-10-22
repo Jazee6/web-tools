@@ -1,6 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { CheckIcon, CopyIcon } from "lucide-react";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import * as v from "valibot";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -15,12 +14,6 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupTextarea,
-} from "@/components/ui/input-group";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -30,9 +23,14 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { registerWebMcpTool } from "@/lib/agent/webmcp";
 import { type AnyTool, ToolError } from "@/lib/tool-contract/define-tool";
 import { describeFields, type FieldSpec, initialValues } from "@/lib/tool-contract/fields";
 import { m } from "@/paraglide/messages";
+
+import { invokeTool } from "./invoke";
+import { type OutputLabel, ToolOutput } from "./ToolOutput";
+import { getTurnstileToken, loadTurnstile } from "./turnstile";
 
 interface Label {
   label: string;
@@ -43,8 +41,13 @@ interface Label {
 export interface ToolStrings {
   action: string;
   fields: Record<string, Label & { options?: Record<string, string> }>;
-  output: Record<string, Label>;
+  output: Record<string, OutputLabel>;
   errors: Record<string, string>;
+}
+
+// WebMCP 注册所需、构建期从契约派生的数据（JSON Schema 不在浏览器里生成，避免打包 @valibot/to-json-schema）
+export interface ToolAgentProps {
+  inputSchema: object;
 }
 
 type Values = Record<string, unknown>;
@@ -60,29 +63,38 @@ const noopSubscribe = () => () => {};
 const issueMessage = (issue: v.BaseIssue<unknown>) =>
   issue.type === "non_empty" || issue.type === "min_length" ? m.form_required() : m.form_invalid();
 
-function CopyButton({ value }: { value: string }) {
-  const [copied, setCopied] = useState(false);
-  useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), 1500);
-    return () => clearTimeout(timer);
-  }, [copied]);
-  return (
-    <InputGroupButton
-      variant="ghost"
-      onClick={() => navigator.clipboard.writeText(value).then(() => setCopied(true))}
-    >
-      {copied ? <CheckIcon /> : <CopyIcon />}
-      {copied ? m.tool_copied() : m.tool_copy()}
-    </InputGroupButton>
-  );
-}
+// 平台级错误码（/api/tools 返回）的文案在 messages，Tool 自身的错误码文案在内容 frontmatter
+const platformErrors: Record<string, () => string> = {
+  rate_limited: m.tool_rate_limited,
+  verification_failed: m.tool_verification_failed,
+  invalid_input: m.form_invalid,
+};
 
-export function ToolForm({ tool, strings }: { tool: AnyTool; strings: ToolStrings }) {
+const errorMessage = (error: unknown, strings: ToolStrings): string | undefined => {
+  if (!(error instanceof ToolError)) return undefined;
+  const message = strings.errors[error.code] ?? platformErrors[error.code]?.();
+  if (!message) return undefined;
+  return strings.errors[error.code] ? [message, error.detail].filter(Boolean).join(" ") : message;
+};
+
+export function ToolForm({
+  tool,
+  strings,
+  agent,
+}: {
+  tool: AnyTool;
+  strings: ToolStrings;
+  agent?: ToolAgentProps;
+}) {
   const fields = useMemo(() => describeFields(tool.input), [tool]);
   const outputFields = useMemo(() => describeFields(tool.output), [tool]);
   const [output, setOutput] = useState<Values>();
   const [runError, setRunError] = useState<RunError>();
+  const server = tool.runtime.where === "server";
+  // Server-assisted Tool 的 Turnstile widget 渲染在这里（需要交互时才可见）
+  const challenge = useRef<HTMLDivElement>(null);
+  const getToken = useCallback(() => getTurnstileToken(challenge.current!), []);
+  const formRef = useRef<HTMLFormElement>(null);
 
   // 服务端与水合阶段为 false，水合完成后为 true（e2e 据此等待可交互）
   const hydrated = useSyncExternalStore(
@@ -91,8 +103,19 @@ export function ToolForm({ tool, strings }: { tool: AnyTool; strings: ToolString
     () => false,
   );
 
-  // 空闲时预取 core，首次提交不用再等网络；requestIdleCallback 不可用时（Safari）退回 setTimeout
+  // Server-assisted Tool：首次聚焦表单时预取 Turnstile 脚本，提交时不用再等
   useEffect(() => {
+    const element = formRef.current;
+    if (!server || !element) return;
+    const preload = () => void loadTurnstile().catch(() => {});
+    element.addEventListener("focusin", preload, { once: true });
+    return () => element.removeEventListener("focusin", preload);
+  }, [server]);
+
+  // 空闲时预取 core，首次提交不用再等网络；requestIdleCallback 不可用时（Safari）退回 setTimeout。
+  // Server-assisted Tool 的 core 只在服务端运行，不预取。
+  useEffect(() => {
+    if (server) return;
     const prefetch = () => void tool.run();
     if ("requestIdleCallback" in window) {
       const id = requestIdleCallback(prefetch);
@@ -100,7 +123,7 @@ export function ToolForm({ tool, strings }: { tool: AnyTool; strings: ToolString
     }
     const id = setTimeout(prefetch, 1);
     return () => clearTimeout(id);
-  }, [tool]);
+  }, [tool, server]);
 
   const form = useForm({
     defaultValues: initialValues(tool.input),
@@ -119,20 +142,59 @@ export function ToolForm({ tool, strings }: { tool: AnyTool; strings: ToolString
     onSubmit: async ({ value }) => {
       setRunError(undefined);
       try {
-        const run = await tool.run();
-        setOutput(await run(v.parse(tool.input, value), {}));
+        setOutput(await invokeTool(tool, v.parse(tool.input, value), getToken));
       } catch (error) {
         setOutput(undefined);
-        if (error instanceof ToolError && strings.errors[error.code]) {
-          const message = [strings.errors[error.code], error.detail].filter(Boolean).join(" ");
-          setRunError({ field: error.field, message });
-        } else {
-          console.error(error);
-          setRunError({ message: m.tool_error() });
-        }
+        const message = errorMessage(error, strings);
+        if (!message) console.error(error);
+        setRunError({
+          field: error instanceof ToolError ? error.field : undefined,
+          message: message ?? m.tool_error(),
+        });
       }
     },
   });
+
+  // WebMCP：把当前 Tool 注册给页面内的 agent，执行结果同步显示在表单上；卸载时注销
+  useEffect(() => {
+    if (!agent || !tool.agent.webmcp) return;
+    const controller = new AbortController();
+    void registerWebMcpTool(
+      {
+        name: tool.id,
+        description: tool.agent.description,
+        inputSchema: agent.inputSchema,
+        annotations: { readOnlyHint: true, untrustedContentHint: server },
+        execute: async (args) => {
+          const parsed = v.safeParse(tool.input, args);
+          if (!parsed.success) {
+            const issues = parsed.issues.map((issue) => ({
+              path: v.getDotPath(issue),
+              message: issue.message,
+            }));
+            return JSON.stringify({ error: { code: "invalid_input", issues } });
+          }
+          for (const [name, value] of Object.entries(parsed.output)) {
+            form.setFieldValue(name, value as never);
+          }
+          try {
+            const result = await invokeTool(tool, parsed.output, getToken);
+            setRunError(undefined);
+            setOutput(result);
+            return JSON.stringify(result);
+          } catch (error) {
+            if (!(error instanceof ToolError)) throw error;
+            const { code, field, detail } = error;
+            return JSON.stringify({
+              error: { code, field, detail, message: errorMessage(error, strings) },
+            });
+          }
+        },
+      },
+      controller.signal,
+    );
+    return () => controller.abort();
+  }, [agent, tool, server, form, getToken, strings]);
 
   const renderControl = (
     spec: FieldSpec,
@@ -151,6 +213,22 @@ export function ToolForm({ tool, strings }: { tool: AnyTool; strings: ToolString
       field.handleChange(value as never);
     };
     switch (spec.kind) {
+      case "url":
+        return (
+          <Input
+            id={id}
+            name={field.name}
+            type="url"
+            inputMode="url"
+            autoComplete="url"
+            value={String(field.state.value)}
+            placeholder={label?.placeholder}
+            aria-invalid={invalid}
+            spellCheck={false}
+            onBlur={field.handleBlur}
+            onChange={(event) => onChange(event.target.value)}
+          />
+        );
       case "code":
       case "text":
         return (
@@ -214,12 +292,15 @@ export function ToolForm({ tool, strings }: { tool: AnyTool; strings: ToolString
           </Select>
         );
       }
+      case "table":
+        throw new Error(`表格字段 ${spec.name} 只能用于输出`);
     }
   };
 
   return (
     <div className="flex flex-col gap-6" data-hydrated={hydrated || undefined}>
       <form
+        ref={formRef}
         noValidate
         onSubmit={(event) => {
           event.preventDefault();
@@ -268,6 +349,7 @@ export function ToolForm({ tool, strings }: { tool: AnyTool; strings: ToolString
             </form.Subscribe>
           </FieldGroup>
         </FieldSet>
+        {server && <div ref={challenge} />}
       </form>
 
       {runError && !runError.field && (
@@ -277,28 +359,14 @@ export function ToolForm({ tool, strings }: { tool: AnyTool; strings: ToolString
       )}
 
       {output &&
-        outputFields.map((spec) => {
-          const value = String(output[spec.name] ?? "");
-          return (
-            <Field key={spec.name} data-output={spec.name}>
-              <FieldLabel htmlFor={`tool-output-${spec.name}`}>
-                {strings.output[spec.name]?.label ?? spec.name}
-              </FieldLabel>
-              <InputGroup>
-                <InputGroupTextarea
-                  id={`tool-output-${spec.name}`}
-                  readOnly
-                  value={value}
-                  spellCheck={false}
-                  variant={spec.kind === "code" ? "code" : "default"}
-                />
-                <InputGroupAddon align="block-end" className="justify-end">
-                  <CopyButton value={value} />
-                </InputGroupAddon>
-              </InputGroup>
-            </Field>
-          );
-        })}
+        outputFields.map((spec) => (
+          <ToolOutput
+            key={spec.name}
+            spec={spec}
+            value={output[spec.name]}
+            label={strings.output[spec.name]}
+          />
+        ))}
     </div>
   );
 }

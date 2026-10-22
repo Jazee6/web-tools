@@ -28,8 +28,8 @@ export default defineConfig({
         project: "./project.inlang",
         outdir: "./src/paraglide",
         emitTsDeclarations: true,
-        // globalVariable 只适用于预渲染；出现 SSR 路由（M2）时需改为按请求隔离的方案。
-        strategy: ["url", "globalVariable", "baseLocale"],
+        // 服务端由 middleware 的 AsyncLocalStorage 决定 Locale，浏览器端从 URL 取。
+        strategy: ["url", "baseLocale"],
       }),
     ],
   },

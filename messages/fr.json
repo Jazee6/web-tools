@@ -13,6 +13,8 @@
   "form_required": "Ce champ est obligatoire.",
   "form_invalid": "Cette valeur n’est pas valide.",
   "tool_error": "Un problème est survenu. Veuillez réessayer.",
+  "tool_rate_limited": "Trop de requêtes. Patientez une minute puis réessayez.",
+  "tool_verification_failed": "La vérification a échoué. Rechargez la page puis réessayez.",
   "tool_copy": "Copier",
   "tool_copied": "Copié",
   "search_open": "Rechercher des outils",

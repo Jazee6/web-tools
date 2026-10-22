@@ -9,13 +9,16 @@ export type Capability = "wasm" | "webgpu" | "webcodecs" | "opfs";
 
 // 表单派生用的字段提示，写在 schema 的 v.metadata() 中；派生 JSON Schema 时会被忽略。
 export type FieldMetadata = {
-  widget?: "code";
+  // code：等宽多行；url：单行网址输入；默认是普通多行文本
+  widget?: "code" | "url";
 };
 
 // 环境能力只能经 ctx 注入，core.ts 不能直接依赖 DOM / UI（ADR-0003）。
+// fetch 只注入给 Server-assisted Tool：服务端传入带 SSRF 防护的 safeFetch，测试传入假实现。
 export interface ToolContext {
   signal?: AbortSignal;
   onProgress?: (ratio: number) => void;
+  fetch?: (url: URL, init?: RequestInit) => Promise<Response>;
 }
 
 // core 抛出的可预期错误：code 对应内容 frontmatter 里 errors 的文案键，
@@ -63,7 +66,13 @@ export interface ToolDefinition<
     crossOriginIsolated?: boolean;
     requires?: readonly Capability[];
   };
-  agent: { webmcp: boolean; remote: boolean };
+  agent: {
+    webmcp: boolean;
+    remote: boolean;
+    // Agent Interface 的英文说明（WebMCP / 远程 MCP 的 description），和字段的 v.description() 一样写在契约里；
+    // 页面文案在内容 frontmatter，按 Locale 翻译。说明 Tool 做什么、返回什么、有哪些错误码。
+    description: string;
+  };
   run: () => Promise<ToolRun<TIn, TOut>>;
 }
 
