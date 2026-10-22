@@ -356,7 +356,7 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 
 - 统一入口 `POST /api/tools/{id}`（只接受 `runtime.where: 'server'` 的 Tool，避免变成轻量 Tool 的免费算力）：按 IP 限流 → 校验 Turnstile → 用该 Tool 的 Valibot schema 校验输入 → 执行它的 `core`。限流放在 Turnstile 之前，被拒的请求不再消耗 siteverify 子请求。
 - 错误统一为 `{ error: { code, field?, detail? } }`：400 输入无效、403 Turnstile 失败、404、405、413 请求体超过 16 KB、422 `ToolError`、429 限流（带 `Retry-After`）。平台级错误码（`rate_limited`、`verification_failed`）的文案在 `messages/*.json`，Tool 自身的错误码文案在内容 frontmatter。
-- 网页调用需要附带 Turnstile token（`x-turnstile-token` 头）：脚本在首次聚焦表单时按需加载，每次提交渲染一个 `execution: 'execute'`、`appearance: 'interaction-only'` 的 widget，拿到 token 后移除。site key 在 `src/lib/site.ts`，secret 是 Worker secret `TURNSTILE_SECRET_KEY`（未配置时拒绝所有调用）；开发和 CI 用官方测试 key。
+- 网页调用需要附带 Turnstile token（`x-turnstile-token` 头）：脚本在首次聚焦表单时按需加载，每次提交渲染一个 `execution: 'execute'`、`appearance: 'interaction-only'` 的 widget，拿到 token 后移除。site key 是 `wrangler.jsonc` 的 `vars.TURNSTILE_SITE_KEY`（构建期写进页面，为空时构建失败），secret 是 Worker secret `TURNSTILE_SECRET_KEY`（未配置时拒绝所有调用）；本地开发在 `.dev.vars` 里用官方测试 key 覆盖两者，CI 的 e2e 给 Turnstile 打桩。
 - 限流用三个 Rate Limiting binding：`TOOL_RATE_LIMITER`（每 IP 每 Tool）、`TARGET_RATE_LIMITER`（每个对外请求的目标主机）、`MCP_RATE_LIMITER`（`/mcp` 每 IP），阈值见 `wrangler.jsonc`。
 - 不记录请求体，只记录 Tool id、耗时、结果类别。
 - 对外请求一律经 `lib/server/safe-fetch.ts`：只允许 http/https 和 80/443 端口，拒绝 IP 字面量中的内网和保留地址、`localhost`、单标签主机名、`.local` / `.internal` 等内网后缀以及本站；不自动跟随重定向，由 `core` 逐跳重新校验；主机名解析到内网的情况由 `global_fetch_strictly_public` 兜底；带 `WebToolsBot` User-Agent；总时长 8 秒。Free 计划下每个请求最多 50 个子请求。

@@ -69,7 +69,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ✅ 远程 MCP：`/mcp` 改用官方 `@modelcontextprotocol/server` v2 的 `createMcpHandler`（ADR-0014），工具列表由 `agent.remote` 自动生成；Agent Interface 的说明写在契约的 `agent.description`。
 - 防滥用：
   - ✅ Rate Limiting binding（每 IP 每 Tool、每目标主机、`/mcp` 每 IP），miniflare 测试通过。⏳ **在 Free 计划上实测是否可用**；不可用就退回 KV 计数。
-  - ✅ Turnstile：开发和 CI 用官方测试 key。⏳ 在 Cloudflare 后台创建 widget，更新 `src/lib/site.ts` 的 site key，并 `wrangler secret put TURNSTILE_SECRET_KEY`。
+  - ✅ Turnstile：开发和 CI 用官方测试 key。⏳ 在 Cloudflare 后台创建 widget，把 site key 填进 `wrangler.jsonc` 的 `vars.TURNSTILE_SITE_KEY`，并 `wrangler secret put TURNSTILE_SECRET_KEY`。
 - ✅ 第一个 Server-assisted Tool 改为 **HTTP Header Checker**（DNS Lookup 可以直接在浏览器里查询 DoH，不需要服务端，见 ADR-0002；改为后续的客户端 Tool）。包括 SSRF 防护（`src/lib/server/safe-fetch.ts`）、只发 HEAD、按目标主机限流，且不开放远程 MCP（ADR-0015）。⏳ 部署后在 Observability 中核实 10ms CPU。
 - ✅ Paraglide 的 Locale 改为按请求隔离：middleware 用 AsyncLocalStorage（`nodejs_als`），去掉 `globalVariable` 策略；workerd 中有并发不同 Locale 的测试。
 

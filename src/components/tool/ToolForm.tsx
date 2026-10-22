@@ -50,6 +50,11 @@ export interface ToolAgentProps {
   inputSchema: object;
 }
 
+// 只有 Server-assisted Tool 页需要的运行时配置，构建期从 Worker vars 读出
+export interface ToolServerProps {
+  turnstileSiteKey: string;
+}
+
 type Values = Record<string, unknown>;
 
 // 字段级错误：Valibot 校验失败的路径，或 core 抛出的 ToolError（code 与字段同名时显示在该字段下）
@@ -81,10 +86,12 @@ export function ToolForm({
   tool,
   strings,
   agent,
+  server: serverProps,
 }: {
   tool: AnyTool;
   strings: ToolStrings;
   agent?: ToolAgentProps;
+  server?: ToolServerProps;
 }) {
   const fields = useMemo(() => describeFields(tool.input), [tool]);
   const outputFields = useMemo(() => describeFields(tool.output), [tool]);
@@ -93,7 +100,8 @@ export function ToolForm({
   const server = tool.runtime.where === "server";
   // Server-assisted Tool 的 Turnstile widget 渲染在这里（需要交互时才可见）
   const challenge = useRef<HTMLDivElement>(null);
-  const getToken = useCallback(() => getTurnstileToken(challenge.current!), []);
+  const siteKey = serverProps?.turnstileSiteKey ?? "";
+  const getToken = useCallback(() => getTurnstileToken(challenge.current!, siteKey), [siteKey]);
   const formRef = useRef<HTMLFormElement>(null);
 
   // 服务端与水合阶段为 false，水合完成后为 true（e2e 据此等待可交互）

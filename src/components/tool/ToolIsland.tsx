@@ -1,14 +1,15 @@
 import { Suspense } from "react";
 
 import { useTool } from "./tool-loader";
-import { type ToolAgentProps, ToolForm, type ToolStrings } from "./ToolForm";
+import { type ToolAgentProps, ToolForm, type ToolServerProps, type ToolStrings } from "./ToolForm";
 
-export type { ToolAgentProps, ToolStrings };
+export type { ToolAgentProps, ToolServerProps, ToolStrings };
 
 interface Props {
   toolId: string;
   strings: ToolStrings;
   agent?: ToolAgentProps;
+  server?: ToolServerProps;
 }
 
 function LoadedTool({ toolId, ...props }: Props) {

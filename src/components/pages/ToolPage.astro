@@ -1,8 +1,13 @@
 ---
 import { render } from "astro:content";
+import { env } from "cloudflare:workers";
 
 import { loadTool } from "@/components/tool/tool-loader";
-import ToolIsland, { type ToolAgentProps, type ToolStrings } from "@/components/tool/ToolIsland";
+import ToolIsland, {
+  type ToolAgentProps,
+  type ToolServerProps,
+  type ToolStrings,
+} from "@/components/tool/ToolIsland";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { type Catalog, categoryOf, type ToolNode } from "@/lib/catalog";
 import { hreflang, type Locale, localizePath } from "@/lib/i18n/locales";
@@ -40,6 +45,15 @@ const strings: ToolStrings = {
 const agent: ToolAgentProps | undefined = node.tool.agent.webmcp
   ? { inputSchema: toolJsonSchemas(node.tool).input }
   : undefined;
+// Server-assisted Tool 页的 Turnstile site key，来自 wrangler.jsonc 的 vars（本地由 .dev.vars 覆盖为测试 key）
+let server: ToolServerProps | undefined;
+if (node.tool.runtime.where === "server") {
+  if (!env.TURNSTILE_SITE_KEY) {
+    // 预渲染错误经响应头传回构建进程，只能用 ASCII
+    throw new Error("TURNSTILE_SITE_KEY is empty: set it under vars in wrangler.jsonc");
+  }
+  server = { turnstileSiteKey: env.TURNSTILE_SITE_KEY };
+}
 
 const crumbs = [
   { name: m.nav_home(), path: localizePath(locale) },
@@ -86,7 +100,7 @@ const updated = new Intl.DateTimeFormat(hreflang[locale], { dateStyle: "long" })
     <p>{data.answer}</p>
 
     <div class="not-typeset py-6">
-      <ToolIsland client:load toolId={node.id} strings={strings} agent={agent} />
+      <ToolIsland client:load toolId={node.id} strings={strings} agent={agent} server={server} />
     </div>
 
     <h2>{m.tool_steps()}</h2>

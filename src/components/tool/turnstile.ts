@@ -1,4 +1,3 @@
-import { site } from "@/lib/site";
 import { ToolError } from "@/lib/tool-contract/define-tool";
 
 // Turnstile 只在 Server-assisted Tool 页按需加载：首次聚焦表单时预取脚本，提交时取 token。
@@ -47,13 +46,16 @@ export const loadTurnstile = (): Promise<Turnstile> => {
   return script;
 };
 
-export const getTurnstileToken = async (container: HTMLElement): Promise<string> => {
+export const getTurnstileToken = async (
+  container: HTMLElement,
+  sitekey: string,
+): Promise<string> => {
   const turnstile = await loadTurnstile();
   let widgetId = "";
   try {
     return await new Promise<string>((resolve, reject) => {
       widgetId = turnstile.render(container, {
-        sitekey: site.turnstileSiteKey,
+        sitekey,
         execution: "execute",
         appearance: "interaction-only",
         callback: resolve,
