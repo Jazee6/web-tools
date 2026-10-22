@@ -27,6 +27,8 @@ jobs:
       - run: bun run build
       - run: bun run check:limits
       - run: bun run check:seo
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:e2e
 
   preview:
     if: github.event_name == 'pull_request'

@@ -174,9 +174,9 @@ export default defineTool({
   id: 'image-compressor',              // 即英文 slug，全站唯一且永久（和 Category slug 共用命名空间）
   category: 'image',
   alsoListedIn: ['web'],
-  input: v.object({ file: vFile({ accept: ['image/*'] }), quality: v.pipe(v.number(), v.minValue(1), v.maxValue(100)) }),
+  // 默认值写在 schema 里（v.optional(schema, default)），表单初始值和 JSON Schema 的 default 都从这里取
+  input: v.object({ file: vFile({ accept: ['image/*'] }), quality: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100)), 75) }),
   output: v.object({ file: vFile() }),
-  defaults: { quality: 75 },
   examples: [/* 示例输入与期望输出，用于 e2e、MCP 文档和 JSON-LD */],
   runtime: {
     where: 'client',                   // 'client' | 'server'（Server-assisted Tool）
@@ -186,7 +186,6 @@ export default defineTool({
   },
   agent: { webmcp: true, remote: false },
   run: () => import('./core').then((m) => m.compress),
-  ui: () => import('./ui'),
 })
 ```
 
@@ -194,7 +193,7 @@ export default defineTool({
 
 | 派生物 | 用到的字段 |
 |---|---|
-| 页面表单（TanStack Form + Valibot） | `input`、`defaults` |
+| 页面表单（TanStack Form + Valibot） | `input`（含默认值）；字段提示写在 `v.metadata()`，文案来自内容 frontmatter |
 | JSON Schema（WebMCP / 远程 MCP 的 inputSchema、outputSchema，经 `@valibot/to-json-schema`） | `input`、`output` |
 | JSON-LD `WebApplication` | 元数据 + Locale 内容 |
 | ⌘K 索引、sitemap、llms.txt | 注册表 + 内容 + Review Status |
@@ -207,6 +206,8 @@ export default defineTool({
 - `core.ts` 不能 import UI、DOM 或 Astro；需要的环境能力（进度、取消、OPFS）通过 `ctx` 参数注入。
 - `agent.remote: true` 要求输入输出都可以 JSON 序列化、不含文件，并且能在 Workers CPU 预算内跑完（Free 计划下每个请求只有 10ms）。
 - 文件型输入在 WebMCP 中以 Blob 传递，所以只能在页面内调用。
+- 契约里没有 `ui` 字段：页面表单从 `input` 派生，island 通过 `tool-loader` 按 id 懒加载 `tool.ts`（每个 Tool 一个分块）；服务端渲染前先加载好，客户端水合时挂起并保留服务端 HTML。
+- `core` 的可预期错误抛 `ToolError(code, { field, detail })`：`code` 对应内容 frontmatter 的 `errors` 文案，`field` 指明在哪个字段下行内显示。
 
 ## 7. 渲染与路由
 
@@ -271,7 +272,7 @@ Variant 有两种渲染模式，由一个配置开关切换（路由的 `prerend
 ## 9. SEO
 
 - **每页**：自引用 canonical、hreflang 集合、精确的 `<title>` 和 meta description（来自内容 frontmatter）、OG 图。
-- **OG 图**：构建时用 takumi 把 JSX 模板直接渲染成 PNG，每个 Tool × Locale 一张，CJK 字体按 Locale 传入；Variant 复用所属 Tool 的图。实现第一步先用一个 CJK 模板验证 takumi 的 CSS 支持是否够用。
+- **OG 图**：构建时用 takumi 把 JSX 模板直接渲染成 PNG，每个 Tool × Locale 一张，CJK 字体按 Locale 传入；Variant 复用所属 Tool 的图。takumi 是 Node 原生模块，不能在 workerd 预渲染中运行，所以 OG 图和 `_redirects`、`_headers` 一起由构建后脚本 `scripts/postbuild.ts` 生成。
 - **JSON-LD**（用 `schema-dts` 约束类型）：
   - Tool / Variant 页：`WebApplication`（免费 `offers`、`featureList`）+ `BreadcrumbList`（按主 Category）+ `FAQPage`。
   - Category 页：`CollectionPage` + `ItemList`。

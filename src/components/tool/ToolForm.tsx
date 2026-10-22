@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import * as v from "valibot";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -55,6 +55,8 @@ interface RunError {
   message: string;
 }
 
+const noopSubscribe = () => () => {};
+
 const issueMessage = (issue: v.BaseIssue<unknown>) =>
   issue.type === "non_empty" || issue.type === "min_length" ? m.form_required() : m.form_invalid();
 
@@ -82,10 +84,22 @@ export function ToolForm({ tool, strings }: { tool: AnyTool; strings: ToolString
   const [output, setOutput] = useState<Values>();
   const [runError, setRunError] = useState<RunError>();
 
-  // 空闲时预取 core，首次提交不用再等网络
+  // 服务端与水合阶段为 false，水合完成后为 true（e2e 据此等待可交互）
+  const hydrated = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
+
+  // 空闲时预取 core，首次提交不用再等网络；requestIdleCallback 不可用时（Safari）退回 setTimeout
   useEffect(() => {
-    const id = requestIdleCallback(() => void tool.run());
-    return () => cancelIdleCallback(id);
+    const prefetch = () => void tool.run();
+    if ("requestIdleCallback" in window) {
+      const id = requestIdleCallback(prefetch);
+      return () => cancelIdleCallback(id);
+    }
+    const id = setTimeout(prefetch, 1);
+    return () => clearTimeout(id);
   }, [tool]);
 
   const form = useForm({
@@ -204,7 +218,7 @@ export function ToolForm({ tool, strings }: { tool: AnyTool; strings: ToolString
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6" data-hydrated={hydrated || undefined}>
       <form
         noValidate
         onSubmit={(event) => {

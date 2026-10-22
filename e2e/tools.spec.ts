@@ -42,8 +42,8 @@ for (const tool of tools) {
     tool.examples.forEach((example, index) => {
       test(`example ${index} produces the expected output`, async ({ page }) => {
         await page.goto(`/${tool.id}`);
-        // 等待 island 水合完成（core 在空闲时预取）
-        await page.waitForSelector("astro-island:not([ssr])");
+        // 等待 Tool island 水合完成
+        await page.waitForSelector("[data-hydrated]");
         const input = v.parse(tool.input, example.input) as Record<string, unknown>;
         for (const spec of describeFields(tool.input)) {
           await fill(page, spec.name, spec.kind, input[spec.name]);
