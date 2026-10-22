@@ -68,12 +68,12 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ✅ WebMCP 适配层（`src/lib/agent/webmcp.ts`）：特性探测 `document.modelContext` 和 `navigator.modelContext`，渐进增强；e2e 用桩对象验证注册与调用。⏳ 在 Chrome origin trial（149+）中实测。
 - ✅ 远程 MCP：`/mcp` 改用官方 `@modelcontextprotocol/server` v2 的 `createMcpHandler`（ADR-0014），工具列表由 `agent.remote` 自动生成；Agent Interface 的说明写在契约的 `agent.description`。
 - 防滥用：
-  - ✅ Rate Limiting binding（每 IP 每 Tool、每目标主机、`/mcp` 每 IP），miniflare 测试通过。⏳ **在 Free 计划上实测是否可用**；不可用就退回 KV 计数。
-  - ✅ Turnstile：开发和 CI 用官方测试 key。⏳ 在 Cloudflare 后台创建 widget，把 site key 填进 `wrangler.jsonc` 的 `vars.TURNSTILE_SITE_KEY`，并 `wrangler secret put TURNSTILE_SECRET_KEY`。
-- ✅ 第一个 Server-assisted Tool 改为 **HTTP Header Checker**（DNS Lookup 可以直接在浏览器里查询 DoH，不需要服务端，见 ADR-0002；改为后续的客户端 Tool）。包括 SSRF 防护（`src/lib/server/safe-fetch.ts`）、只发 HEAD、按目标主机限流，且不开放远程 MCP（ADR-0015）。⏳ 部署后在 Observability 中核实 10ms CPU。
+  - ✅ Rate Limiting binding（每 IP 每 Tool、每目标主机、`/mcp` 每 IP）：2026-10-22 在 Free 计划上实测可用（部署成功，并发突发时返回 429）。计数是近似的：阈值为每分钟 30 次时，顺序发 39 次全部放行，80 个并发里只拒绝了 5 个，所以阈值只能防大规模滥用，不能当作精确配额。
+  - ✅ Turnstile：正式 widget 与 secret 已配置（生产拒绝测试 token）；本地开发用 `.dev.vars` 里的官方测试 key，CI 的 e2e 打桩。⏳ 在浏览器里实际提交一次 HTTP Header Checker。
+- ✅ 第一个 Server-assisted Tool 改为 **HTTP Header Checker**（DNS Lookup 可以直接在浏览器里查询 DoH，不需要服务端，见 ADR-0002；改为后续的客户端 Tool）。包括 SSRF 防护（`src/lib/server/safe-fetch.ts`）、只发 HEAD、按目标主机限流，且不开放远程 MCP（ADR-0015）。CPU 实测（`wrangler tail`）：`/mcp` 中位数约 3ms，`/api/tools` 约 5ms；新 isolate 首次请求有 16–42ms 的尖峰（加载约 1 MB 的 MCP 模块），outcome 均为 ok，持续观察是否出现 CPU 超限。
 - ✅ Paraglide 的 Locale 改为按请求隔离：middleware 用 AsyncLocalStorage（`nodejs_als`），去掉 `globalVariable` 策略；workerd 中有并发不同 Locale 的测试。
 
-**退出条件**：MCP 客户端能列出并调用所有轻量 Tool；WebMCP 能在页面内调用 Tool；超过限流阈值后能正确拒绝。本地均已验证（workers 测试 + e2e）；Free 计划上的限流与 CPU、真实 Chrome 中的 WebMCP 待部署后确认。
+**退出条件**：MCP 客户端能列出并调用所有轻量 Tool；WebMCP 能在页面内调用 Tool；超过限流阈值后能正确拒绝。本地（workers 测试 + e2e）与生产（MCP 调用、限流 429）均已验证；真实 Chrome 中的 WebMCP 待确认。
 
 ### M3 重型客户端运行时 + PWA
 
@@ -168,8 +168,8 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 - 首发 Tool 候选清单需要确认。
 - Background Remover、Speech to Text、OCR 所用模型的许可证（必须允许商用）。
-- Rate Limiting binding 在 Free 计划上是否可用（M2 已实现，待部署实测）。
-- Turnstile 正式 widget 与 secret（M2 目前用测试 key）。
+- ~~Rate Limiting binding 在 Free 计划上是否可用~~：可用，但计数近似（见 M2）。
+- `/mcp` 冷启动 CPU 尖峰（16–42ms）在 Free 计划上是否会触发 CPU 超限，需要持续观察。
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
 - ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB）。
 - 内容近似度阈值（M4 根据样本确定）。

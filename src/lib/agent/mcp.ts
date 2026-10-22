@@ -49,30 +49,41 @@ export const createMcpFetch = (tools: readonly AnyTool[]) => {
       return { tool, input: fromJsonSchema(input!), output: fromJsonSchema(output!) };
     });
 
-  return (request: Request, env: McpEnv) =>
-    createMcpHandler(
-      () => {
-        const server = new McpServer({ name: "web-tools", version: pkg.version });
-        for (const { tool, input, output } of remote) {
-          server.registerTool(
-            tool.id,
-            {
-              description: tool.agent.description,
-              inputSchema: input,
-              outputSchema: output,
-              annotations: {
-                readOnlyHint: true,
-                idempotentHint: true,
-                openWorldHint: tool.runtime.where === "server",
+  // handler 每个 isolate（按 env）只建一次：每次新建会重复初始化，并在每个请求上打一条 responseMode 警告日志。
+  // 工厂仍为每个请求新建 McpServer（SDK 的无状态约定）。
+  const handlers = new WeakMap<McpEnv, ReturnType<typeof createMcpHandler>>();
+  const handlerFor = (env: McpEnv) => {
+    let handler = handlers.get(env);
+    if (!handler) {
+      handler = createMcpHandler(
+        () => {
+          const server = new McpServer({ name: "web-tools", version: pkg.version });
+          for (const { tool, input, output } of remote) {
+            server.registerTool(
+              tool.id,
+              {
+                description: tool.agent.description,
+                inputSchema: input,
+                outputSchema: output,
+                annotations: {
+                  readOnlyHint: true,
+                  idempotentHint: true,
+                  openWorldHint: tool.runtime.where === "server",
+                },
               },
-            },
-            (args) => callTool(tool, args, env),
-          );
-        }
-        return server;
-      },
-      { responseMode: "json", maxRequestBodySize: MAX_BODY_BYTES },
-    ).fetch(request);
+              (args) => callTool(tool, args, env),
+            );
+          }
+          return server;
+        },
+        { responseMode: "json", maxRequestBodySize: MAX_BODY_BYTES },
+      );
+      handlers.set(env, handler);
+    }
+    return handler;
+  };
+
+  return (request: Request, env: McpEnv) => handlerFor(env).fetch(request);
 };
 
 export const handleMcp = async (

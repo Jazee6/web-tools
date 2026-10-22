@@ -442,9 +442,9 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 - 首发 7 个 Locale 都是从左到右书写，首期不处理 RTL。
 - hreflang 的 `x-default` 指向 en。
 - Variant 内容近似度阈值的具体数值，实现时根据样本确定。
-- **Workers Rate Limiting binding**：2025-09 已 GA，官方文档没有写计划限制，也没写 Free 有额度上限。M2 已按 binding 实现（本地 miniflare 测试通过），推断 Free 可以用，第一次部署时实测确认；如果不可用，限流暂时改用 KV 计数。
+- **Workers Rate Limiting binding**：2026-10-22 已在 Free 计划上实测可用。计数按节点近似，实测明显超出设定阈值后才开始返回 429，只适合挡大规模滥用。
 - **Analytics Engine 写入和 Rate Limiting 调用**：文档没说是否计入每个请求 50 次的子请求上限。按计费规则推断，它们不占用每天的 Worker 请求配额。
-- takumi 的具体 API 与 CSS 支持程度，以实现时的官方文档为准（已在 M1 验证）。`/mcp` 与 `/api/tools` 的实际 CPU 耗时，部署后在 Workers Observability 中核实不超过 10ms。
+- takumi 的具体 API 与 CSS 支持程度，以实现时的官方文档为准（已在 M1 验证）。`/mcp` 与 `/api/tools` 的 CPU 实测中位数约 3–5ms，新 isolate 首次请求有 16–42ms 的尖峰（outcome 均为 ok），需持续观察。
 
 ## 22. 风险与开放问题
 
