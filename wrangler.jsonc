@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "web-tools",
+  "compatibility_date": "2026-10-12",
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  // 不设 run_worker_first：Free 计划超出配额时静态请求不受影响（architecture §20）
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+  },
+  "routes": [{ "pattern": "tools.jaze.top", "custom_domain": true }],
+  "workers_dev": true,
+  "preview_urls": true,
+  "observability": {
+    "enabled": true,
+  },
+}
