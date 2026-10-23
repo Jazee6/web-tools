@@ -16,6 +16,16 @@ import {
 const sameKeys = (actual: string[], expected: string[]) =>
   actual.length === expected.length && expected.every((key) => actual.includes(key));
 
+// 合法的 BCP 47 语言标签；"auto" 这类四个字母的子标签不合法
+const isLanguageCode = (code: string) => {
+  try {
+    Intl.getCanonicalLocales(code);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export interface ContentInput {
   tools: AnyTool[];
   categories: readonly string[];
@@ -72,7 +82,20 @@ export const checkContent = ({ tools, categories, toolContent, categoryContent }
     }
     for (const field of fields) {
       if (field.kind !== "select") continue;
-      if (!sameKeys(Object.keys(labels[field.name]?.options ?? {}), field.options)) {
+      const optionLabels = Object.keys(labels[field.name]?.options ?? {});
+      // 语言代码选项的名称由 Intl.DisplayNames 生成，只有不是语言代码的选项（如 auto）需要标签
+      if (field.languageNames) {
+        const unlabeled = field.options.filter(
+          (option) => !optionLabels.includes(option) && !isLanguageCode(option),
+        );
+        if (unlabeled.length > 0 || optionLabels.some((key) => !field.options.includes(key))) {
+          errors.push(
+            `${file.path}：fields.${field.name}.options 必须恰好覆盖不是语言代码的选项（缺少 ${unlabeled.join(", ")}）`,
+          );
+        }
+        continue;
+      }
+      if (!sameKeys(optionLabels, field.options)) {
         errors.push(
           `${file.path}：fields.${field.name}.options 必须覆盖 ${field.options.join(", ")}`,
         );

@@ -32,5 +32,6 @@
   "form_move_down": "Move down",
   "form_remove": "Remove",
   "tool_progress": "Processing…",
+  "tool_progress_download": "Downloading the model (first use only)…",
   "tool_cancel": "Cancel"
 }

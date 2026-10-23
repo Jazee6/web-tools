@@ -72,7 +72,8 @@
  Browser                 │                                            │
  ┌───────────────┐  HTML │ Static Assets（免费、不限量）                │
  │ Astro 页面     │◀──────┤  Tool / Category / Variant* 页、.md 副本、   │
- │  └ React island│       │  llms.txt、sitemap、OG 图、JS/WASM（≤25MiB） │
+ │  └ React island│       │  llms.txt、sitemap、OG 图、JS/WASM（≤25MiB）、│
+ │                │       │  模型与大 WASM 的分片（/models/，ADR-0018）   │
  │     └ Web Worker│      │  _headers 按页注入 COOP/COEP                 │
  │        WASM/WebGPU│    │                                            │
  │ WebMCP 适配层  │◀──────┤ Worker（Astro SSR，Free：10 万次/天）         │
@@ -80,8 +81,7 @@
  │ IndexedDB/OPFS │       │   ├ /mcp          远程 MCP（轻量 Tool）        │
  └──────┬────────┘       │   ├ /api/e        事件（抽样）与错误上报        │
         │                │   └ Variant 按需 SSR*（Paid 后启用）           │
-        │ CORS           │                                            │
-        └───────────────▶│ R2 自定义域名（assets 子域）：模型、超过 25MiB 的 WASM │
+        │                │                                            │
   AI agent / 爬虫 ────────┤ Analytics Engine · Rate Limiting · Turnstile │
                          └────────────────────────────────────────────┘
    * Variant 的渲染模式见 §7
@@ -99,7 +99,7 @@
 
 ## 4. 技术栈
 
-所有依赖均已确认（§1 Q17–Q20、Q25、Q32、Q45–Q47）；M2 起新增 `@modelcontextprotocol/server`、`@tanstack/react-table`（2026-10-22 确认）；M3 新增 `@jsquash/jpeg`、`@jsquash/webp`、`@jsquash/avif`、`@jsquash/oxipng`、`@vitest/browser-playwright`、`@embedpdf/pdfium`、`mediabunny`（2026-10-23 确认）。
+所有依赖均已确认（§1 Q17–Q20、Q25、Q32、Q45–Q47）；M2 起新增 `@modelcontextprotocol/server`、`@tanstack/react-table`（2026-10-22 确认）；M3 新增 `@jsquash/jpeg`、`@jsquash/webp`、`@jsquash/avif`、`@jsquash/oxipng`、`@vitest/browser-playwright`、`@embedpdf/pdfium`、`mediabunny`、`@huggingface/transformers`（2026-10-23 确认）。
 
 | 层 | 选型 |
 |---|---|
@@ -115,7 +115,7 @@
 | 端侧 AI | Transformers.js（ONNX Runtime Web + WebGPU）；有浏览器内置 AI 时优先用 |
 | 远程 MCP | `@modelcontextprotocol/server` v2 的 `createMcpHandler`（无状态 Streamable HTTP，不使用 Durable Objects；ADR-0014） |
 | SEO | `schema-dts`（JSON-LD 类型）、takumi（`@takumi-rs/core`，构建期生成 OG 图 PNG）、自写的 sitemap / hreflang / llms.txt 生成器 |
-| 部署 | Cloudflare Workers Free（→ Paid）+ Static Assets、R2、Rate Limiting、Turnstile、Analytics Engine、Web Analytics |
+| 部署 | Cloudflare Workers Free（→ Paid）+ Static Assets（含模型分片，ADR-0018）、Rate Limiting、Turnstile、Analytics Engine、Web Analytics |
 | 工具链 | Bun（包管理、脚本）、oxlint + oxfmt、Vitest + `@cloudflare/vitest-plugin`、Playwright、`@lhci/cli` |
 | CI/CD | GitHub Actions + wrangler |
 | 自写（不引入依赖） | Service Worker、Web Worker 类型化 RPC、sitemap 生成、内容近似度检测、WebMCP 适配层、事件与错误上报 |
@@ -345,8 +345,8 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 - **跨源隔离**：构建时根据注册表生成 `_headers`，只对 `crossOriginIsolated: true` 的 Tool 页（含其 Variant 和各 Locale 版本）加上 `COOP: same-origin` 和 `COEP: credentialless`；on-demand 模式下，SSR 的 Variant 页由 Worker 中间件补上同样的响应头。隔离页创建的 Dedicated Worker 由脚本自身的响应头决定 COEP，缺少时浏览器直接拦截，所以 `/_astro/*` 也加 `COEP: credentialless`（对非文档、非 Worker 资源没有影响）。没有隔离时（例如 Safari 不支持 `credentialless`），多线程 WASM 自动退回单线程。
 - **WASM 与模型**：
   - 不超过 25 MiB 的 WASM 走同源静态资源，文件名带哈希，设置 immutable 缓存。
-  - 模型文件和超过 25 MiB 的 WASM（例如 ffmpeg core）放在 R2，通过 R2 自定义域名（assets 子域）直接提供，并配置 CORS。这样请求走 CDN 缓存，不经过 Worker、不占用请求配额；以 CORS 模式请求，同时满足 COEP 的要求。
-  - 模型首次下载时显示 Progress，下载后缓存在本地。
+  - 模型文件和超过 25 MiB 的 WASM（例如 ORT 的 WASM）也走同源静态资源（ADR-0018）：构建前由 `scripts/fetch-models.ts` 下载固定版本、校验 sha256，切成不超过 24 MiB 的分片放进 `/models/`；浏览器里按 Tool 的 `model.ts` 清单拼回原文件（`lib/runtime/model-files.ts`）。
+  - 模型首次下载时显示 Progress（`ctx.onProgress` 的 `download` 阶段），下载后缓存在 Cache API。
 - **本地状态**：
   - IndexedDB 保存收藏、最近使用、每个 Tool 的偏好参数。
   - OPFS 保存大文件的中间产物。

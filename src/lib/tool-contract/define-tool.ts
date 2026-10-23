@@ -11,13 +11,19 @@ export type Capability = "wasm" | "webgpu" | "webcodecs" | "opfs";
 export type FieldMetadata = {
   // code：等宽多行；url：单行网址输入；默认是普通多行文本
   widget?: "code" | "url";
+  // 下拉选项是语言代码（BCP 47）：选项名由 Intl.DisplayNames 按当前 Locale 生成并按名称排序，
+  // 内容 frontmatter 只需给不是语言代码的选项（如 auto）写标签
+  languageNames?: boolean;
 };
+
+// 进度阶段：默认是处理中；download 是首次使用时下载模型
+export type ProgressStage = "download";
 
 // 环境能力只能经 ctx 注入，core.ts 不能直接依赖 DOM / UI（ADR-0003）。
 // fetch 只注入给 Server-assisted Tool：服务端传入带 SSRF 防护的 safeFetch，测试传入假实现。
 export interface ToolContext {
   signal?: AbortSignal;
-  onProgress?: (ratio: number) => void;
+  onProgress?: (ratio: number, stage?: ProgressStage) => void;
   fetch?: (url: URL, init?: RequestInit) => Promise<Response>;
 }
 

@@ -33,11 +33,18 @@ import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { registerWebMcpTool } from "@/lib/agent/webmcp";
-import { type AnyTool, type Capability, loadRun, ToolError } from "@/lib/tool-contract/define-tool";
+import {
+  type AnyTool,
+  type Capability,
+  loadRun,
+  type ProgressStage,
+  ToolError,
+} from "@/lib/tool-contract/define-tool";
 import { describeFields, type FieldSpec, initialValues } from "@/lib/tool-contract/fields";
 import { m } from "@/paraglide/messages";
 
 import { invokeTool } from "./invoke";
+import { selectItems } from "./select-items";
 import { type OutputLabel, ToolOutput } from "./ToolOutput";
 import { getTurnstileToken, loadTurnstile } from "./turnstile";
 
@@ -124,7 +131,7 @@ export function ToolForm({
   const [output, setOutput] = useState<Values>();
   const [runError, setRunError] = useState<RunError>();
   // Worker Tool 运行中回报的进度（0–1）与取消用的 controller
-  const [progress, setProgress] = useState<number>();
+  const [progress, setProgress] = useState<{ ratio: number; stage?: ProgressStage }>();
   const running = useRef<AbortController>(undefined);
   const server = tool.runtime.where === "server";
   // Server-assisted Tool 的 Turnstile widget 渲染在这里（需要交互时才可见）
@@ -212,7 +219,7 @@ export function ToolForm({
         setOutput(
           await invokeTool(tool, v.parse(tool.input, value), getToken, {
             signal: controller.signal,
-            onProgress: setProgress,
+            onProgress: (ratio, stage) => setProgress({ ratio, stage }),
           }),
         );
       } catch (error) {
@@ -344,10 +351,7 @@ export function ToolForm({
           />
         );
       case "select": {
-        const items = spec.options.map((option) => ({
-          value: option,
-          label: label?.options?.[option] ?? option,
-        }));
+        const items = selectItems(spec, label?.options);
         return (
           <Select
             id={id}
@@ -470,7 +474,7 @@ export function ToolForm({
                   </Field>
                   {submitting && progress !== undefined && (
                     <Suspense>
-                      <RunProgress ratio={progress} />
+                      <RunProgress ratio={progress.ratio} stage={progress.stage} />
                     </Suspense>
                   )}
                 </>

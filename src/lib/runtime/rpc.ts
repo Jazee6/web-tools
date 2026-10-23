@@ -1,4 +1,4 @@
-import { type ToolContext, ToolError } from "@/lib/tool-contract/define-tool";
+import { type ProgressStage, type ToolContext, ToolError } from "@/lib/tool-contract/define-tool";
 
 // 主线程 ↔ Dedicated Web Worker 的类型化 RPC（architecture §13）：每次调用一个 id，
 // Worker 回传进度和结果；结果中的 ArrayBuffer / 类型化数组以 Transferable 零拷贝传回（File / Blob 本身克隆成本很低）。
@@ -15,7 +15,7 @@ interface SerializedError {
 }
 
 type Response<TOut> =
-  | { id: number; type: "progress"; ratio: number }
+  | { id: number; type: "progress"; ratio: number; stage?: ProgressStage }
   | { id: number; type: "done"; output: TOut }
   | { id: number; type: "error"; error: SerializedError };
 
@@ -69,7 +69,7 @@ export const exposeRun = <TIn, TOut>(run: Run<TIn, TOut>) => {
     try {
       const output = await run(request.input, {
         signal: controller.signal,
-        onProgress: (ratio) => post({ id: request.id, type: "progress", ratio }),
+        onProgress: (ratio, stage) => post({ id: request.id, type: "progress", ratio, stage }),
       });
       post({ id: request.id, type: "done", output }, transferables(output));
     } catch (error) {
@@ -99,7 +99,7 @@ export const callWorker = <TIn, TOut>(
       const response = event.data;
       if (response.id !== id) return;
       if (response.type === "progress") {
-        ctx.onProgress?.(response.ratio);
+        ctx.onProgress?.(response.ratio, response.stage);
         return;
       }
       cleanup();

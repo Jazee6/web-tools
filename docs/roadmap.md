@@ -39,7 +39,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - Cloudflare 后台：
   - 绑定域名。
   - 关闭"屏蔽 AI 爬虫"的默认设置。
-  - 创建 R2 bucket，绑定 assets 子域，并配置 CORS。
+  - ~~创建 R2 bucket，绑定 assets 子域，并配置 CORS~~：不再需要，模型切片后放进静态资源（ADR-0018）。
 
 **退出条件**：空站点的 7 个 Locale 首页已部署到生产，PR 预览可用，全部门禁在 CI 中运行。
 
@@ -84,10 +84,13 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
   - ✅ 图片：jSquash（Image Compressor，新增 Category `image`，7 个 Locale 内容为 Draft）。JPEG / PNG / WebP / AVIF 四个样例在 Chromium、Firefox、WebKit 上都通过：Vitest Browser Mode 跑未隔离的单线程路径，页面级 e2e 在 Chromium、Firefox 上跑隔离后的多线程路径、在 WebKit 上跑单线程回退。
   - ✅ PDF：PDFium WASM（`@embedpdf/pdfium`，替代原定的 pdf.js + pdf-lib fork，见 ADR-0009 补充）做 Merge PDF，新增 Category `pdf`，7 个 Locale 内容为 Draft。WASM 约 4.6 MB，走同源静态资源，不需要跨源隔离。契约支持有序的多文件输入 `v.array(v.file())`。Browser Mode 在 Chromium、Firefox、WebKit 上核对页序、加密 PDF 和损坏文件报错，e2e 覆盖合并、排序和数量校验。
   - ✅ 音视频：Mediabunny + WebCodecs（`mediabunny`，纯 TypeScript）做 Video Converter，新增 Category `media`，7 个 Locale 内容为 Draft。输入 MP4 / MOV / WebM / MKV（≤ 500 MB，输出整体在内存里），输出 MP4 / WebM / MOV / MKV；新容器能装下的流直接复制，否则转码到浏览器能编码的第一个 codec（MP4 / MOV 优先 H.264 + AAC，Firefox 没有 AAC 编码器时用 Opus）；任何主轨无法转换都报错，不输出缺声音或画面的文件。Worker Tool 页面新增进度条和取消按钮。Browser Mode 在 Chromium、Firefox、WebKit 上核对输出 codec、直接复制、错误码和取消，e2e 覆盖四个样例和缺少 WebCodecs 时的 Empty。macOS 本机和 CI 的 Linux 容器（Playwright 镜像）上，三个引擎都能通过，没有跳过任何用例。⏳ 真实 Safari 待确认。Firefox、Safari 选中 .mkv 时 `File.type` 是空字符串，Chrome 报的是 `video/matroska`，所以文件字段改用 `fileType()` 声明可接受的类型：MIME 类型不在表里时按扩展名判断，通过后把 type 改成表里的 MIME 类型；表单的 accept 同时列出 MIME 类型和扩展名。三个文件型 Tool 都已改用它。
-  - 端侧 AI：Transformers.js + WebGPU，模型从 R2 assets 子域加载（Speech to Text），并带 Progress。
+  - ✅ 端侧 AI：Transformers.js（`@huggingface/transformers`）做 Speech to Text，7 个 Locale 内容为 Draft。模型是 Whisper base（MIT，onnx-community 的 ONNX 版，固定 commit）。不用 R2：构建前由 `scripts/fetch-models.ts` 下载、校验 sha256、切成 ≤ 24 MiB 的分片放进静态资源，浏览器里拼回并存进 Cache API（ADR-0018）；ORT 改用 extern-wasm 构建，26.9 MB 的 `.wasm` 也走分片。
+    - 推理：有真实 GPU 且支持 `shader-f16` 时，encoder 用 WebGPU fp16，decoder 用 WASM int8，下载约 125 MB；否则全部用 WASM int8，约 107 MB。页面开启跨源隔离，让 WASM 多线程。实测 52 秒英文音频（M 系列 Mac）：Safari 混合方案 3.7 s，纯 WASM 单线程 8.6 s；Chromium、Firefox 隔离后多线程约 5–11 s。WebGPU 跑量化的 decoder 反而比 WASM 慢；headless Chromium 只有 SwiftShader（`isFallbackAdapter`），跑 WebGPU 比 WASM 慢 20 倍，所以排除回退 adapter。
+    - 输入音频或视频（≤ 1 GB、≤ 60 分钟），由 Mediabunny 解码、混成单声道、重采样到 16 kHz；输出纯文本和 SRT 字幕。语言默认自动识别，也可以选 Whisper 支持的 99 种语言，选项名由 `Intl.DisplayNames` 按 Locale 生成（字段 metadata `languageNames`）。进度分"下载模型"和"处理中"两个阶段（`ctx.onProgress` 的 `stage`）。
+    - Browser Mode 在三个浏览器上跑 WASM 路径，在有可用 GPU 的浏览器上（本机 macOS 的 WebKit）另跑 WebGPU 路径，两条路径的转录文本一致；德语样例用 WAV，因为各浏览器的 AAC 解码结果略有不同，会让识别结果不同。e2e 覆盖样例转录。⏳ CI 的 Linux 容器里大概率没有可用的 GPU，WebGPU 路径会跳过；真实 Chrome（硬件 adapter + 跨源隔离）的速度待实测。
 - 本地状态：IndexedDB（收藏、最近使用、偏好）、OPFS（中间产物）、"清除本地数据"。
 - 手写 Service Worker：按需缓存、保留 COOP/COEP 响应头、离线兜底页；manifest。
-- Vitest Browser Mode 覆盖 WASM、WebCodecs、WebGPU 三条路径。✅ 已接入（`*.browser.test.ts`，Chromium / Firefox / WebKit），目前覆盖 WASM 和 WebCodecs。
+- ✅ Vitest Browser Mode 覆盖 WASM、WebCodecs、WebGPU 三条路径（`*.browser.test.ts`，Chromium / Firefox / WebKit）。WebGPU 只在有真实 GPU 的浏览器上跑（本机 macOS 的 WebKit）。
 
 **退出条件**：4 个样板 Tool 在最新版 Chrome、Safari、Firefox 上都能运行（能力缺失时显示 Empty），用过一次后可以离线使用。
 
@@ -167,11 +170,11 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 ## 开放项
 
 - 首发 Tool 候选清单需要确认。
-- Background Remover、Speech to Text、OCR 所用模型的许可证（必须允许商用）。
+- Background Remover、OCR 所用模型的许可证（必须允许商用）。Speech to Text 用的 Whisper base 是 MIT。
 - ~~Rate Limiting binding 在 Free 计划上是否可用~~：可用，但计数近似（见 M2）。
 - `/mcp` 冷启动 CPU 尖峰（16–42ms）在 Free 计划上是否会触发 CPU 超限，需要持续观察。
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
-- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。多文件控件按需加载，其他 Tool 页不受影响；Merge PDF 页约 158.5 KB，离上限只剩约 1.5 KB。M3 加入进度条和取消按钮后，用同一口径对比前后两次构建：在 Playwright 中加载页面直到网络空闲，把所有脚本逐个 gzip 后求和。JSON Formatter 页从 157.9 KB 增加到 158.3 KB，Merge PDF 页从 159.8 KB 增加到 160.2 KB。这个口径比上面的旧数字高约 1.3 KB（包含空闲时预取的 core），按它算 Merge PDF 页已经略超 160 KB。M6 接入 `@lhci/cli` 时要统一口径，继续往首屏加代码之前先瘦身。另外试过把取消按钮也放进按需加载的分块，结果 Base UI 的公共模块被拆成单独的分块，首屏反而多了约 0.6 KB，所以没有采用。
+- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。多文件控件按需加载，其他 Tool 页不受影响；Merge PDF 页约 158.5 KB，离上限只剩约 1.5 KB。M3 加入进度条和取消按钮后，用同一口径对比前后两次构建：在 Playwright 中加载页面直到网络空闲，把所有脚本逐个 gzip 后求和。JSON Formatter 页从 157.9 KB 增加到 158.3 KB，Merge PDF 页从 159.8 KB 增加到 160.2 KB。这个口径比上面的旧数字高约 1.3 KB（包含空闲时预取的 core），按它算 Merge PDF 页已经略超 160 KB。M6 接入 `@lhci/cli` 时要统一口径，继续往首屏加代码之前先瘦身。M3 加入 Speech to Text（语言名下拉选项、进度阶段）后用同一方法（Node zlib 默认级别 gzip）再测：JSON Formatter 157.6 KB，Merge PDF 159.5 KB，Speech to Text 157.8 KB；和前面的数字压缩级别可能不同，不能直接相减。另外试过把取消按钮也放进按需加载的分块，结果 Base UI 的公共模块被拆成单独的分块，首屏反而多了约 0.6 KB，所以没有采用。
 - 内容近似度阈值（M4 根据样本确定）。
-- 第三方许可证声明：站点会分发 PDFium（Apache-2.0，含它捆绑的第三方库）和 jSquash 编解码器的 WASM，以及 Mediabunny（MPL-2.0），上线前（M6）要补一个许可证声明页。
-- `_headers` 最多 100 条规则（已核实）。目前 69 条，其中 63 条是不可索引页面 `.md` 副本的 `X-Robots-Tag: noindex`，按"页面 × Locale"逐条生成；首发约 30 个 Tool × 7 个 Locale 全是 Draft 时会远超上限。补齐 Tool 之前要换方案，例如让 robots.txt 禁止抓取 Draft 的 `.md`，或核实占位符能否匹配 `/:page.md` 这类半个路径段。
+- 第三方许可证声明：站点会分发 PDFium（Apache-2.0，含它捆绑的第三方库）和 jSquash 编解码器的 WASM、Mediabunny（MPL-2.0）、Transformers.js（Apache-2.0）、ONNX Runtime Web（MIT）以及 Whisper base 的权重（MIT），上线前（M6）要补一个许可证声明页。
+- `_headers` 最多 100 条规则（已核实）。目前 80 条（Speech to Text 加了 4 条跨源隔离规则和 7 条 noindex，已到 80% 告警线），其中 70 条是不可索引页面 `.md` 副本的 `X-Robots-Tag: noindex`，按"页面 × Locale"逐条生成；首发约 30 个 Tool × 7 个 Locale 全是 Draft 时会远超上限。补齐 Tool 之前要换方案，例如让 robots.txt 禁止抓取 Draft 的 `.md`，或核实占位符能否匹配 `/:page.md` 这类半个路径段。

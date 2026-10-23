@@ -32,5 +32,6 @@
   "form_move_down": "下へ移動",
   "form_remove": "削除",
   "tool_progress": "処理中…",
+  "tool_progress_download": "モデルをダウンロード中（初回のみ）…",
   "tool_cancel": "キャンセル"
 }

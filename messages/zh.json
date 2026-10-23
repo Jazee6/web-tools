@@ -32,5 +32,6 @@
   "form_move_down": "下移",
   "form_remove": "移除",
   "tool_progress": "正在处理…",
+  "tool_progress_download": "正在下载模型（仅首次使用）…",
   "tool_cancel": "取消"
 }

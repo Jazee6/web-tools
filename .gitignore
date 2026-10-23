@@ -36,3 +36,7 @@ playwright-report/
 
 # vitest browser mode
 .vitest/
+
+# 构建前准备的模型分片与下载缓存（scripts/fetch-models.ts）
+public/models/
+.cache/

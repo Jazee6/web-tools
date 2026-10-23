@@ -67,6 +67,35 @@ describe("checkContent", () => {
     expect(errors.some((error) => error.includes("fields.mode.options"))).toBe(true);
   });
 
+  it("only requires labels for options of a language field that are not language codes", () => {
+    const languageTool = {
+      ...tool,
+      input: v.object({
+        language: v.pipe(v.picklist(["auto", "en", "de"]), v.metadata({ languageNames: true })),
+      }),
+    } as unknown as AnyTool;
+    const check = (options: Record<string, string>) =>
+      checkContent({
+        tools: [languageTool],
+        categories: ["developer"],
+        toolContent: [
+          toolFile({
+            data: {
+              review: "draft",
+              name: "Demo",
+              fields: { language: { label: "Language", options } },
+              output: { result: { label: "Result" } },
+            },
+          }),
+        ],
+        categoryContent: [categoryFile],
+      }).errors;
+    expect(check({ auto: "Detect" })).toEqual([]);
+    expect(check({ auto: "Detect", en: "English" })).toEqual([]);
+    expect(check({}).some((error) => error.includes("auto"))).toBe(true);
+    expect(check({ auto: "Detect", xx: "?" })).toHaveLength(1);
+  });
+
   it("requires column labels for table outputs", () => {
     const tableTool = {
       ...tool,

@@ -1,9 +1,19 @@
+import { fileURLToPath } from "node:url";
+
 import { cloudflareTest } from "@cloudflare/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 
+// 与 astro.config.ts 相同：用 ORT 的 extern-wasm 版，测试走和生产一样的 wasmBinary 加载路径
+const ortWebGpu = fileURLToPath(
+  new URL("node_modules/onnxruntime-web/dist/ort.webgpu.min.mjs", import.meta.url),
+);
+
 export default defineConfig({
-  resolve: { tsconfigPaths: true },
+  resolve: {
+    tsconfigPaths: true,
+    alias: [{ find: /^onnxruntime-web\/webgpu$/, replacement: ortWebGpu }],
+  },
   test: {
     projects: [
       {

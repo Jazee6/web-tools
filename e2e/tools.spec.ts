@@ -148,6 +148,11 @@ for (const tool of tools) {
           await fill(page, spec.name, spec.kind, input[spec.name]);
         }
         await page.locator('button[type="submit"]').click();
+        // Worker Tool 可能要先下载 WASM 或模型（Speech to Text 约 110 MB），等输出出现再逐项比较
+        if (tool.runtime.worker) {
+          test.setTimeout(120_000);
+          await expect(page.locator("[data-output]").first()).toBeVisible({ timeout: 90_000 });
+        }
         await expectOutput(page, tool, example.output);
       });
     });

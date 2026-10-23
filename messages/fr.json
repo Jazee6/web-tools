@@ -32,5 +32,6 @@
   "form_move_down": "Descendre",
   "form_remove": "Retirer",
   "tool_progress": "Traitement en cours…",
+  "tool_progress_download": "Téléchargement du modèle (première utilisation uniquement)…",
   "tool_cancel": "Annuler"
 }

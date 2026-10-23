@@ -10,7 +10,7 @@ export type FieldSpec =
   | { name: string; kind: "text" | "code" | "url" }
   | { name: string; kind: "number" }
   | { name: string; kind: "boolean" }
-  | { name: string; kind: "select"; options: string[] }
+  | { name: string; kind: "select"; options: string[]; languageNames?: boolean }
   | { name: string; kind: "table"; columns: string[] }
   | { name: string; kind: "file" | "files"; accept: string[] };
 
@@ -46,8 +46,11 @@ export const describeFields = (schema: ToolSchema): FieldSpec[] =>
         return { name, kind: "boolean" };
       case "file":
         return { name, kind: "file", accept: acceptOf(base) };
-      case "picklist":
-        return { name, kind: "select", options: [...base.options!] };
+      case "picklist": {
+        const metadata = v.getMetadata(base) as FieldMetadata;
+        const spec: FieldSpec = { name, kind: "select", options: [...base.options!] };
+        return metadata.languageNames ? { ...spec, languageNames: true } : spec;
+      }
       case "array": {
         const item = base.item!;
         if (item.type === "file") return { name, kind: "files", accept: acceptOf(item) };

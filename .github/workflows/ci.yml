@@ -43,6 +43,12 @@ jobs:
       # 镜像里没有 unzip，setup-bun 无法解压，改用 npm 包安装 Bun
       - run: npm install --global bun
       - run: bun install --frozen-lockfile
+      # 模型文件从 Hugging Face 下载，按清单缓存（scripts/fetch-models.ts，ADR-0018）
+      - uses: actions/cache@v6
+        with:
+          path: .cache/models
+          key: models-${{ hashFiles('src/tools/*/model.ts') }}
+      - run: bun run models
       - run: bunx vitest run --project browser
       - run: bun run build
       - run: bun run check:limits
@@ -67,6 +73,11 @@ jobs:
       # 镜像里没有 unzip，setup-bun 无法解压，改用 npm 包安装 Bun
       - run: npm install --global bun
       - run: bun install --frozen-lockfile
+      # 模型文件从 Hugging Face 下载，按清单缓存（scripts/fetch-models.ts，ADR-0018）
+      - uses: actions/cache@v6
+        with:
+          path: .cache/models
+          key: models-${{ hashFiles('src/tools/*/model.ts') }}
       - run: bun run build
       - name: Upload preview version
         id: upload
@@ -100,5 +111,10 @@ jobs:
           node-version-file: .node-version
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
+      # 模型文件从 Hugging Face 下载，按清单缓存（scripts/fetch-models.ts，ADR-0018）
+      - uses: actions/cache@v6
+        with:
+          path: .cache/models
+          key: models-${{ hashFiles('src/tools/*/model.ts') }}
       - run: bun run build
       - run: bun run deploy
