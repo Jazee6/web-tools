@@ -354,9 +354,12 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
   - 用户的文件和输入永不上传（Server-assisted Tool 只发送必要的参数）。
 - **PWA**：
   - 有 manifest，站点可安装。
-  - Service Worker 手写（`src/sw.ts`），运行时按需缓存访问过的 Tool 的资源（含 WASM 和模型），不做全站预缓存。
-  - HTML 网络优先，带离线兜底页。
-  - Service Worker 返回缓存时必须保留原响应的 COOP/COEP 头。
+  - Service Worker 手写（`src/sw.ts`，postbuild 打包成 `/sw.js`），运行时按需缓存访问过的页面和它们加载过的资源（含 WASM），不做全站预缓存。模型不经过它，由 `model-files.ts` 存进自己的 `models` 缓存。
+  - 只接管同源 GET；`/api/*`、`/mcp`、`/models/*`、跨源请求和 Range 请求直接放行，分流规则见 `lib/runtime/sw-routes.ts`。
+  - HTML 网络优先，带离线兜底页（各 Locale 的 `/offline`，noindex）；`/_astro/` 缓存优先；其他文件网络优先。
+  - Service Worker 返回缓存时必须保留原响应的 COOP/COEP 头：缓存的一律是原始网络响应，不重新构造。
+  - 第一次访问时，页面把 SW 接管前加载的资源报给 SW 补缓存，用过一次就能离线打开。
+  - 回滚：已安装的 SW 不会因为回滚提交或删除 `sw.js` 而消失（更新检查拿到 404 时旧 SW 继续运行）。出问题时发布一个"自毁"版 `sw.js`：activate 时删除 `pages` 和 `assets` 缓存（保留 `models`），调用 `registration.unregister()`，再让已打开的页面重新加载。
 
 ## 14. Server-assisted Tool 与防滥用
 

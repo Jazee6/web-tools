@@ -33,5 +33,8 @@
   "form_remove": "移除",
   "tool_progress": "正在处理…",
   "tool_progress_download": "正在下载模型（仅首次使用）…",
-  "tool_cancel": "取消"
+  "tool_cancel": "取消",
+  "offline_title": "当前处于离线状态",
+  "offline_description": "这个页面还没有保存到本设备。打开过的工具在离线时仍然可以使用。",
+  "offline_retry": "重试"
 }

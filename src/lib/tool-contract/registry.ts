@@ -15,6 +15,10 @@ export const reservedSlugs = [
   "favicon",
   "index",
   "sitemap-index",
+  "offline",
+  "manifest",
+  "icons",
+  "sw",
 ] as const;
 
 const TOOL_PATH = /([^/]+)\/tool\.ts$/;

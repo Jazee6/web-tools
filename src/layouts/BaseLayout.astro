@@ -1,7 +1,7 @@
 ---
 import "@/styles/global.css";
 import SiteHeader from "@/components/site/SiteHeader.astro";
-import { defaultLocale, hreflang, isLocale } from "@/lib/i18n/locales";
+import { defaultLocale, hreflang, isLocale, localizePath } from "@/lib/i18n/locales";
 import type { Alternate } from "@/lib/seo/indexing";
 import { serializeJsonLd } from "@/lib/seo/json-ld";
 import { canonicalPath } from "@/lib/url";
@@ -30,6 +30,23 @@ const {
 } = Astro.props;
 const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : defaultLocale;
 const canonical = new URL(canonicalPath(Astro.url.pathname), Astro.site);
+
+// 注册 Service Worker（src/sw.ts）。第一次访问时，SW 接管之前（以及接管时还在路上）的请求都没经过它
+// （workerStart 为 0），由页面把这些资源和当前 URL 报给 SW 补缓存，这样用过一次就能离线打开。
+const registerServiceWorker = `if ("serviceWorker" in navigator) {
+  const sw = navigator.serviceWorker;
+  if (!sw.controller) {
+    const page = location.href.split("#")[0];
+    new PerformanceObserver((list) => {
+      const resources = list.getEntries().filter((entry) => !entry.workerStart).map((entry) => entry.name);
+      if (resources.length === 0) return;
+      sw.ready.then((registration) =>
+        registration.active?.postMessage({ type: "cache", page, resources }),
+      );
+    }).observe({ type: "resource", buffered: true });
+  }
+  addEventListener("load", () => void sw.register("/sw.js").catch(() => {}));
+}`;
 ---
 
 <!doctype html>
@@ -38,6 +55,9 @@ const canonical = new URL(canonicalPath(Astro.url.pathname), Astro.site);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href={localizePath(locale, "/manifest.webmanifest")} />
+    <meta name="theme-color" content="#ffffff" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -63,6 +83,8 @@ const canonical = new URL(canonicalPath(Astro.url.pathname), Astro.site);
     {jsonLd.map((data) => (
       <script is:inline type="application/ld+json" set:html={serializeJsonLd(data)} />
     ))}
+    {/* 只在生产构建注册，dev 和 HMR 不受影响 */}
+    {import.meta.env.PROD && <script is:inline set:html={registerServiceWorker} />}
   </head>
   <body class="min-h-svh bg-background text-foreground antialiased">
     <SiteHeader />

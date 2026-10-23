@@ -33,5 +33,8 @@
   "form_remove": "Quitar",
   "tool_progress": "Procesando…",
   "tool_progress_download": "Descargando el modelo (solo la primera vez)…",
-  "tool_cancel": "Cancelar"
+  "tool_cancel": "Cancelar",
+  "offline_title": "Sin conexión",
+  "offline_description": "Esta página aún no se ha guardado en este dispositivo. Las herramientas que ya abriste siguen funcionando sin conexión.",
+  "offline_retry": "Reintentar"
 }

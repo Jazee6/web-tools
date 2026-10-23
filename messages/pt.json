@@ -33,5 +33,8 @@
   "form_remove": "Remover",
   "tool_progress": "Processando…",
   "tool_progress_download": "Baixando o modelo (só na primeira vez)…",
-  "tool_cancel": "Cancelar"
+  "tool_cancel": "Cancelar",
+  "offline_title": "Você está offline",
+  "offline_description": "Esta página ainda não foi salva neste dispositivo. As ferramentas que você já abriu continuam funcionando offline.",
+  "offline_retry": "Tentar novamente"
 }

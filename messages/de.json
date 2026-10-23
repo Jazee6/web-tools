@@ -33,5 +33,8 @@
   "form_remove": "Entfernen",
   "tool_progress": "Wird verarbeitet …",
   "tool_progress_download": "Modell wird heruntergeladen (nur beim ersten Mal) …",
-  "tool_cancel": "Abbrechen"
+  "tool_cancel": "Abbrechen",
+  "offline_title": "Du bist offline",
+  "offline_description": "Diese Seite ist noch nicht auf diesem Gerät gespeichert. Tools, die du schon geöffnet hast, funktionieren auch offline.",
+  "offline_retry": "Erneut versuchen"
 }

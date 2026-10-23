@@ -33,5 +33,8 @@
   "form_remove": "Retirer",
   "tool_progress": "Traitement en cours…",
   "tool_progress_download": "Téléchargement du modèle (première utilisation uniquement)…",
-  "tool_cancel": "Annuler"
+  "tool_cancel": "Annuler",
+  "offline_title": "Vous êtes hors ligne",
+  "offline_description": "Cette page n'est pas encore enregistrée sur cet appareil. Les outils que vous avez déjà ouverts fonctionnent toujours hors ligne.",
+  "offline_retry": "Réessayer"
 }

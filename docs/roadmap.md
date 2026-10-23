@@ -89,7 +89,12 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
     - 输入音频或视频（≤ 1 GB、≤ 60 分钟），由 Mediabunny 解码、混成单声道、重采样到 16 kHz；输出纯文本和 SRT 字幕。语言默认自动识别（Transformers.js 不指定语言时一律按英语转录，所以由 core 自己识别：前 30 秒只解码一步，取语言 token 中 logit 最高的），也可以选 Whisper 支持的 99 种语言，选项名由 `Intl.DisplayNames` 按 Locale 生成（字段 metadata `languageNames`）。进度分"下载模型"和"处理中"两个阶段（`ctx.onProgress` 的 `stage`）。
     - Browser Mode 在三个浏览器上跑 WASM 路径，在有可用 GPU 的浏览器上（本机 macOS 的 WebKit）另跑 WebGPU 路径，两条路径的转录文本一致；德语样例用 WAV，因为各浏览器的 AAC 解码结果略有不同，会让识别结果不同。e2e 覆盖样例转录。⏳ CI 的 Linux 容器里大概率没有可用的 GPU，WebGPU 路径会跳过；真实 Chrome（硬件 adapter + 跨源隔离）的速度待实测。
 - 本地状态：IndexedDB（收藏、最近使用、偏好）、OPFS（中间产物）、"清除本地数据"。
-- 手写 Service Worker：按需缓存、保留 COOP/COEP 响应头、离线兜底页；manifest。
+- ✅ 手写 Service Worker（`src/sw.ts`，postbuild 用 `Bun.build` 打包成 classic 脚本 `/sw.js`，只在生产构建注册）：
+  - 只接管同源 GET：页面网络优先，失败时用缓存，没有缓存就显示该 Locale 的离线页（`/offline`、`/{locale}/offline`，noindex，安装时连同它引用的 CSS、脚本一起预缓存）；`/_astro/` 缓存优先；其他不带哈希的文件网络优先。`/api/*`、`/mcp`、`/models/*`（模型由 `model-files.ts` 自己缓存）、跨源请求和 Range 请求一律放行，分流规则是纯函数（`lib/runtime/sw-routes.ts`）并有单元测试。
+  - 缓存的是原始网络响应，COOP/COEP 原样保留；只缓存同源 200，跳转不缓存。缓存不分版本，新 SW 直接 `skipWaiting` + `clients.claim()`。
+  - 第一次访问时页面在 SW 接管前已加载完：页面用 PerformanceObserver 把没经过 SW 的资源（`workerStart` 为 0，含接管时还在路上的请求）和当前 URL 报给 SW 补缓存。在 SW 接管前就创建的引擎 Worker 不受 SW 控制，它加载的 WASM 要等下次使用时才会被缓存；SW 通常在首次交互之前就已接管。
+  - manifest 每个 Locale 一份（从该 Locale 首页启动，scope 是整站），图标（192、512、maskable、apple-touch-icon）由 postbuild 用 takumi 从 `favicon.svg` 生成。
+  - e2e（`e2e/offline.spec.ts`，由注册表生成）：4 个 Worker Tool 各跑一次 example 后断网，新开页面仍能打开并再跑一次（Speech to Text 的模型来自 `models` 缓存），隔离页在 Chromium 上仍是跨源隔离；没访问过的页面显示对应 Locale 的离线页。本机 Playwright WebKit 跑完 Speech to Text 后 reload 页面会崩溃（不开 SW、不断网也一样），所以用例关掉原页面后新开一页。其他用例默认禁用 SW（`page.route` 拦不到经 SW 处理的请求）。Chromium、WebKit 通过；Firefox 下 Playwright 的离线模拟不作用于 SW 的请求，跳过。⏳ 在真实 Firefox、Safari 里手动确认离线使用。
 - ✅ Vitest Browser Mode 覆盖 WASM、WebCodecs、WebGPU 三条路径（`*.browser.test.ts`，Chromium / Firefox / WebKit）。WebGPU 只在有真实 GPU 的浏览器上跑（本机 macOS 的 WebKit）。
 
 **退出条件**：4 个样板 Tool 在最新版 Chrome、Safari、Firefox 上都能运行（能力缺失时显示 Empty），用过一次后可以离线使用。
@@ -178,4 +183,5 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。多文件控件按需加载，其他 Tool 页不受影响；Merge PDF 页约 158.5 KB，离上限只剩约 1.5 KB。M3 加入进度条和取消按钮后，用同一口径对比前后两次构建：在 Playwright 中加载页面直到网络空闲，把所有脚本逐个 gzip 后求和。JSON Formatter 页从 157.9 KB 增加到 158.3 KB，Merge PDF 页从 159.8 KB 增加到 160.2 KB。这个口径比上面的旧数字高约 1.3 KB（包含空闲时预取的 core），按它算 Merge PDF 页已经略超 160 KB。M6 接入 `@lhci/cli` 时要统一口径，继续往首屏加代码之前先瘦身。M3 加入 Speech to Text（语言名下拉选项、进度阶段）后用同一方法（Node zlib 默认级别 gzip）再测：JSON Formatter 157.6 KB，Merge PDF 159.5 KB，Speech to Text 157.8 KB；和前面的数字压缩级别可能不同，不能直接相减。另外试过把取消按钮也放进按需加载的分块，结果 Base UI 的公共模块被拆成单独的分块，首屏反而多了约 0.6 KB，所以没有采用。
 - 内容近似度阈值（M4 根据样本确定）。
 - 第三方许可证声明：站点会分发 PDFium（Apache-2.0，含它捆绑的第三方库）和 jSquash 编解码器的 WASM、Mediabunny（MPL-2.0）、Transformers.js（Apache-2.0）、ONNX Runtime Web（MIT）以及 Whisper base 的权重（MIT），上线前（M6）要补一个许可证声明页。
+- Service Worker 的 `assets` 缓存不随部署清理（已打开的旧页面还可能按需加载旧分块），每次部署后用过的旧分块会一直留着，直到"清除本地数据"。需要时再加按时间或数量的清理。
 - `_headers` 最多 100 条规则（已核实）。目前 80 条（Speech to Text 加了 4 条跨源隔离规则和 7 条 noindex，已到 80% 告警线），其中 70 条是不可索引页面 `.md` 副本的 `X-Robots-Tag: noindex`，按"页面 × Locale"逐条生成；首发约 30 个 Tool × 7 个 Locale 全是 Draft 时会远超上限。补齐 Tool 之前要换方案，例如让 robots.txt 禁止抓取 Draft 的 `.md`，或核实占位符能否匹配 `/:page.md` 这类半个路径段。

@@ -9,7 +9,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? "github" : "list",
-  use: { baseURL },
+  // page.route 拦不到经 Service Worker 处理的请求（Turnstile、/api/tools 的桩依赖它），
+  // 默认禁用 SW，只在离线用例（e2e/offline.spec.ts）里开启
+  use: { baseURL, serviceWorkers: "block" },
   // 三个引擎都跑：跨源隔离和多线程 WASM 的行为在引擎之间不同（WebKit 不支持 COEP: credentialless）
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },

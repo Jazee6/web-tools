@@ -3,6 +3,7 @@
 // - _redirects：缺失翻译 302 到 en（ADR-0007）
 // - _headers：不可索引页面的 .md 副本加 X-Robots-Tag: noindex；需要跨源隔离的 Tool 页加 COOP/COEP
 // - og/{locale}/{tool}.png
+// - icons/*.png（manifest 图标）、sw.js（Service Worker，注入离线页资源清单）
 import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
@@ -17,6 +18,7 @@ import {
 import { isIndexable, missingTranslationRedirects, renderRedirects } from "../src/lib/seo/indexing";
 import { readCategoryContent, readToolContent, statusesByOwner, loadTools } from "./lib/content";
 import { renderOgImage } from "./lib/og";
+import { buildServiceWorker, icons, renderIcon } from "./lib/pwa";
 
 const root = process.argv[2] ?? "dist/client";
 
@@ -83,6 +85,13 @@ for (const file of toolContent) {
   images++;
 }
 
+for (const icon of icons) {
+  const out = join(root, icon.path);
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, await renderIcon(icon.size, icon.glyph));
+}
+const sw = await buildServiceWorker(root);
+
 console.log(
-  `postbuild：${redirects.length} 条重定向，${noindexMarkdown.length} 个 noindex .md，${isolated.length} 条跨源隔离规则，${images} 张 OG 图`,
+  `postbuild：${redirects.length} 条重定向，${noindexMarkdown.length} 个 noindex .md，${isolated.length} 条跨源隔离规则，${images} 张 OG 图，${icons.length} 个图标，sw.js 预缓存 ${sw.assets.length} 个离线页资源`,
 );
