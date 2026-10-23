@@ -25,5 +25,10 @@
   "tool_unsupported_title": "このブラウザではこのツールを実行できません",
   "tool_unsupported_description": "{features} が必要ですが、このブラウザは対応していません。最新版の Chrome、Edge、Firefox、Safari をお試しください。",
   "form_file_too_large": "ファイルが大きすぎます。",
-  "form_file_type": "このファイル形式には対応していません。"
+  "form_file_type": "このファイル形式には対応していません。",
+  "form_files_min": "ファイルを {count} 個以上選択してください。",
+  "form_files_max": "選択できるファイルは {count} 個までです。",
+  "form_move_up": "上へ移動",
+  "form_move_down": "下へ移動",
+  "form_remove": "削除"
 }

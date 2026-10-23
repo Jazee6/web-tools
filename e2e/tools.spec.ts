@@ -127,10 +127,11 @@ for (const tool of tools) {
         // 文件字段从 examples/ 选择样例文件，其余字段取示例值或 schema 默认值
         const input = { ...v.getDefaults(tool.input), ...example.input } as Record<string, unknown>;
         for (const spec of describeFields(tool.input)) {
-          if (spec.kind === "file") {
+          if (spec.kind === "file" || spec.kind === "files") {
+            const names = [example.files![spec.name]].flat();
             await page
               .locator(`[data-field="${spec.name}"] input[type="file"]`)
-              .setInputFiles(`src/tools/${tool.id}/examples/${example.files![spec.name]}`);
+              .setInputFiles(names.map((name) => `src/tools/${tool.id}/examples/${name}`));
             continue;
           }
           await fill(page, spec.name, spec.kind, input[spec.name]);
@@ -139,6 +140,32 @@ for (const tool of tools) {
         await expectOutput(page, tool, example.output);
       });
     });
+
+    const filesField = describeFields(tool.input).find((spec) => spec.kind === "files");
+    if (filesField) {
+      // 多文件字段：分次添加会追加到列表末尾，可上移、移除，数量不足时行内报错
+      test("orders and validates multi-file inputs", async ({ page }) => {
+        const names = [tool.examples[0].files![filesField.name]].flat();
+        const paths = names.map((name) => `src/tools/${tool.id}/examples/${name}`);
+        await page.goto(`/${tool.id}`);
+        await page.waitForSelector("[data-hydrated]");
+        const field = page.locator(`[data-field="${filesField.name}"]`);
+        const items = field.locator("li");
+        await field.locator('input[type="file"]').setInputFiles(paths[0]!);
+        await page.locator('button[type="submit"]').click();
+        await expect(field.locator(`[data-slot="field-error"]`)).toHaveText(
+          "Choose at least 2 files.",
+        );
+        await field.locator('input[type="file"]').setInputFiles(paths[1]!);
+        await expect(items).toHaveCount(2);
+        await expect(items.nth(1)).toContainText(names[1]!);
+        await items.nth(1).getByRole("button", { name: "Move up" }).click();
+        await expect(items.nth(0)).toContainText(names[1]!);
+        await items.nth(0).getByRole("button", { name: "Remove" }).click();
+        await expect(items).toHaveCount(1);
+        await expect(items.nth(0)).toContainText(names[0]!);
+      });
+    }
 
     if (tool.agent.webmcp) {
       // WebMCP 还在 origin trial，用桩对象验证注册的描述符和 execute 的返回

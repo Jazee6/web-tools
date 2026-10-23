@@ -3,14 +3,15 @@ import * as v from "valibot";
 import type { FieldMetadata, ToolSchema } from "./define-tool";
 
 // 表单派生只支持轻量 Tool 用到的基本类型；遇到其他类型直接报错，避免静默渲染成错误控件。
-// table 是对象数组（每列是字符串或数字），只用于输出；file 是 v.file()，accept 取自 v.mimeType()。
+// table 是对象数组（每列是字符串或数字），只用于输出；file 是 v.file()，accept 取自 v.mimeType()；
+// files 是 v.array(v.file())，有顺序，只用于输入。
 export type FieldSpec =
   | { name: string; kind: "text" | "code" | "url" }
   | { name: string; kind: "number" }
   | { name: string; kind: "boolean" }
   | { name: string; kind: "select"; options: string[] }
   | { name: string; kind: "table"; columns: string[] }
-  | { name: string; kind: "file"; accept: string[] };
+  | { name: string; kind: "file" | "files"; accept: string[] };
 
 type AnySchema = v.GenericSchema & {
   wrapped?: AnySchema;
@@ -25,6 +26,11 @@ const isScalar = (schema: AnySchema) => schema.type === "string" || schema.type 
 const unwrap = (schema: AnySchema): AnySchema =>
   schema.type === "optional" || schema.type === "nullish" ? unwrap(schema.wrapped!) : schema;
 
+const acceptOf = (schema: AnySchema) => {
+  const mimeType = schema.pipe?.find((action) => action.type === "mime_type");
+  return [...((mimeType?.requirement as string[]) ?? [])];
+};
+
 export const describeFields = (schema: ToolSchema): FieldSpec[] =>
   Object.entries(schema.entries).map(([name, entry]) => {
     const base = unwrap(entry as AnySchema);
@@ -37,19 +43,18 @@ export const describeFields = (schema: ToolSchema): FieldSpec[] =>
         return { name, kind: "number" };
       case "boolean":
         return { name, kind: "boolean" };
-      case "file": {
-        const mimeType = base.pipe?.find((action) => action.type === "mime_type");
-        return { name, kind: "file", accept: [...((mimeType?.requirement as string[]) ?? [])] };
-      }
+      case "file":
+        return { name, kind: "file", accept: acceptOf(base) };
       case "picklist":
         return { name, kind: "select", options: [...base.options!] };
       case "array": {
         const item = base.item!;
+        if (item.type === "file") return { name, kind: "files", accept: acceptOf(item) };
         const columns = item.type === "object" ? Object.entries(item.entries!) : [];
         if (columns.length > 0 && columns.every(([, column]) => isScalar(unwrap(column)))) {
           return { name, kind: "table", columns: columns.map(([column]) => column) };
         }
-        throw new Error(`字段 ${name} 的数组元素必须是字符串 / 数字列组成的对象`);
+        throw new Error(`字段 ${name} 的数组元素必须是文件，或字符串 / 数字列组成的对象`);
       }
       default:
         throw new Error(`字段 ${name} 的类型 ${base.type} 不支持表单派生`);
@@ -67,7 +72,7 @@ export const initialValues = (schema: ToolSchema): Record<string, unknown> => {
           ? false
           : field.kind === "select"
             ? field.options[0]
-            : field.kind === "table"
+            : field.kind === "table" || field.kind === "files"
               ? []
               : field.kind === "file"
                 ? undefined

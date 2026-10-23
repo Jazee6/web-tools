@@ -25,5 +25,10 @@
   "tool_unsupported_title": "当前浏览器无法运行此工具",
   "tool_unsupported_description": "它需要 {features}，但当前浏览器不支持。请使用最新版 Chrome、Edge、Firefox 或 Safari。",
   "form_file_too_large": "文件太大。",
-  "form_file_type": "不支持这种文件类型。"
+  "form_file_type": "不支持这种文件类型。",
+  "form_files_min": "请至少选择 {count} 个文件。",
+  "form_files_max": "最多只能选择 {count} 个文件。",
+  "form_move_up": "上移",
+  "form_move_down": "下移",
+  "form_remove": "移除"
 }

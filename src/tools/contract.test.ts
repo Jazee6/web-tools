@@ -36,7 +36,7 @@ describe.each(tools.map((tool) => [tool.id, tool] as const))("%s", (_id, tool) =
 
   it("names example files for file inputs only", () => {
     const fileFields = describeFields(tool.input)
-      .filter((field) => field.kind === "file")
+      .filter((field) => field.kind === "file" || field.kind === "files")
       .map((field) => field.name);
     for (const example of tool.examples) {
       expect(Object.keys(example.files ?? {}).toSorted()).toEqual(fileFields.toSorted());

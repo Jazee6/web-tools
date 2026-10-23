@@ -53,8 +53,8 @@ export type ExampleOutput<T> = { [K in keyof T]: T[K] extends Blob ? ExampleFile
 export interface ToolExample<TIn extends ToolSchema, TOut extends ToolSchema> {
   // 省略的字段取 schema 默认值；文件字段不写在这里，改用 files
   input: Partial<v.InferInput<TIn>>;
-  // 文件字段 → 同目录 examples/ 下的样例文件名
-  files?: Record<string, string>;
+  // 文件字段 → 同目录 examples/ 下的样例文件名；多文件字段按顺序列出
+  files?: Record<string, string | readonly string[]>;
   output: ExampleOutput<v.InferOutput<TOut>>;
 }
 

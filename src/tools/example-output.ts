@@ -20,5 +20,5 @@ export const toExampleShape = (
 // 有文件字段的 Tool 不能注册 Agent Interface：WebMCP 与远程 MCP 的输入输出都只有 JSON
 export const hasFileFields = (tool: AnyTool) =>
   [...describeFields(tool.input), ...describeFields(tool.output)].some(
-    (field) => field.kind === "file",
+    (field) => field.kind === "file" || field.kind === "files",
   );

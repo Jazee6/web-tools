@@ -25,5 +25,10 @@
   "tool_unsupported_title": "This browser can't run this tool",
   "tool_unsupported_description": "It needs {features}, which this browser doesn't support. Try the latest version of Chrome, Edge, Firefox or Safari.",
   "form_file_too_large": "This file is too large.",
-  "form_file_type": "This file type is not supported."
+  "form_file_type": "This file type is not supported.",
+  "form_files_min": "Choose at least {count} files.",
+  "form_files_max": "Choose no more than {count} files.",
+  "form_move_up": "Move up",
+  "form_move_down": "Move down",
+  "form_remove": "Remove"
 }

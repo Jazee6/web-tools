@@ -25,5 +25,10 @@
   "tool_unsupported_title": "Este navegador no puede ejecutar esta herramienta",
   "tool_unsupported_description": "Necesita {features}, que este navegador no admite. Prueba la última versión de Chrome, Edge, Firefox o Safari.",
   "form_file_too_large": "Este archivo es demasiado grande.",
-  "form_file_type": "Este tipo de archivo no es compatible."
+  "form_file_type": "Este tipo de archivo no es compatible.",
+  "form_files_min": "Elige al menos {count} archivos.",
+  "form_files_max": "Elige como máximo {count} archivos.",
+  "form_move_up": "Subir",
+  "form_move_down": "Bajar",
+  "form_remove": "Quitar"
 }

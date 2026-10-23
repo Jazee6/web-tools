@@ -18,7 +18,13 @@ export default defineConfig({
       {
         extends: true,
         optimizeDeps: {
-          exclude: ["@jsquash/jpeg", "@jsquash/webp", "@jsquash/avif", "@jsquash/oxipng"],
+          exclude: [
+            "@jsquash/jpeg",
+            "@jsquash/webp",
+            "@jsquash/avif",
+            "@jsquash/oxipng",
+            "@embedpdf/pdfium",
+          ],
         },
         worker: { format: "es" },
         test: {

@@ -10,10 +10,10 @@ import {
   InputGroupInput,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { hreflang } from "@/lib/i18n/locales";
 import type { FieldSpec } from "@/lib/tool-contract/fields";
 import { m } from "@/paraglide/messages";
-import { getLocale } from "@/paraglide/runtime";
+
+import { formatSize } from "./format-size";
 
 // 表格依赖 TanStack Table，只有用到表格输出的 Tool 才加载
 const OutputTable = lazy(() => import("./OutputTable"));
@@ -40,13 +40,6 @@ function CopyButton({ value }: { value: string }) {
     </InputGroupButton>
   );
 }
-
-const formatSize = (bytes: number) =>
-  new Intl.NumberFormat(hreflang[getLocale()], {
-    style: "unit",
-    unit: bytes < 1024 * 1024 ? "kilobyte" : "megabyte",
-    maximumFractionDigits: 1,
-  }).format(bytes / (bytes < 1024 * 1024 ? 1024 : 1024 * 1024));
 
 // 文件输出：文件名、体积和下载按钮；object URL 随结果更新或卸载时释放
 function FileOutput({ file }: { file: File }) {
@@ -106,6 +99,8 @@ export function ToolOutput({
       </Field>
     );
   }
+
+  if (spec.kind === "files") throw new Error(`多文件字段 ${spec.name} 只能用于输入`);
 
   const text = String(value ?? "");
   const multiline = spec.kind === "code" || spec.kind === "text";

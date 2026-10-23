@@ -35,7 +35,7 @@
 | Q16 | 首发 Category | 开发者/文本/换算、图片、PDF/文档、音视频 + 端侧 AI |
 | Q17 | 图片 | jSquash + 原生 API |
 | Q18 | 音视频 | Mediabunny + WebCodecs（ffmpeg.wasm 按需回退） |
-| Q19 | PDF | pdf.js + pdf-lib 活跃 fork（不用 MuPDF） |
+| Q19 | PDF | PDFium WASM（`@embedpdf/pdfium`，不用 MuPDF；2026-10-23 由 pdf.js + pdf-lib fork 改定，见 ADR-0009） |
 | Q20 | 端侧 AI | Transformers.js + 自托管模型；浏览器内置 AI 可用时优先 |
 | Q21 | 跨源隔离 | 只在声明需要的 Tool 页开启 COOP/COEP |
 | Q22 | 用户状态 | 只存本地（IndexedDB + OPFS），无账号 |
@@ -99,7 +99,7 @@
 
 ## 4. 技术栈
 
-所有依赖均已确认（§1 Q17–Q20、Q25、Q32、Q45–Q47）；M2 起新增 `@modelcontextprotocol/server`、`@tanstack/react-table`（2026-10-22 确认）；M3 新增 `@jsquash/jpeg`、`@jsquash/webp`、`@jsquash/avif`、`@jsquash/oxipng`、`@vitest/browser-playwright`（2026-10-23 确认）。
+所有依赖均已确认（§1 Q17–Q20、Q25、Q32、Q45–Q47）；M2 起新增 `@modelcontextprotocol/server`、`@tanstack/react-table`（2026-10-22 确认）；M3 新增 `@jsquash/jpeg`、`@jsquash/webp`、`@jsquash/avif`、`@jsquash/oxipng`、`@vitest/browser-playwright`、`@embedpdf/pdfium`（2026-10-23 确认）。
 
 | 层 | 选型 |
 |---|---|
@@ -111,7 +111,7 @@
 | UI 文案 i18n | Paraglide JS + Astro i18n routing |
 | 图片 | jSquash（mozjpeg/oxipng/webp/avif/jxl，按格式按需加载）+ OffscreenCanvas / ImageDecoder |
 | 音视频 | Mediabunny + WebCodecs；ffmpeg.wasm 只给小众格式按需回退 |
-| PDF | pdf.js（渲染、提取文字）+ pdf-lib 活跃 fork（合并、拆分、编辑） |
+| PDF | PDFium WASM（`@embedpdf/pdfium`）：渲染、提取文字、合并、拆分、编辑，在 Web Worker 里运行 |
 | 端侧 AI | Transformers.js（ONNX Runtime Web + WebGPU）；有浏览器内置 AI 时优先用 |
 | 远程 MCP | `@modelcontextprotocol/server` v2 的 `createMcpHandler`（无状态 Streamable HTTP，不使用 Durable Objects；ADR-0014） |
 | SEO | `schema-dts`（JSON-LD 类型）、takumi（`@takumi-rs/core`，构建期生成 OG 图 PNG）、自写的 sitemap / hreflang / llms.txt 生成器 |
@@ -213,6 +213,7 @@ export default defineTool({
 - `agent.remote: true` 要求输入输出都可以 JSON 序列化、不含文件，并且能在 Workers CPU 预算内跑完（Free 计划下每个请求只有 10ms）。
 - `runtime.worker` 与 `run` 二选一（注册表校验）：Worker Tool 的 core 只由 `engine.worker.ts` 引用，经 `lib/runtime/rpc.ts` 的类型化 RPC 调用，编码器和 WASM 不进主线程和服务端的模块图。它的 examples 在 Vitest Browser Mode（Chromium / Firefox / WebKit）里经 Worker 跑。
 - 有文件字段的 Tool 不能注册 WebMCP 或远程 MCP：两者的输入输出都只有 JSON（ADR-0016）。
+- 文件字段：`v.file()` 派生单文件输入和下载输出；`v.array(v.file())` 派生有序的多文件输入（可分次添加、上移下移、移除，只用于输入，控件按需加载），数量用数组的 `v.minLength` / `v.maxLength` 限制，examples 的 `files` 按顺序写文件名数组。
 - 契约里没有 `ui` 字段：页面表单从 `input` 派生，island 通过 `tool-loader` 按 id 懒加载 `tool.ts`（每个 Tool 一个分块）；服务端渲染前先加载好，客户端水合时挂起并保留服务端 HTML。
 - `core` 的可预期错误抛 `ToolError(code, { field, detail })`：`code` 对应内容 frontmatter 的 `errors` 文案，`field` 指明在哪个字段下行内显示。
 

@@ -40,6 +40,17 @@ describe("describeFields", () => {
     expect(initialValues(v.object({ file }))).toEqual({ file: undefined });
   });
 
+  it("derives ordered multi-file inputs from arrays of files", () => {
+    const files = v.pipe(
+      v.array(v.pipe(v.file(), v.mimeType(["application/pdf"]))),
+      v.minLength(2),
+    );
+    expect(describeFields(v.object({ files }))).toEqual([
+      { name: "files", kind: "files", accept: ["application/pdf"] },
+    ]);
+    expect(initialValues(v.object({ files }))).toEqual({ files: [] });
+  });
+
   it("rejects unsupported types", () => {
     expect(() => describeFields(v.object({ list: v.array(v.string()) }))).toThrow(/数组元素/);
     expect(() => describeFields(v.object({ when: v.date() }))).toThrow(/不支持/);

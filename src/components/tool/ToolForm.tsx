@@ -75,8 +75,16 @@ interface RunError {
 const noopSubscribe = () => () => {};
 
 const Unsupported = lazy(() => import("./Unsupported"));
+const FilesInput = lazy(() => import("./FilesInput"));
 
 const issueMessage = (issue: v.BaseIssue<unknown>) => {
+  // 多文件字段的数量限制
+  if (Array.isArray(issue.input) && issue.type === "min_length") {
+    return m.form_files_min({ count: String(issue.requirement) });
+  }
+  if (Array.isArray(issue.input) && issue.type === "max_length") {
+    return m.form_files_max({ count: String(issue.requirement) });
+  }
   if (issue.type === "non_empty" || issue.type === "min_length" || issue.input === undefined) {
     return m.form_required();
   }
@@ -181,9 +189,13 @@ export function ToolForm({
         const result = v.safeParse(tool.input, value);
         if (result.success) return undefined;
         const errors: Record<string, string> = {};
+        // 错误挂在顶层字段上；多文件字段里某个文件不合格时，在文案前加上文件名
         for (const issue of result.issues) {
-          const key = v.getDotPath(issue);
-          if (key && !errors[key]) errors[key] = issueMessage(issue);
+          const [field, item] = issue.path ?? [];
+          const key = field?.key as string | undefined;
+          if (!key || errors[key]) continue;
+          const message = issueMessage(issue);
+          errors[key] = item?.value instanceof File ? `${item.value.name}: ${message}` : message;
         }
         return { fields: errors };
       },
@@ -353,6 +365,20 @@ export function ToolForm({
             onBlur={field.handleBlur}
             onChange={(event) => onChange(event.target.files?.[0])}
           />
+        );
+      case "files":
+        return (
+          <Suspense>
+            <FilesInput
+              id={id}
+              name={field.name}
+              accept={spec.accept}
+              files={field.state.value as File[]}
+              invalid={invalid}
+              onBlur={field.handleBlur}
+              onChange={onChange}
+            />
+          </Suspense>
         );
       case "table":
         throw new Error(`表格字段 ${spec.name} 只能用于输出`);

@@ -25,5 +25,10 @@
   "tool_unsupported_title": "Ce navigateur ne peut pas exécuter cet outil",
   "tool_unsupported_description": "Il nécessite {features}, que ce navigateur ne prend pas en charge. Essayez la dernière version de Chrome, Edge, Firefox ou Safari.",
   "form_file_too_large": "Ce fichier est trop volumineux.",
-  "form_file_type": "Ce type de fichier n'est pas pris en charge."
+  "form_file_type": "Ce type de fichier n'est pas pris en charge.",
+  "form_files_min": "Choisissez au moins {count} fichiers.",
+  "form_files_max": "Choisissez au maximum {count} fichiers.",
+  "form_move_up": "Monter",
+  "form_move_down": "Descendre",
+  "form_remove": "Retirer"
 }

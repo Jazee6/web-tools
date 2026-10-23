@@ -82,7 +82,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ✅ 契约支持文件字段：`v.file()` + `v.mimeType()` 派生文件输入和下载输出；examples 用 `files` 指向样例文件，输出文件只比较 MIME 类型和体积上限。WebMCP 只支持 JSON，文件型 Tool 暂不注册 Agent Interface（ADR-0016）。
 - 每个引擎先做一个样板 Tool：
   - ✅ 图片：jSquash（Image Compressor，新增 Category `image`，7 个 Locale 内容为 Draft）。JPEG / PNG / WebP / AVIF 四个样例在 Chromium、Firefox、WebKit 上都通过：Vitest Browser Mode 跑未隔离的单线程路径，页面级 e2e 在 Chromium、Firefox 上跑隔离后的多线程路径、在 WebKit 上跑单线程回退。
-  - PDF：pdf.js + pdf-lib fork（Merge PDF）。
+  - ✅ PDF：PDFium WASM（`@embedpdf/pdfium`，替代原定的 pdf.js + pdf-lib fork，见 ADR-0009 补充）做 Merge PDF，新增 Category `pdf`，7 个 Locale 内容为 Draft。WASM 约 4.6 MB，走同源静态资源，不需要跨源隔离。契约支持有序的多文件输入 `v.array(v.file())`。Browser Mode 在 Chromium、Firefox、WebKit 上核对页序、加密 PDF 和损坏文件报错，e2e 覆盖合并、排序和数量校验。
   - 音视频：Mediabunny + WebCodecs（Video Converter）。
   - 端侧 AI：Transformers.js + WebGPU，模型从 R2 assets 子域加载（Speech to Text），并带 Progress。
 - 本地状态：IndexedDB（收藏、最近使用、偏好）、OPFS（中间产物）、"清除本地数据"。
@@ -172,6 +172,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ~~Rate Limiting binding 在 Free 计划上是否可用~~：可用，但计数近似（见 M2）。
 - `/mcp` 冷启动 CPU 尖峰（16–42ms）在 Free 计划上是否会触发 CPU 超限，需要持续观察。
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
-- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。
+- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。多文件控件按需加载，其他 Tool 页不受影响；Merge PDF 页约 158.5 KB，离上限只剩约 1.5 KB。
 - 内容近似度阈值（M4 根据样本确定）。
-- `_headers` 最多 100 条规则（已核实）。目前 41 条，其中 35 条是不可索引页面 `.md` 副本的 `X-Robots-Tag: noindex`，按"页面 × Locale"逐条生成；首发约 30 个 Tool × 7 个 Locale 全是 Draft 时会远超上限。补齐 Tool 之前要换方案，例如让 robots.txt 禁止抓取 Draft 的 `.md`，或核实占位符能否匹配 `/:page.md` 这类半个路径段。
+- 第三方许可证声明：站点会分发 PDFium（Apache-2.0，含它捆绑的第三方库）和 jSquash 编解码器的 WASM，上线前（M6）要补一个许可证声明页。
+- `_headers` 最多 100 条规则（已核实）。目前 55 条，其中 49 条是不可索引页面 `.md` 副本的 `X-Robots-Tag: noindex`，按"页面 × Locale"逐条生成；首发约 30 个 Tool × 7 个 Locale 全是 Draft 时会远超上限。补齐 Tool 之前要换方案，例如让 robots.txt 禁止抓取 Draft 的 `.md`，或核实占位符能否匹配 `/:page.md` 这类半个路径段。
