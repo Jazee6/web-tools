@@ -76,6 +76,7 @@ const noopSubscribe = () => () => {};
 
 const Unsupported = lazy(() => import("./Unsupported"));
 const FilesInput = lazy(() => import("./FilesInput"));
+const RunProgress = lazy(() => import("./RunProgress"));
 
 const issueMessage = (issue: v.BaseIssue<unknown>) => {
   // 多文件字段的数量限制
@@ -122,6 +123,9 @@ export function ToolForm({
   const outputFields = useMemo(() => describeFields(tool.output), [tool]);
   const [output, setOutput] = useState<Values>();
   const [runError, setRunError] = useState<RunError>();
+  // Worker Tool 运行中回报的进度（0–1）与取消用的 controller
+  const [progress, setProgress] = useState<number>();
+  const running = useRef<AbortController>(undefined);
   const server = tool.runtime.where === "server";
   // Server-assisted Tool 的 Turnstile widget 渲染在这里（需要交互时才可见）
   const challenge = useRef<HTMLDivElement>(null);
@@ -202,16 +206,28 @@ export function ToolForm({
     },
     onSubmit: async ({ value }) => {
       setRunError(undefined);
+      const controller = new AbortController();
+      running.current = controller;
       try {
-        setOutput(await invokeTool(tool, v.parse(tool.input, value), getToken));
+        setOutput(
+          await invokeTool(tool, v.parse(tool.input, value), getToken, {
+            signal: controller.signal,
+            onProgress: setProgress,
+          }),
+        );
       } catch (error) {
         setOutput(undefined);
+        // 用户主动取消，不算错误
+        if (controller.signal.aborted) return;
         const message = errorMessage(error, strings);
         if (!message) console.error(error);
         setRunError({
           field: error instanceof ToolError ? error.field : undefined,
           message: message ?? m.tool_error(),
         });
+      } finally {
+        running.current = undefined;
+        setProgress(undefined);
       }
     },
   });
@@ -435,12 +451,29 @@ export function ToolForm({
             ))}
             <form.Subscribe selector={(state) => state.isSubmitting}>
               {(submitting) => (
-                <Field orientation="horizontal">
-                  <Button type="submit" disabled={submitting}>
-                    {submitting && <Spinner />}
-                    {strings.action}
-                  </Button>
-                </Field>
+                <>
+                  <Field orientation="horizontal">
+                    <Button type="submit" disabled={submitting}>
+                      {submitting && <Spinner />}
+                      {strings.action}
+                    </Button>
+                    {/* 只有 Worker Tool 能中途取消（Worker RPC 会把 abort 转给 core） */}
+                    {submitting && tool.runtime.worker && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => running.current?.abort()}
+                      >
+                        {m.tool_cancel()}
+                      </Button>
+                    )}
+                  </Field>
+                  {submitting && progress !== undefined && (
+                    <Suspense>
+                      <RunProgress ratio={progress} />
+                    </Suspense>
+                  )}
+                </>
               )}
             </form.Subscribe>
           </FieldGroup>

@@ -102,6 +102,17 @@ for (const tool of tools) {
       });
     }
 
+    if (tool.runtime.requires?.includes("webcodecs")) {
+      test("shows an unsupported state without WebCodecs", async ({ page }) => {
+        await page.addInitScript(() => {
+          delete (globalThis as { VideoEncoder?: unknown }).VideoEncoder;
+        });
+        await page.goto(`/${tool.id}`);
+        await expect(page.locator("[data-unsupported]")).toContainText("WebCodecs");
+        await expect(page.locator('button[type="submit"]')).toHaveCount(0);
+      });
+    }
+
     if (tool.runtime.crossOriginIsolated) {
       // _headers 按页加了 COOP/COEP（ADR-0008）。WebKit 不支持 COEP: credentialless，页面不隔离，
       // 多线程 WASM 退回单线程，examples 在三个引擎上都要能跑通。

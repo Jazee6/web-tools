@@ -30,5 +30,7 @@
   "form_files_max": "最多只能选择 {count} 个文件。",
   "form_move_up": "上移",
   "form_move_down": "下移",
-  "form_remove": "移除"
+  "form_remove": "移除",
+  "tool_progress": "正在处理…",
+  "tool_cancel": "取消"
 }

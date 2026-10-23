@@ -99,7 +99,7 @@
 
 ## 4. 技术栈
 
-所有依赖均已确认（§1 Q17–Q20、Q25、Q32、Q45–Q47）；M2 起新增 `@modelcontextprotocol/server`、`@tanstack/react-table`（2026-10-22 确认）；M3 新增 `@jsquash/jpeg`、`@jsquash/webp`、`@jsquash/avif`、`@jsquash/oxipng`、`@vitest/browser-playwright`、`@embedpdf/pdfium`（2026-10-23 确认）。
+所有依赖均已确认（§1 Q17–Q20、Q25、Q32、Q45–Q47）；M2 起新增 `@modelcontextprotocol/server`、`@tanstack/react-table`（2026-10-22 确认）；M3 新增 `@jsquash/jpeg`、`@jsquash/webp`、`@jsquash/avif`、`@jsquash/oxipng`、`@vitest/browser-playwright`、`@embedpdf/pdfium`、`mediabunny`（2026-10-23 确认）。
 
 | 层 | 选型 |
 |---|---|
@@ -110,7 +110,7 @@
 | 校验 | Valibot（Tool 契约、表单、API）+ `@valibot/to-json-schema`；Zod 只出现在 `content.config.ts` |
 | UI 文案 i18n | Paraglide JS + Astro i18n routing |
 | 图片 | jSquash（mozjpeg/oxipng/webp/avif/jxl，按格式按需加载）+ OffscreenCanvas / ImageDecoder |
-| 音视频 | Mediabunny + WebCodecs；ffmpeg.wasm 只给小众格式按需回退 |
+| 音视频 | Mediabunny + WebCodecs，在 Web Worker 里运行；ffmpeg.wasm 只给小众格式按需回退。输出 codec 在运行时按浏览器能编码的范围选，MP4 / MOV 优先 H.264 + AAC，没有 AAC 编码器时（如 Firefox）音频改用 Opus |
 | PDF | PDFium WASM（`@embedpdf/pdfium`）：渲染、提取文字、合并、拆分、编辑，在 Web Worker 里运行 |
 | 端侧 AI | Transformers.js（ONNX Runtime Web + WebGPU）；有浏览器内置 AI 时优先用 |
 | 远程 MCP | `@modelcontextprotocol/server` v2 的 `createMcpHandler`（无状态 Streamable HTTP，不使用 Durable Objects；ADR-0014） |
@@ -340,7 +340,8 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 ## 13. 客户端运行时
 
 - **线程模型**：所有重型计算都在 Dedicated Web Worker 中进行，主线程只负责 UI。Worker 通信用一个很薄的、自写的类型化 RPC，传大数据时用 Transferable 零拷贝。
-- **能力探测**：页面加载时检测 `runtime.requires`（WebGPU、WebCodecs、`crossOriginIsolated`、OPFS）；缺失时显示 Empty 状态说明原因，不做降级实现。
+- **能力探测**：页面加载时检测 `runtime.requires`（WebGPU、WebCodecs、`crossOriginIsolated`、OPFS）；缺失时显示 Empty 状态说明原因，不做降级实现。`webcodecs` 要求音视频的编码器和解码器四个接口都在。
+- **进度与取消**：Worker Tool 运行时，`ctx.onProgress` 回报的进度显示为 Progress（组件按需加载），提交按钮旁出现取消按钮，经 `ctx.signal` 转给 core；用户主动取消不显示错误。
 - **跨源隔离**：构建时根据注册表生成 `_headers`，只对 `crossOriginIsolated: true` 的 Tool 页（含其 Variant 和各 Locale 版本）加上 `COOP: same-origin` 和 `COEP: credentialless`；on-demand 模式下，SSR 的 Variant 页由 Worker 中间件补上同样的响应头。隔离页创建的 Dedicated Worker 由脚本自身的响应头决定 COEP，缺少时浏览器直接拦截，所以 `/_astro/*` 也加 `COEP: credentialless`（对非文档、非 Worker 资源没有影响）。没有隔离时（例如 Safari 不支持 `credentialless`），多线程 WASM 自动退回单线程。
 - **WASM 与模型**：
   - 不超过 25 MiB 的 WASM 走同源静态资源，文件名带哈希，设置 immutable 缓存。

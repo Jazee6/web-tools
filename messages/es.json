@@ -30,5 +30,7 @@
   "form_files_max": "Elige como máximo {count} archivos.",
   "form_move_up": "Subir",
   "form_move_down": "Bajar",
-  "form_remove": "Quitar"
+  "form_remove": "Quitar",
+  "tool_progress": "Procesando…",
+  "tool_cancel": "Cancelar"
 }
