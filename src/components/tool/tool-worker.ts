@@ -5,10 +5,14 @@ import { type AnyTool, type ToolContext, ToolError } from "@/lib/tool-contract/d
 // 首次调用时创建并保留（WASM 只初始化一次）。崩溃或出现意外错误（不是 ToolError、也不是用户取消）后丢弃，
 // 下次调用重建：引擎内部状态可能已经坏掉，例如 WebGPU 初始化失败后 Transformers.js 无法再创建任何 session。
 // 本模块只在提交时按需加载，不进首屏。
-const constructors = import.meta.glob<{ default: new () => Worker }>(
-  "../../tools/*/engine.worker.ts",
-  { query: "?worker" },
-);
+// 服务端渲染不会运行 Worker：SSR 构建里不引用 engine.worker.ts，否则编码器和 WASM 会被打进 Worker 的上传包
+// （on-demand 模式的 Variant 页在 Worker 里 SSR，ADR-0004）
+const constructors: Record<string, () => Promise<{ default: new () => Worker }>> = import.meta.env
+  .SSR
+  ? {}
+  : import.meta.glob<{ default: new () => Worker }>("../../tools/*/engine.worker.ts", {
+      query: "?worker",
+    });
 
 const workers = new Map<string, Promise<Worker>>();
 

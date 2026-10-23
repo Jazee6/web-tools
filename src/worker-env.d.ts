@@ -4,8 +4,22 @@ interface RateLimit {
   limit(options: { key: string }): Promise<{ success: boolean }>;
 }
 
-// oxlint-disable-next-line typescript/no-empty-object-type -- 由 worker-configuration.d.ts 生成的 ASSETS 绑定用到
-interface Fetcher {}
+// 由 worker-configuration.d.ts 生成的 ASSETS 绑定用到；on-demand 模式的 Variant 页经它读取内容包
+interface Fetcher {
+  fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+}
+
+// Workers 的默认缓存（on-demand 模式的 Variant 页写入这里）
+interface CacheStorage {
+  readonly default: Cache;
+}
+
+// astro.config.ts 用 vite.define 注入的构建常量
+interface ImportMetaEnv {
+  readonly VARIANT_RENDER_MODE: import("./lib/variant-mode").VariantRenderMode;
+  // 每次构建不同，作为 on-demand 模式 Variant 缓存键的部署版本号
+  readonly BUILD_ID: string;
+}
 
 declare module "cloudflare:workers" {
   export const env: Cloudflare.Env;

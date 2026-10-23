@@ -18,7 +18,8 @@
     "check:limits": "bun scripts/check-limits.ts",
     "deploy": "wrangler deploy",
     "check:content": "bun scripts/check-content.ts",
-    "check:seo": "bun scripts/check-seo.ts"
+    "check:seo": "bun scripts/check-seo.ts",
+    "check:variant-modes": "bun scripts/check-variant-modes.ts"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.2",

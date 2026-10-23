@@ -53,6 +53,8 @@ jobs:
       - run: bun run build
       - run: bun run check:limits
       - run: bun run check:seo
+      # 另建一份 on-demand 模式的产物，与 static 模式逐字节对比（ADR-0004）
+      - run: bun run check:variant-modes
       - run: bun run test:e2e
 
   preview:

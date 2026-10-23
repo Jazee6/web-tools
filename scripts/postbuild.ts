@@ -18,6 +18,7 @@ import {
 import { missingTranslationRedirects, renderRedirects } from "../src/lib/seo/indexing";
 import { canonicalMarkdownRule } from "../src/lib/seo/markdown";
 import { site } from "../src/lib/site";
+import { resolveVariantMode } from "../src/lib/variant-mode";
 import {
   readCategoryContent,
   readToolContent,
@@ -35,8 +36,11 @@ const toolContent = await readToolContent();
 const categoryContent = await readCategoryContent();
 const toolStatuses = statusesByOwner(toolContent);
 const categoryStatuses = statusesByOwner(categoryContent);
-// Variant 的 owner 是 "<tool>/<variant>"，即它的路径
-const variantStatuses = statusesByOwner(await readVariantContent());
+// Variant 的 owner 是 "<tool>/<variant>"，即它的路径。on-demand 模式下缺失翻译由 Worker 返回 302（ADR-0004）
+const variantStatuses =
+  resolveVariantMode(process.env.VARIANT_RENDER_MODE) === "static"
+    ? statusesByOwner(await readVariantContent())
+    : new Map();
 const pages = [...toolStatuses, ...variantStatuses, ...categoryStatuses].map(([id, statuses]) => ({
   path: `/${id}`,
   statuses,

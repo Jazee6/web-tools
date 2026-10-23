@@ -235,7 +235,7 @@ URL 是扁平的：英文没有前缀，其他 Locale 用 `/{locale}/` 前缀（
 
 ### Variant 渲染模式
 
-Variant 有两种渲染模式，由一个配置开关切换（路由的 `prerender` 导出跟着开关变）。无论哪种模式，sitemap、hreflang、llms.txt、⌘K 索引都**从注册表、Variant 数据和 Review Status 生成**，不扫描构建产物，所以切换模式时这些都不受影响。
+Variant 有两种渲染模式，由一个配置开关切换（`src/lib/variant-mode.ts` 的 `configuredVariantMode`，构建时可用环境变量 `VARIANT_RENDER_MODE` 覆盖）。两种模式各有一套路由入口（`src/routes/variant/{static,on-demand}/`），`astro.config.ts` 按模式用 `injectRoute` 注入；页面都由同一个 `VariantPage.astro` 渲染，数据是构建期生成的可序列化 `VariantPageData`（`lib/variant-page.ts`）。无论哪种模式，sitemap、hreflang、llms.txt、⌘K 索引都**从注册表、Variant 数据和 Review Status 生成**，不扫描构建产物，所以切换模式时这些都不受影响。
 
 **static 模式（当前，Workers Free）**
 
@@ -245,9 +245,10 @@ Variant 有两种渲染模式，由一个配置开关切换（路由的 `prerend
 
 **on-demand 模式（升级到 Paid 后）**
 
-- 构建时把 Variant 内容按 **Tool × Locale** 打包成 JSON 静态资源（约 300 × 7 ≈ 2,100 个文件），Worker 渲染时通过 `env.ASSETS.fetch` 读取，并在 isolate 内存里缓存解析结果。
-- 渲染结果写入 Cache API，缓存键带部署版本号，部署后旧缓存自然失效；响应头使用 `s-maxage` + `stale-while-revalidate`。
-- 不存在的 Variant 或未发布的 Locale 由 Worker 直接返回 404 或 302。
+- 构建时把 Variant 的 `VariantPageData` 按 **Tool × Locale** 打包成 JSON 静态资源（`/variant-data/{locale}/{tool}.json`，约 300 × 7 ≈ 2,100 个文件），Worker 渲染时通过 `env.ASSETS.fetch` 读取，并在 isolate 内存里缓存解析结果（`lib/variant-ssr.ts`）。SSR 路由不引用注册表和 Content Collections，内容不进 Worker 的代码包；`tool-worker.ts` 在 SSR 构建里不引用 `engine.worker.ts`，否则编码器和 WASM 会被打进上传包（实测 on-demand 模式上传约 690 KiB gzip，static 模式约 410 KiB）。
+- 渲染结果由 middleware 写入 Cache API，缓存键是路径加构建号（`BUILD_ID`，每次构建不同），部署后旧缓存自然失效，查询参数不进键；响应头使用 `s-maxage` + `stale-while-revalidate`，并带 `X-Variant-Cache: hit | miss`。SSR 响应不经过 `_headers`，隔离 Tool 的 COOP/COEP 和 `.md` 的 canonical Link 头由路由自己加上。
+- 不存在的 Variant 或未发布的 Locale 由 Worker 直接返回 404 或 302（`_redirects` 不再包含 Variant）。路由参数逐项严格校验：`[...locale]` 可能是任意多段，`/en/...` 不合法。
+- `bun run check:variant-modes`（CI 中运行）另建一份 on-demand 产物，与 static 模式逐字节对比：其他静态产物（页面、sitemap、llms.txt、⌘K 索引、`_headers`）、每个 Variant 页和 `.md` 副本的 SSR 输出（第一轮各 Locale 交错并发、全部未命中缓存，第二轮命中缓存）、缺失翻译的 302、不存在页面的 404。
 - 切换条件见 §20。
 
 ### 页面性能特性

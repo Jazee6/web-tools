@@ -13,6 +13,7 @@
     "bun.lock",
     ".astro/",
     "dist/",
+    "dist-on-demand/",
     "docs/",
     "/*.md"
   ]

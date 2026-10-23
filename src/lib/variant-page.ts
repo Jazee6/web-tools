@@ -1,6 +1,7 @@
 // Variant 页的全部数据，在构建期从注册表和内容生成，可以 JSON 序列化（ADR-0004）：
 // static 模式作为 props 传给 VariantPage.astro，on-demand 模式打包成 JSON 由 Worker 读取后渲染同一个组件，
-// 两种模式的 HTML 因此一致。Markdown 副本也从这里生成。
+// 两种模式的 HTML 因此一致。Markdown 副本也从它生成（variant-markdown.ts）。
+// 这个模块读注册表和内容，只在构建期运行；SSR 路由只能引用它的类型。
 import { toolStrings } from "@/components/pages/tool-island";
 import type { ToolPresetProps, ToolStrings } from "@/components/tool/ToolIsland";
 import { type Catalog, categoryOf, toolOf, type VariantNode } from "@/lib/catalog";
@@ -8,14 +9,14 @@ import { hreflang, type Locale, localizePath } from "@/lib/i18n/locales";
 import { ogImagePath } from "@/lib/og";
 import { type Alternate, alternates, isIndexable, markdownHref } from "@/lib/seo/indexing";
 import { breadcrumbJsonLd, type Crumb, faqJsonLd, webApplicationJsonLd } from "@/lib/seo/json-ld";
-import { renderToolMarkdown } from "@/lib/seo/markdown";
-import { site } from "@/lib/site";
 import { fileTypesOf } from "@/lib/tool-contract/fields";
 import { acceptOf } from "@/lib/tool-contract/file-type";
 import { m } from "@/paraglide/messages";
 
 export interface VariantPageData {
   toolId: string;
+  // on-demand 模式下由 SSR 路由补上 COOP/COEP（static 模式由 _headers 负责）
+  crossOriginIsolated: boolean;
   locale: Locale;
   path: string;
   head: {
@@ -108,6 +109,7 @@ export const variantPageData = (
 
   return {
     toolId: toolNode.id,
+    crossOriginIsolated: Boolean(toolNode.tool.runtime.crossOriginIsolated),
     locale,
     path,
     head: {
@@ -157,37 +159,4 @@ export const variantPageData = (
       }),
     },
   };
-};
-
-// Variant 页的 .md 副本：与 HTML 同序（答案 → 步骤 → 独有数据表格 → 正文 → FAQ → 相关链接）
-export const renderVariantMarkdown = (data: VariantPageData): string => {
-  const options = { locale: data.locale };
-  const updated = new Intl.DateTimeFormat(hreflang[data.locale], { dateStyle: "long" }).format(
-    new Date(data.updated),
-  );
-  return renderToolMarkdown({
-    name: data.name,
-    answer: data.answer,
-    url: new URL(data.path, site.url).href,
-    updated,
-    headings: {
-      steps: m.tool_steps({}, options),
-      faq: m.tool_faq({}, options),
-      related: data.more.heading,
-      updated: m.page_updated({ date: updated }, options),
-    },
-    steps: data.steps,
-    table: {
-      caption: data.table.caption,
-      header: data.table.columns.map((column) => data.table.labels[column]!),
-      rows: data.table.rows.map((row) => data.table.columns.map((column) => row[column]!)),
-    },
-    body: data.markdown,
-    faq: data.faq,
-    related: data.more.links.map((link) => ({
-      name: link.name,
-      path: link.markdown,
-      summary: link.summary,
-    })),
-  });
 };

@@ -19,6 +19,8 @@ export const reservedSlugs = [
   "manifest",
   "icons",
   "sw",
+  // on-demand 模式的 Variant 内容包（/variant-data/{locale}/{tool}.json）
+  "variant-data",
 ] as const;
 
 const TOOL_PATH = /([^/]+)\/tool\.ts$/;
