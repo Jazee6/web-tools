@@ -35,6 +35,15 @@
   "tool_progress_download": "Baixando o modelo (só na primeira vez)…",
   "tool_cancel": "Cancelar",
   "offline_title": "Você está offline",
-  "offline_description": "Esta página ainda não foi salva neste dispositivo. As ferramentas que você já abriu continuam funcionando offline.",
-  "offline_retry": "Tentar novamente"
+  "offline_description": "Esta página ainda não foi salva neste dispositivo. As ferramentas que você já usou continuam funcionando offline.",
+  "offline_retry": "Tentar novamente",
+  "search_favorites": "Favoritos",
+  "search_recent": "Usadas recentemente",
+  "search_all": "Todas as ferramentas",
+  "favorite_add": "Adicionar {name} aos favoritos",
+  "favorite_remove": "Remover {name} dos favoritos",
+  "footer_clear": "Limpar dados locais",
+  "clear_title": "Limpar os dados locais?",
+  "clear_description": "Isso remove deste navegador seus favoritos, as ferramentas usadas recentemente, as opções salvas e tudo o que foi salvo para uso offline, incluindo os modelos baixados. Não é possível desfazer.",
+  "clear_confirm": "Limpar dados"
 }

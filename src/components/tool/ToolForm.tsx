@@ -40,7 +40,12 @@ import {
   type ProgressStage,
   ToolError,
 } from "@/lib/tool-contract/define-tool";
-import { describeFields, type FieldSpec, initialValues } from "@/lib/tool-contract/fields";
+import {
+  describeFields,
+  type FieldSpec,
+  initialValues,
+  isPreferenceField,
+} from "@/lib/tool-contract/fields";
 import { m } from "@/paraglide/messages";
 
 import { invokeTool } from "./invoke";
@@ -128,6 +133,10 @@ export function ToolForm({
 }) {
   const fields = useMemo(() => describeFields(tool.input), [tool]);
   const outputFields = useMemo(() => describeFields(tool.output), [tool]);
+  const preferenceNames = useMemo(
+    () => fields.filter(isPreferenceField).map((spec) => spec.name),
+    [fields],
+  );
   const [output, setOutput] = useState<Values>();
   const [runError, setRunError] = useState<RunError>();
   // Worker Tool 运行中回报的进度（0–1）与取消用的 controller
@@ -222,6 +231,10 @@ export function ToolForm({
             onProgress: (ratio, stage) => setProgress({ ratio, stage }),
           }),
         );
+        // 记入最近使用并保存选项；IndexedDB 不可用时忽略
+        void import("./preferences")
+          .then(({ rememberRun }) => rememberRun(tool.id, preferenceNames, value))
+          .catch(() => {});
       } catch (error) {
         setOutput(undefined);
         // 用户主动取消，不算错误
@@ -238,6 +251,30 @@ export function ToolForm({
       }
     },
   });
+
+  // 水合后恢复上次用过的选项（服务端与首次渲染都用 schema 默认值）
+  useEffect(() => {
+    let active = true;
+    if (preferenceNames.length === 0) return;
+    const initial = form.options.defaultValues as Values;
+    void import("./preferences")
+      .then(({ restorePreferences }) =>
+        restorePreferences(
+          tool.id,
+          {
+            names: preferenceNames,
+            untouched: (name) => form.getFieldValue(name as never) === initial[name],
+            accepts: (name, value) => v.is(tool.input.entries[name], value),
+            set: (name, value) => form.setFieldValue(name as never, value as never),
+          },
+          () => active,
+        ),
+      )
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [tool, form, preferenceNames]);
 
   // WebMCP：把当前 Tool 注册给页面内的 agent，执行结果同步显示在表单上；卸载时注销
   useEffect(() => {

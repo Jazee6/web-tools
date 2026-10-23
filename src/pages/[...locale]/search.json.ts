@@ -18,7 +18,12 @@ export const GET: APIRoute = async ({ props }) => {
     const entry = node.entries[locale];
     if (!entry) return [];
     return [
-      { name: entry.data.name, summary: entry.data.answer, path: localizePath(locale, node.path) },
+      {
+        id: node.id,
+        name: entry.data.name,
+        summary: entry.data.answer,
+        path: localizePath(locale, node.path),
+      },
     ];
   });
   return Response.json(items);

@@ -348,9 +348,9 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
   - 模型文件和超过 25 MiB 的 WASM（例如 ORT 的 WASM）也走同源静态资源（ADR-0018）：构建前由 `scripts/fetch-models.ts` 下载固定版本、校验 sha256，切成不超过 24 MiB 的分片放进 `/models/`；浏览器里按 Tool 的 `model.ts` 清单拼回原文件（`lib/runtime/model-files.ts`）。
   - 模型首次下载时显示 Progress（`ctx.onProgress` 的 `download` 阶段），下载后缓存在 Cache API。
 - **本地状态**：
-  - IndexedDB 保存收藏、最近使用、每个 Tool 的偏好参数。
-  - OPFS 保存大文件的中间产物。
-  - 设置里提供"清除本地数据"。
+  - IndexedDB 保存收藏、最近使用、每个 Tool 的偏好参数（`lib/runtime/local-store.ts`，自写的薄封装）。收藏和最近使用显示在 ⌘K 对话框里；偏好只记选项类字段（select、开关、数字），水合后按需恢复。
+  - OPFS 保存大文件的中间产物（目前还没有 Tool 用到）。
+  - 页脚提供"清除本地数据"：删除 IndexedDB、OPFS、全部 Cache API 缓存，并注销 Service Worker。
   - 用户的文件和输入永不上传（Server-assisted Tool 只发送必要的参数）。
 - **PWA**：
   - 有 manifest，站点可安装。

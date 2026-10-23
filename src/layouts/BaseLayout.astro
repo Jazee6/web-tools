@@ -1,5 +1,6 @@
 ---
 import "@/styles/global.css";
+import SiteFooter from "@/components/site/SiteFooter.astro";
 import SiteHeader from "@/components/site/SiteHeader.astro";
 import { defaultLocale, hreflang, isLocale, localizePath } from "@/lib/i18n/locales";
 import type { Alternate } from "@/lib/seo/indexing";
@@ -86,8 +87,11 @@ const registerServiceWorker = `if ("serviceWorker" in navigator) {
     {/* 只在生产构建注册，dev 和 HMR 不受影响 */}
     {import.meta.env.PROD && <script is:inline set:html={registerServiceWorker} />}
   </head>
-  <body class="min-h-svh bg-background text-foreground antialiased">
+  <body class="flex min-h-svh flex-col bg-background text-foreground antialiased">
     <SiteHeader />
-    <slot />
+    <div class="flex-1">
+      <slot />
+    </div>
+    <SiteFooter />
   </body>
 </html>

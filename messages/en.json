@@ -35,6 +35,15 @@
   "tool_progress_download": "Downloading the model (first use only)…",
   "tool_cancel": "Cancel",
   "offline_title": "You're offline",
-  "offline_description": "This page hasn't been saved on this device yet. Tools you've opened before still work offline.",
-  "offline_retry": "Try again"
+  "offline_description": "This page hasn't been saved on this device yet. Tools you've used before still work offline.",
+  "offline_retry": "Try again",
+  "search_favorites": "Favorites",
+  "search_recent": "Recently used",
+  "search_all": "All tools",
+  "favorite_add": "Add {name} to favorites",
+  "favorite_remove": "Remove {name} from favorites",
+  "footer_clear": "Clear local data",
+  "clear_title": "Clear local data?",
+  "clear_description": "This removes your favorites, recently used tools, saved options and everything saved for offline use, including downloaded models, from this browser. It can't be undone.",
+  "clear_confirm": "Clear data"
 }

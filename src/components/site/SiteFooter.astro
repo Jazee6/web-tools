@@ -1,0 +1,21 @@
+---
+import { Button } from "@/components/ui/button";
+import { m } from "@/paraglide/messages";
+---
+
+<footer class="border-t">
+  <div class="mx-auto flex max-w-3xl items-center justify-end gap-4 px-4 py-4">
+    {/* 按钮静态渲染，不水合；确认对话框（React）在点击时才加载 */}
+    <Button variant="ghost" size="sm" data-clear-data>
+      {m.footer_clear()}
+    </Button>
+  </div>
+</footer>
+
+<script>
+  const trigger = document.querySelector<HTMLButtonElement>("[data-clear-data]")!;
+  trigger.addEventListener("click", async () => {
+    const { openClearData } = await import("./clear-data-mount");
+    openClearData();
+  });
+</script>

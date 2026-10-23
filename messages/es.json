@@ -35,6 +35,15 @@
   "tool_progress_download": "Descargando el modelo (solo la primera vez)…",
   "tool_cancel": "Cancelar",
   "offline_title": "Sin conexión",
-  "offline_description": "Esta página aún no se ha guardado en este dispositivo. Las herramientas que ya abriste siguen funcionando sin conexión.",
-  "offline_retry": "Reintentar"
+  "offline_description": "Esta página aún no se ha guardado en este dispositivo. Las herramientas que ya usaste siguen funcionando sin conexión.",
+  "offline_retry": "Reintentar",
+  "search_favorites": "Favoritos",
+  "search_recent": "Usadas recientemente",
+  "search_all": "Todas las herramientas",
+  "favorite_add": "Añadir {name} a favoritos",
+  "favorite_remove": "Quitar {name} de favoritos",
+  "footer_clear": "Borrar datos locales",
+  "clear_title": "¿Borrar los datos locales?",
+  "clear_description": "Se eliminarán de este navegador tus favoritos, las herramientas usadas recientemente, las opciones guardadas y todo lo guardado para usar sin conexión, incluidos los modelos descargados. No se puede deshacer.",
+  "clear_confirm": "Borrar datos"
 }

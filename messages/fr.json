@@ -35,6 +35,15 @@
   "tool_progress_download": "Téléchargement du modèle (première utilisation uniquement)…",
   "tool_cancel": "Annuler",
   "offline_title": "Vous êtes hors ligne",
-  "offline_description": "Cette page n'est pas encore enregistrée sur cet appareil. Les outils que vous avez déjà ouverts fonctionnent toujours hors ligne.",
-  "offline_retry": "Réessayer"
+  "offline_description": "Cette page n'est pas encore enregistrée sur cet appareil. Les outils que vous avez déjà utilisés fonctionnent toujours hors ligne.",
+  "offline_retry": "Réessayer",
+  "search_favorites": "Favoris",
+  "search_recent": "Utilisés récemment",
+  "search_all": "Tous les outils",
+  "favorite_add": "Ajouter {name} aux favoris",
+  "favorite_remove": "Retirer {name} des favoris",
+  "footer_clear": "Effacer les données locales",
+  "clear_title": "Effacer les données locales ?",
+  "clear_description": "Vos favoris, les outils utilisés récemment, les options enregistrées et tout ce qui a été enregistré pour une utilisation hors ligne, y compris les modèles téléchargés, seront supprimés de ce navigateur. Cette action est irréversible.",
+  "clear_confirm": "Effacer les données"
 }

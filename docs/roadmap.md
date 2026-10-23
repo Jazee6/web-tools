@@ -88,7 +88,12 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
     - 推理：有真实 GPU 且支持 `shader-f16` 时，encoder 用 WebGPU fp16，decoder 用 WASM int8，下载约 125 MB；否则全部用 WASM int8，约 107 MB。页面开启跨源隔离，让 WASM 多线程。实测 52 秒英文音频（M 系列 Mac）：Safari 混合方案 3.7 s，纯 WASM 单线程 8.6 s；Chromium、Firefox 隔离后多线程约 5–11 s。WebGPU 跑量化的 decoder 反而比 WASM 慢；headless Chromium 只有 SwiftShader（`isFallbackAdapter`），跑 WebGPU 比 WASM 慢 20 倍，所以排除回退 adapter。
     - 输入音频或视频（≤ 1 GB、≤ 60 分钟），由 Mediabunny 解码、混成单声道、重采样到 16 kHz；输出纯文本和 SRT 字幕。语言默认自动识别（Transformers.js 不指定语言时一律按英语转录，所以由 core 自己识别：前 30 秒只解码一步，取语言 token 中 logit 最高的），也可以选 Whisper 支持的 99 种语言，选项名由 `Intl.DisplayNames` 按 Locale 生成（字段 metadata `languageNames`）。进度分"下载模型"和"处理中"两个阶段（`ctx.onProgress` 的 `stage`）。
     - Browser Mode 在三个浏览器上跑 WASM 路径，在有可用 GPU 的浏览器上（本机 macOS 的 WebKit）另跑 WebGPU 路径，两条路径的转录文本一致；德语样例用 WAV，因为各浏览器的 AAC 解码结果略有不同，会让识别结果不同。e2e 覆盖样例转录。⏳ CI 的 Linux 容器里大概率没有可用的 GPU，WebGPU 路径会跳过；真实 Chrome（硬件 adapter + 跨源隔离）的速度待实测。
-- 本地状态：IndexedDB（收藏、最近使用、偏好）、OPFS（中间产物）、"清除本地数据"。
+- ✅ 本地状态（`lib/runtime/local-store.ts`，自写的 IndexedDB 薄封装，不引入 idb）：
+  - 收藏和最近使用放在 ⌘K 对话框里（2026-10-23 确认），没输入搜索词时显示；每行行尾有星标按钮（鼠标、触屏用），在 Tool 页打开时第一项是"收藏 / 取消收藏当前 Tool"（键盘用）。成功运行一次 Tool 记一次最近使用，最多保留 20 条，对话框列前 5 条。
+  - 每个 Tool 自动记住上次的选项：只记 select、开关、数字字段，不记文件和文本；水合后按需加载并恢复，只覆盖用户还没改过的字段，值不再满足 schema 时丢弃。Variant 上线后，预设应优先于本地偏好（M4 处理）。
+  - "清除本地数据"在全站页脚，AlertDialog 二次确认：删除 IndexedDB、OPFS、全部 Cache API 缓存（含模型和 SW 的页面缓存）并注销 Service Worker，然后重新加载页面。
+  - OPFS 目前没有 Tool 写入中间产物（Video Converter 的输出仍整体在内存里），只做了清除；等有 Tool 需要时再加读写。
+  - Browser Mode 覆盖收藏、最近使用、偏好和清除（Playwright 的 WebKit 是临时会话，没有 OPFS，跳过 OPFS 断言）；e2e 覆盖偏好恢复、⌘K 的收藏与最近使用、页脚清除。
 - ✅ 手写 Service Worker（`src/sw.ts`，postbuild 用 `Bun.build` 打包成 classic 脚本 `/sw.js`，只在生产构建注册）：
   - 只接管同源 GET：页面网络优先，失败时用缓存，没有缓存就显示该 Locale 的离线页（`/offline`、`/{locale}/offline`，noindex，安装时连同它引用的 CSS、脚本一起预缓存）；`/_astro/` 缓存优先；其他不带哈希的文件网络优先。`/api/*`、`/mcp`、`/models/*`（模型由 `model-files.ts` 自己缓存）、跨源请求和 Range 请求一律放行，分流规则是纯函数（`lib/runtime/sw-routes.ts`）并有单元测试。
   - 缓存的是原始网络响应，COOP/COEP 原样保留；只缓存同源 200，跳转不缓存。缓存不分版本，新 SW 直接 `skipWaiting` + `clients.claim()`。
@@ -180,7 +185,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ~~Rate Limiting binding 在 Free 计划上是否可用~~：可用，但计数近似（见 M2）。
 - `/mcp` 冷启动 CPU 尖峰（16–42ms）在 Free 计划上是否会触发 CPU 超限，需要持续观察。
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
-- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。多文件控件按需加载，其他 Tool 页不受影响；Merge PDF 页约 158.5 KB，离上限只剩约 1.5 KB。M3 加入进度条和取消按钮后，用同一口径对比前后两次构建：在 Playwright 中加载页面直到网络空闲，把所有脚本逐个 gzip 后求和。JSON Formatter 页从 157.9 KB 增加到 158.3 KB，Merge PDF 页从 159.8 KB 增加到 160.2 KB。这个口径比上面的旧数字高约 1.3 KB（包含空闲时预取的 core），按它算 Merge PDF 页已经略超 160 KB。M6 接入 `@lhci/cli` 时要统一口径，继续往首屏加代码之前先瘦身。M3 加入 Speech to Text（语言名下拉选项、进度阶段）后用同一方法（Node zlib 默认级别 gzip）再测：JSON Formatter 157.6 KB，Merge PDF 159.5 KB，Speech to Text 157.8 KB；和前面的数字压缩级别可能不同，不能直接相减。另外试过把取消按钮也放进按需加载的分块，结果 Base UI 的公共模块被拆成单独的分块，首屏反而多了约 0.6 KB，所以没有采用。
+- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。多文件控件按需加载，其他 Tool 页不受影响；Merge PDF 页约 158.5 KB，离上限只剩约 1.5 KB。M3 加入进度条和取消按钮后，用同一口径对比前后两次构建：在 Playwright 中加载页面直到网络空闲，把所有脚本逐个 gzip 后求和。JSON Formatter 页从 157.9 KB 增加到 158.3 KB，Merge PDF 页从 159.8 KB 增加到 160.2 KB。这个口径比上面的旧数字高约 1.3 KB（包含空闲时预取的 core），按它算 Merge PDF 页已经略超 160 KB。M6 接入 `@lhci/cli` 时要统一口径，继续往首屏加代码之前先瘦身。M3 加入 Speech to Text（语言名下拉选项、进度阶段）后用同一方法（Node zlib 默认级别 gzip）再测：JSON Formatter 157.6 KB，Merge PDF 159.5 KB，Speech to Text 157.8 KB；和前面的数字压缩级别可能不同，不能直接相减。另外试过把取消按钮也放进按需加载的分块，结果 Base UI 的公共模块被拆成单独的分块，首屏反而多了约 0.6 KB，所以没有采用。M3 加入本地状态后用同一方法（Playwright 加载到网络空闲、Node zlib 逐个 gzip 求和）前后对比：JSON Formatter 158.9 → 161.2 KB，Merge PDF 160.8 → 162.2 KB，Speech to Text 159.1 → 161.5 KB，首页 1.3 → 1.7 KB。增量主要是水合后按需加载的 local-store（0.76 KB）和偏好分块（0.28 KB），以及页脚脚本（0.4 KB）；它们不阻塞首次渲染，但这个口径会计入。M6 统一口径时要决定水合后的按需分块算不算首屏。
 - 内容近似度阈值（M4 根据样本确定）。
 - 第三方许可证声明：站点会分发 PDFium（Apache-2.0，含它捆绑的第三方库）和 jSquash 编解码器的 WASM、Mediabunny（MPL-2.0）、Transformers.js（Apache-2.0）、ONNX Runtime Web（MIT）以及 Whisper base 的权重（MIT），上线前（M6）要补一个许可证声明页。
 - Service Worker 的 `assets` 缓存不随部署清理（已打开的旧页面还可能按需加载旧分块），每次部署后用过的旧分块会一直留着，直到"清除本地数据"。需要时再加按时间或数量的清理。

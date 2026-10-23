@@ -84,3 +84,7 @@ export const initialValues = (schema: ToolSchema): Record<string, unknown> => {
     ]),
   );
 };
+
+// 记作本地偏好的字段（architecture §13）：选项类字段，不含文件和自由文本
+export const isPreferenceField = (spec: FieldSpec): boolean =>
+  spec.kind === "number" || spec.kind === "boolean" || spec.kind === "select";

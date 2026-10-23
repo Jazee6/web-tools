@@ -35,6 +35,15 @@
   "tool_progress_download": "モデルをダウンロード中（初回のみ）…",
   "tool_cancel": "キャンセル",
   "offline_title": "オフラインです",
-  "offline_description": "このページはまだこのデバイスに保存されていません。一度開いたツールはオフラインでも使えます。",
-  "offline_retry": "再試行"
+  "offline_description": "このページはまだこのデバイスに保存されていません。一度使ったツールはオフラインでも使えます。",
+  "offline_retry": "再試行",
+  "search_favorites": "お気に入り",
+  "search_recent": "最近使ったツール",
+  "search_all": "すべてのツール",
+  "favorite_add": "{name}をお気に入りに追加",
+  "favorite_remove": "{name}をお気に入りから削除",
+  "footer_clear": "ローカルデータを消去",
+  "clear_title": "ローカルデータを消去しますか？",
+  "clear_description": "お気に入り、最近使ったツール、保存したオプション、オフライン用に保存したすべてのデータ（ダウンロード済みのモデルを含む）をこのブラウザから削除します。元に戻すことはできません。",
+  "clear_confirm": "消去する"
 }
