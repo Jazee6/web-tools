@@ -1,0 +1,96 @@
+---
+import OutputTable from "@/components/tool/OutputTable";
+import { loadTool } from "@/components/tool/tool-loader";
+import ToolIsland from "@/components/tool/ToolIsland";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { hreflang } from "@/lib/i18n/locales";
+import type { VariantPageData } from "@/lib/variant-page";
+import { m } from "@/paraglide/messages";
+
+import PageBreadcrumb from "./PageBreadcrumb.astro";
+import { serverProps } from "./tool-island";
+
+// 只依赖 VariantPageData，不读 Content Collections：on-demand 模式下 Worker 从 JSON 渲染同一个组件（ADR-0004）
+interface Props {
+  data: VariantPageData;
+}
+
+const { data } = Astro.props;
+
+// island 服务端渲染需要同步拿到 Tool（见 tool-loader.ts）。Variant 没有自己的 Agent Interface，不注册 WebMCP
+const tool = await loadTool(data.toolId);
+const server = serverProps(tool);
+
+const updated = new Intl.DateTimeFormat(hreflang[data.locale], { dateStyle: "long" }).format(
+  new Date(data.updated),
+);
+---
+
+<BaseLayout
+  title={data.head.title}
+  description={data.head.description}
+  indexable={data.head.indexable}
+  alternates={data.head.alternates}
+  ogImage={data.head.ogImage}
+  markdown={data.head.markdown}
+  jsonLd={data.head.jsonLd}
+>
+  <main class="typeset mx-auto max-w-3xl px-4 py-8">
+    <PageBreadcrumb crumbs={data.crumbs} />
+    <h1>{data.name}</h1>
+    <p>{data.answer}</p>
+
+    <div class="not-typeset py-6">
+      <ToolIsland
+        client:load
+        toolId={data.toolId}
+        strings={data.island.strings}
+        server={server}
+        variant={data.island.variant}
+      />
+    </div>
+
+    <h2>{m.tool_steps()}</h2>
+    <ol>
+      {data.steps.map((step) => (
+        <li>{step}</li>
+      ))}
+    </ol>
+
+    {/* 独有数据（architecture §11 门槛 2）：静态渲染的 Data Table，不水合 */}
+    <h2>{data.table.caption}</h2>
+    <div class="not-typeset">
+      <OutputTable
+        rows={data.table.rows}
+        columns={data.table.columns}
+        labels={data.table.labels}
+        cellVariant="prose"
+      />
+    </div>
+
+    <Fragment set:html={data.html} />
+
+    <h2>{m.tool_faq()}</h2>
+    {data.faq.map(({ q, a }) => (
+      <>
+        <h3>{q}</h3>
+        <p>{a}</p>
+      </>
+    ))}
+
+    <h2>{data.more.heading}</h2>
+    <ul>
+      {data.more.links.map((link) => (
+        <li>
+          <a href={link.path}>{link.name}</a>
+        </li>
+      ))}
+    </ul>
+
+    <p>
+      <small>
+        <time datetime={data.updated}>{m.page_updated({ date: updated })}</time>
+      </small>
+    </p>
+  </main>
+</BaseLayout>

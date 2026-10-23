@@ -106,9 +106,16 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 ### M4 Tool Variant 体系
 
-- `variant.ts` 的 schema：预设、独有数据、`demand` 字段。
-- 准入门槛：预设校验、差异校验、独有数据非空、内容近似度检测（自写 shingling / MinHash，阈值根据样本确定）。
-- static 模式渲染、Variant 内链和面包屑、OG 图复用所属 Tool 的图。
+- ✅ 契约：`defineVariant(tool, { id, preset, accept?, table, demand })`（`lib/tool-contract/define-variant.ts`），`src/tools/<tool>/variants/<variant>/variant.ts` 由注册表自动发现。`accept` 把文件字段收窄到 Tool `fileType()` 表里的部分类型，表达"A 转 B"的来源格式：只影响文件选择器，校验仍接受全部类型（ADR-0020，2026-10-23 确认）。独有数据是语言无关的表格（数字、codec 名，词语类取值写 `{ term }`），表格标题、列标题和 term 文案写在各 Locale frontmatter（2026-10-23 确认）。
+- ✅ 准入门槛，任一条不满足构建就失败：
+  - 门槛 1–3 在加载注册表时校验（`variant-registry.ts`）：预设只能是非文件字段且满足 `v.partial(input)`；"预设 + 来源格式"不同于 Tool 默认配置和兄弟 Variant；表格非空、行与列一一对应；`demand` 有查询词、来源和日期。
+  - 门槛 4–5 在 `lib/seo/variant-admission.ts`，`lib/catalog.ts`（构建）和 `check:content` 都调用：有 en 内容，Variant 的每个 Locale 都有 Tool 内容（表单文案沿用 Tool 的），与 Tool 页和兄弟 Variant 的近似度不超过 0.3。
+  - 近似度：汉字、假名逐字，其他文字按词，3 个词元一组的 shingle 算精确 Jaccard（只在同一 Tool 内比较，规模小，不需要 MinHash）。阈值依据样本实测（en）：三个样板 Variant 之间、与 Tool 页之间都在 0.03–0.06，把 mkv-to-mp4 的格式名换成别的格式得到的薄内容 Variant 是 0.87。往 `variants/` 里放这样一个 Variant，`astro build` 报"近似度 0.87 超过阈值 0.3"并失败（已实测）。
+- ✅ 样板 Variant：Video Converter 的 mov-to-mp4、mkv-to-mp4、mp4-to-webm，需求依据是 2026-10-23 的 Google Autocomplete（三个查询词都是第一条建议）。表格列出常见 codec 是直接复制还是重新编码，`video-converter/variants.test.ts` 用 `core.ts` 的 keep 列表和 Mediabunny 的容器支持核对每一行。内容只写了 en、zh（Draft），其他 Locale 302 到 en，用来覆盖缺失翻译的路径。
+- ✅ static 模式渲染：构建期生成可序列化的 `VariantPageData`（`lib/variant-page.ts`），`VariantPage.astro` 只依赖它，不读 Content Collections，on-demand 模式可以直接复用。页面骨架：H1 + 答案 → 按预设配置好的 Tool → 步骤 → 独有数据表格（服务端渲染的 Data Table，不水合）→ 正文 → FAQ → 所属 Tool 和兄弟 Variant。面包屑四级（首页 › Category › Tool › Variant），JSON-LD 同 Tool 页，OG 图复用 Tool 的图。Tool 页（HTML 和 `.md`）列出自己的 Variant。sitemap（跟随 Tool 的主 Category）、llms.txt、⌘K 索引、`_redirects` 都包含 Variant。
+- ✅ 预设优先于本地偏好：预设的字段不恢复也不保存偏好，Variant 页总是按预设打开，在 Variant 页运行也不改写 Tool 页记住的选项。Variant 页不注册 WebMCP（Variant 没有 Agent Interface）。
+- ✅ e2e（`e2e/variants.spec.ts`，由 Variant 注册表生成）：各 Locale 渲染、预设已选中、accept 已收窄、表格行数、缺失翻译 302、Tool 页有链接，并用来源格式和预设都匹配的 example 跑一次；`local-state.spec.ts` 覆盖预设与偏好。
+- 架构文档写的"Variant 的预设作为 Tool 描述里的调用示例"（Agent Interface）还没做：样板 Tool 是文件型，没有 Agent Interface。等第一个有 Variant 的轻量 Tool 出现时再加。
 - **on-demand 模式同步实现，但默认关闭**：Variant 内容按 Tool × Locale 打包成 JSON，Worker 通过 `env.ASSETS` 读取后 SSR，写入带部署版本号的 Cache API。用 `@cloudflare/vitest-plugin` 测试，确保随时可以切换。前提是 Paraglide Locale 已按请求隔离（见 M2），并有并发不同 Locale 请求的测试，否则错 Locale 的页面会被写进缓存。M2 的测试只验证了 AsyncLocalStorage 机制本身（手写的交错 await），还要补一个经过真实 Astro SSR 页面（流式渲染）的并发 Locale 测试。
 
 **退出条件**：样板 Variant 能通过准入门槛，故意构造的薄内容 Variant 会让构建失败；切换开关后两种模式的输出（HTML、sitemap、hreflang）一致。
@@ -186,7 +193,8 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - `/mcp` 冷启动 CPU 尖峰（16–42ms）在 Free 计划上是否会触发 CPU 超限，需要持续观察。
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
 - ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。多文件控件按需加载，其他 Tool 页不受影响；Merge PDF 页约 158.5 KB，离上限只剩约 1.5 KB。M3 加入进度条和取消按钮后，用同一口径对比前后两次构建：在 Playwright 中加载页面直到网络空闲，把所有脚本逐个 gzip 后求和。JSON Formatter 页从 157.9 KB 增加到 158.3 KB，Merge PDF 页从 159.8 KB 增加到 160.2 KB。这个口径比上面的旧数字高约 1.3 KB（包含空闲时预取的 core），按它算 Merge PDF 页已经略超 160 KB。M6 接入 `@lhci/cli` 时要统一口径，继续往首屏加代码之前先瘦身。M3 加入 Speech to Text（语言名下拉选项、进度阶段）后用同一方法（Node zlib 默认级别 gzip）再测：JSON Formatter 157.6 KB，Merge PDF 159.5 KB，Speech to Text 157.8 KB；和前面的数字压缩级别可能不同，不能直接相减。另外试过把取消按钮也放进按需加载的分块，结果 Base UI 的公共模块被拆成单独的分块，首屏反而多了约 0.6 KB，所以没有采用。M3 加入本地状态后用同一方法（Playwright 加载到网络空闲、Node zlib 逐个 gzip 求和）前后对比：JSON Formatter 158.9 → 161.2 KB，Merge PDF 160.8 → 162.2 KB，Speech to Text 159.1 → 161.5 KB，首页 1.3 → 1.7 KB。增量主要是水合后按需加载的 local-store（0.76 KB）和偏好分块（0.28 KB），以及页脚脚本（0.4 KB）；它们不阻塞首次渲染，但这个口径会计入。M6 统一口径时要决定水合后的按需分块算不算首屏。
-- 内容近似度阈值（M4 根据样本确定）。
+- ~~内容近似度阈值（M4 根据样本确定）~~：0.3，依据见 M4。
 - 第三方许可证声明：站点会分发 PDFium（Apache-2.0，含它捆绑的第三方库）和 jSquash 编解码器的 WASM、Mediabunny（MPL-2.0）、Transformers.js（Apache-2.0）、ONNX Runtime Web（MIT）以及 Whisper base 的权重（MIT），上线前（M6）要补一个许可证声明页。
 - Service Worker 的 `assets` 缓存不随部署清理（已打开的旧页面还可能按需加载旧分块），每次部署后用过的旧分块会一直留着，直到"清除本地数据"。需要时再加按时间或数量的清理。
+- `_redirects` 最多 2,000 条静态规则（已核实，`check:limits` 统计并在 80% 时告警）。缺失翻译按"页面 × 缺失的 Locale"逐条生成，en 可索引后每条还多一条 `.md`：首发约 30 个 Tool × 每个约 20 个 Variant，只要大部分 Variant 没翻译完，就会超过上限。放量 Variant 之前要换方案，例如按 Tool 用 splat 规则（动态规则上限 100 条），或缺失翻译时干脆返回 404。
 - ~~`_headers` 最多 100 条规则，不可索引页面 `.md` 副本的 noindex 逐条生成会超限~~：已改为只给可索引页面发布 `.md`，所有副本用一条 `/*.md` 规则声明 canonical（ADR-0019），规则数从 80 降到 11（2026-10-23）。剩下的主要是每个跨源隔离 Tool 固定 4 条，约 20 个隔离 Tool 时会再次接近上限。

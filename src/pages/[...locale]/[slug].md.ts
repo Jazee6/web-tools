@@ -52,6 +52,16 @@ export const GET: APIRoute = async ({ props }) => {
       steps: data.steps,
       body: content,
       faq: data.faq,
+      variants: {
+        heading: m.tool_variants({}, options),
+        links: node.variants
+          .filter((variant) => variant.entries[locale])
+          .map((variant) => ({
+            name: variant.entries[locale]!.data.name,
+            path: markdownHref(variant.statuses, locale, variant.path),
+            summary: variant.entries[locale]!.data.answer,
+          })),
+      },
       related: related.map((other) => ({
         name: other.entries[locale]!.data.name,
         path: markdownHref(other.statuses, locale, other.path),

@@ -9,6 +9,8 @@
   "tool_steps": "How to use",
   "tool_faq": "Frequently asked questions",
   "tool_related": "Related tools",
+  "tool_variants": "Popular presets",
+  "variant_more": "More with {name}",
   "page_updated": "Last updated {date}",
   "form_required": "This field is required.",
   "form_invalid": "This value is not valid.",

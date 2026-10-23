@@ -76,6 +76,13 @@ export interface ToolServerProps {
   turnstileSiteKey: string;
 }
 
+// Variant 页的预设（architecture §11）：preset 覆盖 schema 默认值，并且优先于本地偏好；
+// accept 是收窄后的文件选择器类型（MIME 类型和扩展名），校验仍按 Tool 的全部类型（ADR-0020）
+export interface ToolPresetProps {
+  preset: Record<string, unknown>;
+  accept: Record<string, string[]>;
+}
+
 type Values = Record<string, unknown>;
 
 // 字段级错误：Valibot 校验失败的路径，或 core 抛出的 ToolError（code 与字段同名时显示在该字段下）
@@ -125,17 +132,27 @@ export function ToolForm({
   strings,
   agent,
   server: serverProps,
+  variant,
 }: {
   tool: AnyTool;
   strings: ToolStrings;
   agent?: ToolAgentProps;
   server?: ToolServerProps;
+  variant?: ToolPresetProps;
 }) {
   const fields = useMemo(() => describeFields(tool.input), [tool]);
   const outputFields = useMemo(() => describeFields(tool.output), [tool]);
+  // 预设的字段不恢复也不保存本地偏好：Variant 页总是按预设打开，也不改变 Tool 页记住的选项
   const preferenceNames = useMemo(
-    () => fields.filter(isPreferenceField).map((spec) => spec.name),
-    [fields],
+    () =>
+      fields
+        .filter((spec) => isPreferenceField(spec) && !(spec.name in (variant?.preset ?? {})))
+        .map((spec) => spec.name),
+    [fields, variant],
+  );
+  const defaultValues = useMemo(
+    () => ({ ...initialValues(tool.input), ...variant?.preset }),
+    [tool, variant],
   );
   const [output, setOutput] = useState<Values>();
   const [runError, setRunError] = useState<RunError>();
@@ -203,7 +220,7 @@ export function ToolForm({
   }, [tool, server]);
 
   const form = useForm({
-    defaultValues: initialValues(tool.input),
+    defaultValues,
     validators: {
       onSubmit: ({ value }) => {
         const result = v.safeParse(tool.input, value);
@@ -417,7 +434,7 @@ export function ToolForm({
             id={id}
             name={field.name}
             type="file"
-            accept={spec.accept.join(",")}
+            accept={(variant?.accept[spec.name] ?? spec.accept).join(",")}
             aria-invalid={invalid}
             onBlur={field.handleBlur}
             onChange={(event) => onChange(event.target.files?.[0])}
@@ -429,7 +446,7 @@ export function ToolForm({
             <FilesInput
               id={id}
               name={field.name}
-              accept={spec.accept}
+              accept={variant?.accept[spec.name] ?? spec.accept}
               files={field.state.value as File[]}
               invalid={invalid}
               onBlur={field.handleBlur}

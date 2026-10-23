@@ -9,6 +9,8 @@
   "tool_steps": "使用方法",
   "tool_faq": "常见问题",
   "tool_related": "相关工具",
+  "tool_variants": "常用预设",
+  "variant_more": "{name}的更多用法",
   "page_updated": "最后更新：{date}",
   "form_required": "此项为必填项。",
   "form_invalid": "此值无效。",

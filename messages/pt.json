@@ -9,6 +9,8 @@
   "tool_steps": "Como usar",
   "tool_faq": "Perguntas frequentes",
   "tool_related": "Ferramentas relacionadas",
+  "tool_variants": "Predefinições populares",
+  "variant_more": "Mais com {name}",
   "page_updated": "Atualizado em {date}",
   "form_required": "Este campo é obrigatório.",
   "form_invalid": "Este valor não é válido.",

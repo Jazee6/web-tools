@@ -10,6 +10,25 @@ export const MAX_FILE_BYTES = 25 * 1024 * 1024;
 // _headers 最多 100 条规则（Cloudflare Workers static assets），80% 时告警
 export const MAX_HEADER_RULES = 100;
 export const WARN_HEADER_RULES = 80;
+// _redirects 最多 2,000 条静态规则、100 条动态规则（含 * 或 :placeholder），80% 时告警
+export const MAX_STATIC_REDIRECTS = 2_000;
+export const WARN_STATIC_REDIRECTS = 1_600;
+export const MAX_DYNAMIC_REDIRECTS = 100;
+
+export interface RedirectCount {
+  static: number;
+  dynamic: number;
+}
+
+export const countRedirects = (redirects: string): RedirectCount => {
+  const sources = redirects
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"))
+    .map((line) => line.split(/\s+/)[0]!);
+  const dynamic = sources.filter((source) => /\*|:[A-Za-z]/.test(source)).length;
+  return { static: sources.length - dynamic, dynamic };
+};
 
 // 这些是平台配置文件，不作为静态资源上传
 const CONFIG_FILES = new Set(["_headers", "_redirects", ".assetsignore"]);
@@ -25,7 +44,11 @@ export interface LimitsReport {
   warnings: string[];
 }
 
-export const evaluateLimits = (files: AssetFile[], headerRules = 0): LimitsReport => {
+export const evaluateLimits = (
+  files: AssetFile[],
+  headerRules = 0,
+  redirects: RedirectCount = { static: 0, dynamic: 0 },
+): LimitsReport => {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -41,6 +64,17 @@ export const evaluateLimits = (files: AssetFile[], headerRules = 0): LimitsRepor
     errors.push(`_headers 规则数 ${headerRules} 超过上限 ${MAX_HEADER_RULES}`);
   } else if (headerRules > WARN_HEADER_RULES) {
     warnings.push(`_headers 规则数 ${headerRules} 超过上限的 80%（${WARN_HEADER_RULES}）`);
+  }
+
+  if (redirects.static > MAX_STATIC_REDIRECTS) {
+    errors.push(`_redirects 静态规则 ${redirects.static} 条，超过上限 ${MAX_STATIC_REDIRECTS}`);
+  } else if (redirects.static > WARN_STATIC_REDIRECTS) {
+    warnings.push(
+      `_redirects 静态规则 ${redirects.static} 条，超过上限的 80%（${WARN_STATIC_REDIRECTS}）`,
+    );
+  }
+  if (redirects.dynamic > MAX_DYNAMIC_REDIRECTS) {
+    errors.push(`_redirects 动态规则 ${redirects.dynamic} 条，超过上限 ${MAX_DYNAMIC_REDIRECTS}`);
   }
 
   for (const file of files) {
@@ -84,10 +118,20 @@ if (import.meta.main) {
     // 没有 _headers 时规则数为 0
   }
   const headerRules = countHeaderRules(headers);
-  const report = evaluateLimits(collectAssets(root), headerRules);
+  let redirectsText = "";
+  try {
+    redirectsText = readFileSync(join(root, "_redirects"), "utf8");
+  } catch {
+    // 没有 _redirects 时规则数为 0
+  }
+  const redirects = countRedirects(redirectsText);
+  const report = evaluateLimits(collectAssets(root), headerRules, redirects);
 
   console.log(`静态文件数：${report.count} / ${MAX_FILES}`);
   console.log(`_headers 规则数：${headerRules} / ${MAX_HEADER_RULES}`);
+  console.log(
+    `_redirects 规则数：静态 ${redirects.static} / ${MAX_STATIC_REDIRECTS}，动态 ${redirects.dynamic} / ${MAX_DYNAMIC_REDIRECTS}`,
+  );
   for (const warning of report.warnings) console.warn(`⚠ ${warning}`);
   for (const error of report.errors) console.error(`✗ ${error}`);
   if (report.errors.length > 0) process.exit(1);

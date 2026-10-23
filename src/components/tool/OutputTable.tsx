@@ -19,9 +19,11 @@ interface Props {
   rows: Row[];
   columns: string[];
   labels: Record<string, string>;
+  // Tool 输出是原始数据（等宽、任意位置换行）；Variant 页的独有数据是说明文字
+  cellVariant?: "wrap" | "prose";
 }
 
-export default function OutputTable({ rows, columns, labels }: Props) {
+export default function OutputTable({ rows, columns, labels, cellVariant = "wrap" }: Props) {
   const columnDefs = useMemo<ColumnDef<typeof features, Row>[]>(
     () =>
       columns.map((column) => ({
@@ -51,7 +53,7 @@ export default function OutputTable({ rows, columns, labels }: Props) {
           table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
               {row.getAllCells().map((cell) => (
-                <TableCell key={cell.id} variant="wrap">
+                <TableCell key={cell.id} variant={cellVariant}>
                   <table.FlexRender cell={cell} />
                 </TableCell>
               ))}

@@ -67,3 +67,37 @@ test("clearing local data removes favorites, recents and options", async ({ page
   await expect(page.locator('[data-group="recents"]')).toHaveCount(0);
   await expect(page.locator('[data-group="favorites"]')).toHaveCount(0);
 });
+
+// Variant 的预设优先于本地偏好，在 Variant 页运行也不改写 Tool 页记住的选项（architecture §11）
+test("a Variant keeps its preset over saved options", async ({ page }) => {
+  test.setTimeout(120_000);
+  const format = page.locator('[data-field="format"] input[name="format"]');
+  const convert = async (file: string) => {
+    await page
+      .locator('[data-field="file"] input[type="file"]')
+      .setInputFiles(`src/tools/video-converter/examples/${file}`);
+    await page.locator('button[type="submit"]').click();
+    await expect(page.locator('[data-output="file"] a[download]')).toBeVisible({
+      timeout: 60_000,
+    });
+  };
+
+  // Tool 页用 WebM 转一次，记住 format = webm
+  await page.goto("/video-converter");
+  await page.waitForSelector("[data-hydrated]");
+  await page.locator('[data-field="format"] [data-slot="select-trigger"]').click();
+  await page.locator('[data-option="webm"]').click();
+  await convert("clip.mp4");
+  await page.reload();
+  await page.waitForSelector("[data-hydrated]");
+  await expect(format).toHaveValue("webm");
+
+  // Variant 页仍按预设打开；在这里运行后，Tool 页记住的仍是 webm
+  await page.goto("/video-converter/mov-to-mp4");
+  await page.waitForSelector("[data-hydrated]");
+  await expect(format).toHaveValue("mp4");
+  await convert("clip.mov");
+  await page.goto("/video-converter");
+  await page.waitForSelector("[data-hydrated]");
+  await expect(format).toHaveValue("webm");
+});

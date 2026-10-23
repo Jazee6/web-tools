@@ -1,0 +1,28 @@
+---
+import type { GetStaticPaths } from "astro";
+
+import VariantPage from "@/components/pages/VariantPage.astro";
+import { getCatalog, publishedPages } from "@/lib/catalog";
+import { defaultLocale } from "@/lib/i18n/locales";
+import { variantPageData } from "@/lib/variant-page";
+
+// Tool Variant 页 /{tool}/{variant}（ADR-0013），static 模式下预渲染（ADR-0004）。
+// 只为有内容的 Locale 生成，缺失翻译由 _redirects 跳到 en（ADR-0007）。
+export const getStaticPaths = (async () => {
+  const catalog = await getCatalog();
+  return catalog.variants.flatMap((node) =>
+    publishedPages(node).map((page) => ({
+      params: {
+        locale: page.locale === defaultLocale ? undefined : page.locale,
+        slug: node.variant.tool,
+        variant: node.variant.id,
+      },
+      props: { data: variantPageData(catalog, node, page.locale) },
+    })),
+  );
+}) satisfies GetStaticPaths;
+
+const { data } = Astro.props;
+---
+
+<VariantPage data={data} />

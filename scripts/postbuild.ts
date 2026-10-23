@@ -2,7 +2,7 @@
 // 构建后生成平台文件和 OG 图（Astro 页面无法输出以 _ 开头的文件，takumi 是 Node 原生模块，不能在 workerd 预渲染中运行）：
 // - _redirects：缺失翻译 302 到 en（ADR-0007）
 // - _headers：.md 副本用一条规则声明 canonical 指向 HTML 页面（ADR-0019）；需要跨源隔离的 Tool 页加 COOP/COEP
-// - og/{locale}/{tool}.png
+// - og/{locale}/{tool}.png（Variant 复用所属 Tool 的图）
 // - icons/*.png（manifest 图标）、sw.js（Service Worker，注入离线页资源清单）
 import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -18,7 +18,13 @@ import {
 import { missingTranslationRedirects, renderRedirects } from "../src/lib/seo/indexing";
 import { canonicalMarkdownRule } from "../src/lib/seo/markdown";
 import { site } from "../src/lib/site";
-import { readCategoryContent, readToolContent, statusesByOwner, loadTools } from "./lib/content";
+import {
+  readCategoryContent,
+  readToolContent,
+  readVariantContent,
+  statusesByOwner,
+  loadTools,
+} from "./lib/content";
 import { renderOgImage } from "./lib/og";
 import { buildServiceWorker, icons, renderIcon } from "./lib/pwa";
 
@@ -29,7 +35,9 @@ const toolContent = await readToolContent();
 const categoryContent = await readCategoryContent();
 const toolStatuses = statusesByOwner(toolContent);
 const categoryStatuses = statusesByOwner(categoryContent);
-const pages = [...toolStatuses, ...categoryStatuses].map(([id, statuses]) => ({
+// Variant 的 owner 是 "<tool>/<variant>"，即它的路径
+const variantStatuses = statusesByOwner(await readVariantContent());
+const pages = [...toolStatuses, ...variantStatuses, ...categoryStatuses].map(([id, statuses]) => ({
   path: `/${id}`,
   statuses,
 }));

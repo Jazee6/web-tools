@@ -9,6 +9,8 @@
   "tool_steps": "使い方",
   "tool_faq": "よくある質問",
   "tool_related": "関連ツール",
+  "tool_variants": "よく使うプリセット",
+  "variant_more": "{name}のその他の使い方",
   "page_updated": "最終更新：{date}",
   "form_required": "この項目は必須です。",
   "form_invalid": "この値は無効です。",

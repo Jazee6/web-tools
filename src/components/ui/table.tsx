@@ -70,6 +70,8 @@ const tableCellVariants = cva("", {
       default: "",
       // 长文本（响应头值、URL）：等宽字体，任意位置换行
       wrap: "font-mono break-all whitespace-normal",
+      // 正文里的说明性表格（Variant 的独有数据）：正文字体，按词换行
+      prose: "whitespace-normal",
       // 空表占位
       muted: "text-muted-foreground",
     },

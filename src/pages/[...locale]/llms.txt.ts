@@ -6,7 +6,7 @@ import { isIndexable } from "@/lib/seo/indexing";
 import { renderLlmsTxt } from "@/lib/seo/markdown";
 import { m } from "@/paraglide/messages";
 
-// 每个 Locale 一份 llms.txt，只列可索引的 Tool
+// 每个 Locale 一份 llms.txt，只列可索引的 Tool 和 Variant
 export const getStaticPaths = (() =>
   locales.map((locale) => ({
     params: { locale: locale === defaultLocale ? undefined : locale },
@@ -23,12 +23,14 @@ export const GET: APIRoute = async ({ props }) => {
       .filter((category) => category.entries[locale])
       .map((category) => ({
         name: category.entries[locale]!.data.name,
+        // Variant 紧跟在所属 Tool 之后
         tools: toolsInCategory(catalog, category.id, locale)
-          .filter((tool) => isIndexable(tool.statuses, locale))
-          .map((tool) => ({
-            name: tool.entries[locale]!.data.name,
-            path: `${localizePath(locale, tool.path)}.md`,
-            summary: tool.entries[locale]!.data.answer,
+          .flatMap((tool) => [tool, ...tool.variants])
+          .filter((node) => isIndexable(node.statuses, locale))
+          .map((node) => ({
+            name: node.entries[locale]!.data.name,
+            path: `${localizePath(locale, node.path)}.md`,
+            summary: node.entries[locale]!.data.answer,
           })),
       })),
   });

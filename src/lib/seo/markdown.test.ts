@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { canonicalMarkdownRule, renderLlmsTxt, renderToolMarkdown } from "./markdown";
+import {
+  canonicalMarkdownRule,
+  renderLlmsTxt,
+  renderMarkdownTable,
+  renderToolMarkdown,
+} from "./markdown";
 
 describe("renderToolMarkdown", () => {
   it("follows the answer-first skeleton", () => {
@@ -43,6 +48,23 @@ describe("canonicalMarkdownRule", () => {
   it("points every .md copy at its HTML page with one rule", () => {
     expect(canonicalMarkdownRule("https://tools.jaze.top")).toBe(
       '\n/*.md\n  Link: <https://tools.jaze.top/:splat>; rel="canonical"\n',
+    );
+  });
+});
+
+describe("renderMarkdownTable", () => {
+  it("renders a captioned table and escapes pipes", () => {
+    expect(
+      renderMarkdownTable({
+        caption: "Streams",
+        header: ["Codec", "Result"],
+        rows: [
+          ["H.264", "Copied"],
+          ["PCM", "AAC | Opus"],
+        ],
+      }),
+    ).toBe(
+      "## Streams\n\n| Codec | Result |\n| --- | --- |\n| H.264 | Copied |\n| PCM | AAC \\| Opus |",
     );
   });
 });

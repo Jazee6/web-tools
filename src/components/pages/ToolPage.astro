@@ -1,13 +1,8 @@
 ---
 import { render } from "astro:content";
-import { env } from "cloudflare:workers";
 
 import { loadTool } from "@/components/tool/tool-loader";
-import ToolIsland, {
-  type ToolAgentProps,
-  type ToolServerProps,
-  type ToolStrings,
-} from "@/components/tool/ToolIsland";
+import ToolIsland, { type ToolAgentProps } from "@/components/tool/ToolIsland";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { type Catalog, categoryOf, type ToolNode } from "@/lib/catalog";
 import { hreflang, type Locale, localizePath } from "@/lib/i18n/locales";
@@ -18,6 +13,7 @@ import { toolJsonSchemas } from "@/lib/tool-contract/json-schema";
 import { m } from "@/paraglide/messages";
 
 import PageBreadcrumb from "./PageBreadcrumb.astro";
+import { serverProps, toolStrings } from "./tool-island";
 
 interface Props {
   catalog: Catalog;
@@ -37,25 +33,12 @@ const { Content } = await render(entry);
 
 // island 服务端渲染需要同步拿到 Tool（见 tool-loader.ts）
 await loadTool(node.id);
-const strings: ToolStrings = {
-  action: data.action,
-  fields: data.fields,
-  output: data.output,
-  errors: data.errors,
-};
+const strings = toolStrings(data);
 // WebMCP 的 inputSchema 在构建期派生后作为 props 传入 island
 const agent: ToolAgentProps | undefined = node.tool.agent.webmcp
   ? { inputSchema: toolJsonSchemas(node.tool).input }
   : undefined;
-// Server-assisted Tool 页的 Turnstile site key，来自 wrangler.jsonc 的 vars（本地由 .dev.vars 覆盖为测试 key）
-let server: ToolServerProps | undefined;
-if (node.tool.runtime.where === "server") {
-  if (!env.TURNSTILE_SITE_KEY) {
-    // 预渲染错误经响应头传回构建进程，只能用 ASCII
-    throw new Error("TURNSTILE_SITE_KEY is empty: set it under vars in wrangler.jsonc");
-  }
-  server = { turnstileSiteKey: env.TURNSTILE_SITE_KEY };
-}
+const server = serverProps(node.tool);
 
 const crumbs = [
   { name: m.nav_home(), path: localizePath(locale) },
@@ -64,6 +47,14 @@ const crumbs = [
     : []),
   { name: data.name, path },
 ];
+
+// 该 Locale 已发布的 Variant（architecture §9 内链：Tool 页链接到自己的 Variant）
+const variantLinks = node.variants.flatMap((variant) => {
+  const variantEntry = variant.entries[locale];
+  return variantEntry
+    ? [{ name: variantEntry.data.name, path: localizePath(locale, variant.path) }]
+    : [];
+});
 
 // 相关 Tool：同一主 Category 下、该 Locale 已发布的其他 Tool
 const related = catalog.tools.filter(
@@ -121,6 +112,19 @@ const updated = new Intl.DateTimeFormat(hreflang[locale], { dateStyle: "long" })
         <p>{a}</p>
       </>
     ))}
+
+    {variantLinks.length > 0 && (
+      <>
+        <h2>{m.tool_variants()}</h2>
+        <ul>
+          {variantLinks.map((link) => (
+            <li>
+              <a href={link.path}>{link.name}</a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
 
     {related.length > 0 && (
       <>
