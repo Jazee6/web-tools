@@ -334,7 +334,7 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
   - `add-variant`：新增 Variant，包括数据和需求依据
 
   三个 skill 都引用 `docs/content/` 下的风格指南和各 Locale 术语表。
-- **Review Status 字段**：每个 `{locale}.md` 的 frontmatter 里都有 `review: draft | reviewed`。agent 只写 `draft`，由人工审核后改成 `reviewed`。可以用 CODEOWNERS 约束谁能做这项修改。
+- **Review Status 字段**：每个 `{locale}.md` 的 frontmatter 里都有 `review: draft | reviewed`。agent 写入时一律是 `draft`。所有 Locale 都用 pi 调用 `antigravity/gemini-3.8-flash`（thinking high）审核：en 对照 Tool 源码核对事实，非 en 对照 en 核对译文；判定 PASS 后由 agent 改成 `reviewed`，FAIL 则修改后重审（ADR-0017）。
 - **校验脚本** `bun run check:content`：schema 完整性、骨架章节齐全、内链有效、Variant 门槛（§11）、各 Locale 覆盖率报告。
 
 ## 13. 客户端运行时
@@ -456,5 +456,5 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 - **WebMCP 标准还在变化**：靠适配层隔离，定期对照 Chrome 文档。
 - **规模化内容风险**：即使有准入门槛，扩充 Variant 时也应该分批上线，观察收录率和排名，不要一次性大量放量。
 - **COEP 与第三方内容冲突**：影响广告、嵌入和外链图片，见 §17。
-- **人工审核产能**：7 个 Locale × 数千页的 Reviewed 进度，决定了实际能被索引的页面数量。首发时，可索引的页面数不会超过 en 已 Reviewed 的数量，所以应该优先审核 en。
+- **审核质量**：审核由模型完成（ADR-0017），没有人工兜底，模型漏掉的事实错误会直接进入可索引页面。en 的 Reviewed 进度仍决定可索引页面数的上限，所以应该优先审核 en。
 - **Free 计划配额被耗尽**：如果远程 MCP 被大量调用，会和 Server-assisted Tool 抢同一份每天的配额。限流阈值要按配额来定，并且要监控每天的请求量。

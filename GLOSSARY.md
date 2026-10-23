@@ -29,5 +29,5 @@ A language edition of the site; English is the default **Locale**.
 _Avoid_: Language version, region
 
 **Review Status**:
-Whether a piece of **Locale** content is **Draft** (written or translated, not yet checked by a human) or **Reviewed** (checked and approved by a human). Only **Reviewed** content may be indexed by search engines.
+Whether a piece of **Locale** content is **Draft** (written or translated, not yet approved) or **Reviewed** (approved by the designated review model). Only **Reviewed** content may be indexed by search engines.
 _Avoid_: Approved, published, QA status
