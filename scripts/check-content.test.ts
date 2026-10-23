@@ -2,6 +2,7 @@ import * as v from "valibot";
 import { describe, expect, it } from "vitest";
 
 import type { AnyTool } from "../src/lib/tool-contract/define-tool";
+import type { AnyVariant } from "../src/lib/tool-contract/define-variant";
 import { checkContent } from "./check-content";
 import type { ContentFile } from "./lib/content";
 
@@ -142,5 +143,59 @@ describe("checkContent", () => {
       missing: 0,
     });
     expect(coverage.find((row) => row.locale === "zh")?.missing).toBe(2);
+  });
+});
+
+const variantFile = (table: unknown, body = "## Notes\n\nUppercase only.\n"): ContentFile => ({
+  path: "src/tools/demo/variants/upper/en.md",
+  owner: "demo/upper",
+  locale: "en",
+  data: {
+    review: "draft",
+    name: "Upper",
+    answer: "Turn text into capital letters with mode B preselected.",
+    steps: ["Paste", "Press"],
+    faq: [{ q: "Which letters change?", a: "Every lowercase letter." }],
+    table,
+  },
+  body,
+});
+
+describe("checkContent for Variants", () => {
+  const variant = {
+    id: "upper",
+    tool: "demo",
+    preset: { mode: "b" },
+    table: { columns: ["mode", "result"], rows: [{ mode: "B", result: { term: "upper" } }] },
+    demand: { query: "uppercase", source: "google-autocomplete", checkedAt: "2026-10-23" },
+  } as unknown as AnyVariant;
+
+  const runVariant = (file: ContentFile) =>
+    checkContent({
+      tools: [tool],
+      categories: ["developer"],
+      toolContent: [toolFile()],
+      categoryContent: [categoryFile],
+      variants: [variant],
+      variantContent: [file],
+    });
+
+  it("passes when the table labels match variant.ts", () => {
+    const table = { columns: { mode: "Mode", result: "Result" }, terms: { upper: "Uppercase" } };
+    expect(runVariant(variantFile(table)).errors).toEqual([]);
+  });
+
+  it("requires labels for every column and every term used", () => {
+    const errors = runVariant(variantFile({ columns: { mode: "Mode" }, terms: {} }, "")).errors;
+    expect(errors).toEqual([
+      "src/tools/demo/variants/upper/en.md：table.columns 必须与 variant.ts 的列一一对应（mode, result）",
+      "src/tools/demo/variants/upper/en.md：table.terms 必须恰好覆盖表格用到的 upper",
+      'src/tools/demo/variants/upper/en.md：正文至少需要一个 "## " 小节',
+    ]);
+  });
+
+  it("requires en content for every Variant", () => {
+    const errors = runVariant({ ...variantFile({}), locale: "zh" }).errors;
+    expect(errors).toContain("Variant demo/upper 缺少 en 内容");
   });
 });

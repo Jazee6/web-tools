@@ -4,14 +4,22 @@
 
 import { defaultLocale, type Locale, localizePath, locales } from "../src/lib/i18n/locales";
 import { isIndexable } from "../src/lib/seo/indexing";
+import {
+  type PageContent,
+  variantContentErrors,
+  variantKey,
+} from "../src/lib/seo/variant-admission";
 import type { AnyTool } from "../src/lib/tool-contract/define-tool";
+import type { AnyVariant } from "../src/lib/tool-contract/define-variant";
 import { describeFields } from "../src/lib/tool-contract/fields";
 import {
   type ContentFile,
   categoryIds,
   loadTools,
+  loadVariants,
   readCategoryContent,
   readToolContent,
+  readVariantContent,
   statusesByOwner,
 } from "./lib/content";
 
@@ -33,7 +41,37 @@ export interface ContentInput {
   categories: readonly string[];
   toolContent: ContentFile[];
   categoryContent: ContentFile[];
+  variants?: AnyVariant[];
+  variantContent?: ContentFile[];
 }
+
+// 按 owner、Locale 整理成准入检查用的 PageContent
+const pageContents = (files: ContentFile[]) => {
+  const map = new Map<string, Partial<Record<Locale, PageContent>>>();
+  for (const file of files) {
+    const pages = map.get(file.owner) ?? {};
+    // 字段类型由 content.config.ts 在构建时校验，这里缺失的按空值处理
+    const data = file.data as Partial<PageContent>;
+    pages[file.locale] = {
+      name: data.name ?? "",
+      answer: data.answer ?? "",
+      steps: data.steps ?? [],
+      faq: data.faq ?? [],
+      body: file.body,
+    };
+    map.set(file.owner, pages);
+  }
+  return map;
+};
+
+// 表格里用到的词语类单元格（{ term }）
+const termsOf = (variant: AnyVariant) => [
+  ...new Set(
+    variant.table.rows.flatMap((row) =>
+      Object.values(row).flatMap((cell) => (typeof cell === "object" ? [cell.term] : [])),
+    ),
+  ),
+];
 
 export interface CoverageRow {
   locale: Locale;
@@ -42,9 +80,16 @@ export interface CoverageRow {
   missing: number;
 }
 
-export const checkContent = ({ tools, categories, toolContent, categoryContent }: ContentInput) => {
+export const checkContent = ({
+  tools,
+  categories,
+  toolContent,
+  categoryContent,
+  variants = [],
+  variantContent = [],
+}: ContentInput) => {
   const errors: string[] = [];
-  const all = [...toolContent, ...categoryContent];
+  const all = [...toolContent, ...variantContent, ...categoryContent];
 
   // 站内页面路径（按 Locale），用于校验正文里的内链
   const pages = new Set(
@@ -53,8 +98,10 @@ export const checkContent = ({ tools, categories, toolContent, categoryContent }
       .concat(locales.map((locale) => localizePath(locale))),
   );
 
+  const variantIds = variants.map(variantKey);
   for (const [kind, ids, files] of [
     ["Tool", tools.map((tool) => tool.id), toolContent],
+    ["Variant", variantIds, variantContent],
     ["Category", categories, categoryContent],
   ] as const) {
     for (const id of ids) {
@@ -124,6 +171,33 @@ export const checkContent = ({ tools, categories, toolContent, categoryContent }
     if (!/^## \S/m.test(file.body)) errors.push(`${file.path}：正文至少需要一个 "## " 小节`);
   }
 
+  // Variant：准入门槛 4–5（与构建期 lib/catalog.ts 相同），表格文案与 variant.ts 对齐
+  errors.push(
+    ...variantContentErrors({
+      variants,
+      tools: pageContents(toolContent),
+      pages: pageContents(variantContent),
+    }).filter((error) => !error.includes("缺少 en 内容")),
+  );
+  for (const file of variantContent) {
+    const variant = variants.find((candidate) => variantKey(candidate) === file.owner);
+    if (!variant) continue;
+    const table = (file.data.table ?? {}) as {
+      columns?: Record<string, string>;
+      terms?: Record<string, string>;
+    };
+    if (!sameKeys(Object.keys(table.columns ?? {}), [...variant.table.columns])) {
+      errors.push(
+        `${file.path}：table.columns 必须与 variant.ts 的列一一对应（${variant.table.columns.join(", ")}）`,
+      );
+    }
+    const terms = termsOf(variant);
+    if (!sameKeys(Object.keys(table.terms ?? {}), terms)) {
+      errors.push(`${file.path}：table.terms 必须恰好覆盖表格用到的 ${terms.join(", ")}`);
+    }
+    if (!/^## \S/m.test(file.body)) errors.push(`${file.path}：正文至少需要一个 "## " 小节`);
+  }
+
   // 只有可索引页面有 .md 副本（ADR-0019）
   const statuses = statusesByOwner(all);
   const markdownPages = new Set(
@@ -150,6 +224,7 @@ export const checkContent = ({ tools, categories, toolContent, categoryContent }
     const row = { locale, reviewed: 0, draft: 0, missing: 0 };
     for (const [ids, files] of [
       [tools.map((tool) => tool.id), toolContent],
+      [variantIds, variantContent],
       [categories, categoryContent],
     ] as const) {
       for (const id of ids) {
@@ -181,16 +256,19 @@ export const zodImports = async (root = "src"): Promise<string[]> => {
 };
 
 if (import.meta.main) {
+  const tools = await loadTools();
   const { errors, coverage } = checkContent({
-    tools: await loadTools(),
+    tools,
     categories: categoryIds,
     toolContent: await readToolContent(),
     categoryContent: await readCategoryContent(),
+    variants: await loadVariants(tools),
+    variantContent: await readVariantContent(),
   });
   for (const path of await zodImports())
     errors.push(`${path}：Zod 只能在 src/content.config.ts 中使用`);
 
-  console.log("Review Status 覆盖率（Tool + Category）：");
+  console.log("Review Status 覆盖率（Tool + Variant + Category）：");
   console.table(coverage);
   for (const error of errors) console.error(`✗ ${error}`);
   if (errors.length > 0) process.exit(1);

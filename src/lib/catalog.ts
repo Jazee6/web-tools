@@ -5,10 +5,13 @@ import { type CollectionEntry, getCollection } from "astro:content";
 import { type CategoryId, categoryIds } from "@/categories/categories";
 import { defaultLocale, type Locale, isLocale, localizePath, locales } from "@/lib/i18n/locales";
 import { isIndexable, type Statuses } from "@/lib/seo/indexing";
+import { type PageContent, variantContentErrors, variantKey } from "@/lib/seo/variant-admission";
 import type { AnyTool } from "@/lib/tool-contract/define-tool";
-import { tools } from "@/tools/registry";
+import type { AnyVariant } from "@/lib/tool-contract/define-variant";
+import { tools, variants } from "@/tools/registry";
 
 type ToolEntry = CollectionEntry<"tools">;
+type VariantEntry = CollectionEntry<"variants">;
 type CategoryEntry = CollectionEntry<"categories">;
 
 export interface ToolNode {
@@ -17,6 +20,17 @@ export interface ToolNode {
   path: string;
   tool: AnyTool;
   entries: Partial<Record<Locale, ToolEntry>>;
+  statuses: Statuses;
+  variants: VariantNode[];
+}
+
+export interface VariantNode {
+  kind: "variant";
+  // "<tool>/<variant>"
+  id: string;
+  path: string;
+  variant: AnyVariant;
+  entries: Partial<Record<Locale, VariantEntry>>;
   statuses: Statuses;
 }
 
@@ -30,11 +44,14 @@ export interface CategoryNode {
 
 export interface Catalog {
   tools: ToolNode[];
+  variants: VariantNode[];
   categories: CategoryNode[];
 }
 
+// 内容 id 的最后一段是 Locale，前面是所属页面（Tool / Category id，Variant 是 "<tool>/<variant>"）
 const splitId = (id: string): [string, Locale] => {
-  const [owner, locale] = id.split("/");
+  const slash = id.lastIndexOf("/");
+  const [owner, locale] = [id.slice(0, slash), id.slice(slash + 1)];
   if (!owner || !isLocale(locale)) throw new Error(`内容文件 ${id} 的文件名必须是 Locale id`);
   return [owner, locale];
 };
@@ -61,6 +78,22 @@ const group = <E extends { id: string; data: { review: "draft" | "reviewed" } }>
   return byOwner;
 };
 
+// 准入检查用的页面内容（Tool / Variant 按 owner、Locale 整理）
+const contentOf = <E extends { data: Omit<PageContent, "body">; body?: string }>(
+  grouped: Map<string, { entries: Partial<Record<Locale, E>> }>,
+): Map<string, Partial<Record<Locale, PageContent>>> =>
+  new Map(
+    [...grouped].map(([owner, node]) => [
+      owner,
+      Object.fromEntries(
+        Object.entries(node.entries).map(([locale, entry]) => [
+          locale,
+          { ...entry!.data, body: entry!.body ?? "" },
+        ]),
+      ),
+    ]),
+  );
+
 let cached: Promise<Catalog> | undefined;
 
 export const getCatalog = (): Promise<Catalog> => {
@@ -70,11 +103,32 @@ export const getCatalog = (): Promise<Catalog> => {
       new Set(tools.map((tool) => tool.id)),
       "Tool",
     );
+    const variantContent = group(
+      await getCollection("variants"),
+      new Set(variants.map(variantKey)),
+      "Variant",
+    );
     const categoryContent = group(
       await getCollection("categories"),
       new Set(categoryIds),
       "Category",
     );
+
+    // 准入门槛 4–5：Variant 的 Locale 有对应的 Tool 内容、与兄弟页面的近似度低于阈值
+    const admission = variantContentErrors({
+      variants,
+      tools: contentOf(toolContent),
+      pages: contentOf(variantContent),
+    });
+    if (admission.length > 0) throw new Error(`Variant 准入失败：\n${admission.join("\n")}`);
+
+    const variantNodes = variants.map((variant) => ({
+      kind: "variant" as const,
+      id: variantKey(variant),
+      path: `/${variantKey(variant)}`,
+      variant,
+      ...variantContent.get(variantKey(variant))!,
+    }));
     return {
       tools: tools.map((tool) => ({
         kind: "tool" as const,
@@ -82,7 +136,9 @@ export const getCatalog = (): Promise<Catalog> => {
         path: `/${tool.id}`,
         tool,
         ...toolContent.get(tool.id)!,
+        variants: variantNodes.filter((node) => node.variant.tool === tool.id),
       })),
+      variants: variantNodes,
       categories: categoryIds.map((id) => ({
         kind: "category" as const,
         id,
@@ -105,6 +161,9 @@ export const toolsInCategory = (catalog: Catalog, category: CategoryId, locale: 
 export const categoryOf = (catalog: Catalog, node: ToolNode): CategoryNode =>
   catalog.categories.find((category) => category.id === node.tool.category)!;
 
+export const toolOf = (catalog: Catalog, node: VariantNode): ToolNode =>
+  catalog.tools.find((tool) => tool.id === node.variant.tool)!;
+
 // 首页只由 UI 文案构成，没有 Review Status，视为各 Locale 都可索引
 export const homeStatuses: Statuses = Object.fromEntries(
   locales.map((locale) => [locale, "reviewed"]),
@@ -117,10 +176,10 @@ export interface PageRef {
   updated?: Date;
 }
 
-// 每个 Locale 下已发布的 Tool / Category 页面
-export const publishedPages = (
-  node: ToolNode | CategoryNode,
-): (PageRef & { entry: ToolEntry | CategoryEntry })[] =>
+// 每个 Locale 下已发布的 Tool / Variant / Category 页面
+export const publishedPages = <N extends ToolNode | VariantNode | CategoryNode>(
+  node: N,
+): (PageRef & { entry: NonNullable<N["entries"][Locale]> })[] =>
   locales.flatMap((locale) => {
     const entry = node.entries[locale];
     if (!entry) return [];

@@ -118,7 +118,7 @@
 | 部署 | Cloudflare Workers Free（→ Paid）+ Static Assets（含模型分片，ADR-0018）、Rate Limiting、Turnstile、Analytics Engine、Web Analytics |
 | 工具链 | Bun（包管理、脚本）、oxlint + oxfmt、Vitest + `@cloudflare/vitest-plugin`、Playwright、`@lhci/cli` |
 | CI/CD | GitHub Actions + wrangler |
-| 自写（不引入依赖） | Service Worker、Web Worker 类型化 RPC、sitemap 生成、内容近似度检测、WebMCP 适配层、事件与错误上报 |
+| 自写（不引入依赖） | Service Worker、Web Worker 类型化 RPC、sitemap 生成、内容近似度检测（shingling + Jaccard）、WebMCP 适配层、事件与错误上报 |
 
 ## 5. 仓库结构
 
@@ -146,7 +146,7 @@
     │       ├── ui.tsx           # React island
     │       ├── content/{locale}.md
     │       └── variants/<variant-id>/
-    │           ├── variant.ts   # 预设、独有数据、搜索需求依据
+    │           ├── variant.ts   # defineVariant(tool, …)：预设、来源格式、独有数据表格、搜索需求依据
     │           └── {locale}.md
     ├── categories/              # Category 定义与各 Locale 内容
     ├── lib/
@@ -205,7 +205,7 @@ export default defineTool({
 | ⌘K 索引、sitemap、llms.txt | 注册表 + 内容 + Review Status |
 | Playwright 冒烟测试 | `examples` |
 | `_headers`（COOP/COEP） | `runtime.crossOriginIsolated` |
-| Variant 预设校验 | `input`（Variant 预设必须满足 `v.partial(input)`） |
+| Variant 预设校验 | `input`（预设必须满足 `v.partial(input)`，`accept` 必须是文件字段 `fileType()` 表的真子集） |
 
 约束：
 
@@ -314,13 +314,13 @@ Variant 有两种渲染模式，由一个配置开关切换（路由的 `prerend
 
 ## 11. Tool Variant 准入门槛
 
-为了应对 Google 的"规模化内容滥用"（scaled content abuse）政策：Variant 不做笛卡尔积自动展开，每一个都要在 `variant.ts` 里显式声明。构建期校验不过就直接失败：
+为了应对 Google 的"规模化内容滥用"（scaled content abuse）政策：Variant 不做笛卡尔积自动展开，每一个都要在 `variant.ts` 里显式声明。构建期校验不过就直接失败（门槛 1–3 在 `lib/tool-contract/variant-registry.ts`，加载注册表时校验；4–5 在 `lib/seo/variant-admission.ts`，`lib/catalog.ts` 和 `check:content` 都调用）：
 
-1. **预设有效且有差异**：预设通过 `v.partial(tool.input)` 校验，并且不同于 Tool 的默认值，也不同于同一 Tool 下的其他 Variant。
-2. **有独有数据**：结构化的数据块不能为空（例如格式对比表、换算表、规格限制），页面会把它渲染出来。
+1. **预设有效且有差异**：预设只能设非文件字段，并通过 `v.partial(tool.input)` 校验；文件字段可以用 `accept` 收窄到 Tool `fileType()` 表里的部分类型（"A 转 B"的来源格式，只影响文件选择器，校验仍接受全部类型，ADR-0020）。"预设 + 来源格式"不同于 Tool 的默认配置，也不同于同一 Tool 下的其他 Variant。
+2. **有独有数据**：`variant.ts` 里的结构化表格不能为空（例如格式对比表、换算表、规格限制），页面会把它渲染出来。单元格是语言无关的事实（数字、codec 名），词语类取值写成 `{ term }`；表格标题、列标题和 term 的文案写在各 Locale 的 frontmatter，`check:content` 核对一一对应。
 3. **有搜索需求依据**：`demand: { query, source, checkedAt, volume? }`。
 4. **有英文内容**：Variant 必须有 en 内容；其他 Locale 按 §8 的规则处理。
-5. **不重复**：同一 Tool 的兄弟 Variant 之间做内容近似度检测（自写的 shingling / MinHash），超过阈值视为薄内容，校验失败。
+5. **不重复**：同一 Tool、同一 Locale 下，每个 Variant 与 Tool 页和兄弟 Variant 做内容近似度检测（自写的 shingling：汉字、假名逐字，其他文字按词，3 个词元一组，算精确的 Jaccard；只在同一 Tool 内比较，规模很小，不需要 MinHash），超过阈值（0.3，`lib/seo/variant-admission.ts`）视为薄内容，校验失败。
 
 Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 
@@ -450,7 +450,7 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 
 - 首发 7 个 Locale 都是从左到右书写，首期不处理 RTL。
 - hreflang 的 `x-default` 指向 en。
-- Variant 内容近似度阈值的具体数值，实现时根据样本确定。
+- ~~Variant 内容近似度阈值的具体数值，实现时根据样本确定~~：0.3（M4 样本实测，见 roadmap）。
 - **Workers Rate Limiting binding**：2026-10-22 已在 Free 计划上实测可用。计数按节点近似，实测明显超出设定阈值后才开始返回 429，只适合挡大规模滥用。
 - **Analytics Engine 写入和 Rate Limiting 调用**：文档没说是否计入每个请求 50 次的子请求上限。按计费规则推断，它们不占用每天的 Worker 请求配额。
 - takumi 的具体 API 与 CSS 支持程度，以实现时的官方文档为准（已在 M1 验证）。`/mcp` 与 `/api/tools` 的 CPU 实测中位数约 3–5ms，新 isolate 首次请求有 16–42ms 的尖峰（outcome 均为 ok），需持续观察。

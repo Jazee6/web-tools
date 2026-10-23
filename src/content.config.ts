@@ -3,7 +3,7 @@ import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
 
 // 唯一允许使用 Zod 的文件（ADR-0010），check:content 会拦截其他地方的 zod 引用。
-// id = "<tool 或 category id>/<locale>"
+// id = "<tool 或 category id>/<locale>"（Variant 见下方）
 const contentId = ({ entry }: { entry: string }) =>
   entry.replace(/(?:\/content)?\/([^/]+)\.md$/, "/$1");
 
@@ -18,6 +18,13 @@ const common = {
   name: z.string().min(2).max(60),
 };
 
+// "答案优先"骨架里 Tool 与 Variant 共用的部分
+const skeleton = {
+  answer: z.string().min(30).max(300),
+  steps: z.array(z.string().min(1)).min(2),
+  faq: z.array(z.object({ q: z.string().min(1), a: z.string().min(1) })).min(3),
+};
+
 const label = z.object({ label: z.string().min(1), placeholder: z.string().optional() });
 
 const tools = defineCollection({
@@ -25,7 +32,7 @@ const tools = defineCollection({
   // 固定"答案优先"骨架（architecture §10）：H1 + answer → 工具 → steps → 正文（规格、限制、隐私）→ faq → 相关 Tool
   schema: z.object({
     ...common,
-    answer: z.string().min(30).max(300),
+    ...skeleton,
     action: z.string().min(1),
     fields: z.record(
       z.string(),
@@ -37,8 +44,26 @@ const tools = defineCollection({
       label.extend({ columns: z.record(z.string(), z.string()).optional() }),
     ),
     errors: z.record(z.string(), z.string()).default({}),
-    steps: z.array(z.string().min(1)).min(2),
-    faq: z.array(z.object({ q: z.string().min(1), a: z.string().min(1) })).min(3),
+  }),
+});
+
+// Tool Variant 的内容：src/tools/<tool>/variants/<variant>/{locale}.md，id = "<tool>/<variant>/<locale>"。
+// 表单文案（字段、按钮、错误）沿用同一 Locale 的 Tool 内容；独有数据表格的行在 variant.ts，
+// 这里只写表格标题、列标题和词语类单元格（{ term }）的文案。
+const variants = defineCollection({
+  loader: glob({
+    base: "./src/tools",
+    pattern: "*/variants/*/*.md",
+    generateId: ({ entry }) => entry.replace(/\/variants\/([^/]+)\/([^/]+)\.md$/, "/$1/$2"),
+  }),
+  schema: z.object({
+    ...common,
+    ...skeleton,
+    table: z.object({
+      caption: z.string().min(1),
+      columns: z.record(z.string(), z.string().min(1)),
+      terms: z.record(z.string(), z.string().min(1)).default({}),
+    }),
   }),
 });
 
@@ -50,4 +75,4 @@ const categories = defineCollection({
   }),
 });
 
-export const collections = { tools, categories };
+export const collections = { tools, variants, categories };

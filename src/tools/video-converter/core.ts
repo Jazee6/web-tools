@@ -26,7 +26,7 @@ export interface ConvertVideoInput {
 // 浏览器能编码的第一个 codec（视频 H.264 → HEVC → VP9 → AV1，音频 AAC → Opus → …）。
 // MP4 / MOV 只保留播放兼容性最好的 H.264 / HEVC + AAC，WebM 容器本身只能装 VP8 / VP9 / AV1 + Opus / Vorbis，
 // MKV 什么都能装，全部复制。浏览器没有 AAC 编码器时（如 Firefox）MP4 / MOV 里的音频改用 Opus。
-const containers: Record<
+export const containers: Record<
   ConvertVideoInput["format"],
   { create: () => OutputFormat; keep?: readonly string[] }
 > = {

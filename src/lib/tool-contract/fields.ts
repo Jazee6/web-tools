@@ -27,9 +27,22 @@ const isScalar = (schema: AnySchema) => schema.type === "string" || schema.type 
 const unwrap = (schema: AnySchema): AnySchema =>
   schema.type === "optional" || schema.type === "nullish" ? unwrap(schema.wrapped!) : schema;
 
+const fileTypesIn = (schema: AnySchema) =>
+  schema.pipe?.find((item) => item.type === "file_type")?.requirement as FileTypes | undefined;
+
 const acceptOf = (schema: AnySchema) => {
-  const action = schema.pipe?.find((item) => item.type === "file_type");
-  return action ? acceptOfTypes(action.requirement as FileTypes) : [];
+  const types = fileTypesIn(schema);
+  return types ? acceptOfTypes(types) : [];
+};
+
+// 文件字段（file / files）用 fileType() 声明的类型表；不是文件字段或没有声明时返回 undefined
+export const fileTypesOf = (schema: ToolSchema, name: string): FileTypes | undefined => {
+  const entry = schema.entries[name] as AnySchema | undefined;
+  if (!entry) return undefined;
+  const base = unwrap(entry);
+  if (base.type === "file") return fileTypesIn(base);
+  if (base.type === "array" && base.item!.type === "file") return fileTypesIn(base.item!);
+  return undefined;
 };
 
 export const describeFields = (schema: ToolSchema): FieldSpec[] =>
