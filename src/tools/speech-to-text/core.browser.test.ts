@@ -38,6 +38,23 @@ describe.each(backends)("transcribe on %s", (backend) => {
     );
     expect(text).toBe("Guten Morgen, wie geht es dir heute?");
   }, 120_000);
+
+  // Transformers.js 自己不识别语言（不指定时按英语转录），自动识别由 core 实现
+  it("detects the spoken language automatically", async () => {
+    const german = await transcribe(
+      { file: await example("german.wav"), language: "auto" },
+      {},
+      backend,
+    );
+    expect(german.text).toBe("Guten Morgen, wie geht es dir heute?");
+    const chinese = await transcribe(
+      { file: await example("chinese.wav"), language: "auto" },
+      {},
+      backend,
+    );
+    // Whisper 常输出繁体字，只断言简繁相同的字
+    expect(chinese.text).toMatch(/^你好.*工具.*你的/);
+  }, 120_000);
 });
 
 describe("transcribe", () => {

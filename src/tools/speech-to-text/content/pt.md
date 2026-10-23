@@ -52,6 +52,7 @@ A ferramenta decodifica o áudio com o Mediabunny e a API WebCodecs, converte pa
 - **Velocidade:** em um notebook recente, um minuto de áudio leva alguns segundos com WebGPU e até cerca de 20 segundos sem ele.
 - **Download:** o modelo tem cerca de 105–125 MB e é baixado no primeiro uso.
 - **Precisão:** o Whisper base é um modelo pequeno. Ruído de fundo, música e várias pessoas falando ao mesmo tempo reduzem a qualidade.
+- **Chinês:** o Whisper costuma escrever o chinês com caracteres tradicionais, mesmo o mandarim da China continental.
 
 ## Privacidade
 

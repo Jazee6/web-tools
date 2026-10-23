@@ -1,4 +1,4 @@
-import { env, pipeline } from "@huggingface/transformers";
+import { env, pipeline, Tensor } from "@huggingface/transformers";
 import {
   ALL_FORMATS,
   type AudioSample,
@@ -196,6 +196,31 @@ const chunkCount = (length: number) => {
   return length <= window ? 1 : 1 + Math.ceil((length - window) / jump);
 };
 
+interface WhisperGenerationConfig {
+  decoder_start_token_id: number;
+  // "<|de|>" → token id，覆盖模型支持的全部语言
+  lang_to_id: Record<string, number>;
+}
+
+// Transformers.js 不会自动识别语言（不指定时一律按英语转录，非英语音频会被"翻译"或乱码）。按 Whisper 的做法自己识别：
+// 把前 30 秒送进模型，只解码 <|startoftranscript|> 之后的一步，取语言 token 里 logit 最高的一个。返回 Whisper 的语言代码。
+const detectLanguage = async (transcriber: Transcriber, audio: Float32Array) => {
+  const { model, processor } = transcriber;
+  const config = model.generation_config as unknown as WhisperGenerationConfig;
+  const { input_features } = await processor(audio.subarray(0, CHUNK_SECONDS * SAMPLE_RATE));
+  const start = BigInt(config.decoder_start_token_id);
+  const { logits } = (await model({
+    input_features,
+    decoder_input_ids: new Tensor("int64", BigInt64Array.of(start), [1, 1]),
+  })) as { logits: Tensor };
+  // logits 形状是 [1, 1, 词表大小]
+  const scores = logits.data as Float32Array;
+  const [best] = Object.entries(config.lang_to_id).reduce((top, entry) =>
+    scores[entry[1]]! > scores[top[1]]! ? entry : top,
+  );
+  return best.slice(2, -2);
+};
+
 const subtitleName = (name: string) => {
   const dot = name.lastIndexOf(".");
   return `${dot > 0 ? name.slice(0, dot) : name}.srt`;
@@ -212,6 +237,14 @@ export const transcribe = async (
   const audio = await decodeAudio(file, ctx);
   const transcriber = await getTranscriber(backend ?? (await detectBackend()), ctx);
   signal?.throwIfAborted();
+  // Whisper 把爪哇语记作 jw
+  const spoken =
+    language === "auto"
+      ? await detectLanguage(transcriber, audio)
+      : language === "jv"
+        ? "jw"
+        : language;
+  signal?.throwIfAborted();
 
   // 每个窗口生成结束时（streamer.end）推进进度；每生成一个 token（streamer.put）检查是否已取消
   const chunks = chunkCount(audio.length);
@@ -226,8 +259,7 @@ export const transcribe = async (
     stride_length_s: STRIDE_SECONDS,
     return_timestamps: true,
     task: "transcribe",
-    // Whisper 把爪哇语记作 jw
-    ...(language !== "auto" && { language: language === "jv" ? "jw" : language }),
+    language: spoken,
     streamer,
   } as Record<string, unknown>)) as { text: string; chunks?: TimedChunk[] };
 

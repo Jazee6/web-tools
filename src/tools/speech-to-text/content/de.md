@@ -52,6 +52,7 @@ Das Tool decodiert den Ton mit Mediabunny und der WebCodecs-API, wandelt ihn in 
 - **Geschwindigkeit:** Auf einem aktuellen Laptop dauert eine Minute Audio mit WebGPU wenige Sekunden, ohne WebGPU bis zu etwa 20 Sekunden.
 - **Download:** Das Modell ist etwa 105–125 MB groß und wird bei der ersten Nutzung heruntergeladen.
 - **Genauigkeit:** Whisper base ist ein kleines Modell. Hintergrundgeräusche, Musik und mehrere gleichzeitige Sprecher verringern die Qualität.
+- **Chinesisch:** Whisper schreibt Chinesisch oft in Langzeichen, auch bei Mandarin aus Festlandchina.
 
 ## Datenschutz
 

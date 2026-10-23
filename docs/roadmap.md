@@ -86,7 +86,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
   - ✅ 音视频：Mediabunny + WebCodecs（`mediabunny`，纯 TypeScript）做 Video Converter，新增 Category `media`，7 个 Locale 内容为 Draft。输入 MP4 / MOV / WebM / MKV（≤ 500 MB，输出整体在内存里），输出 MP4 / WebM / MOV / MKV；新容器能装下的流直接复制，否则转码到浏览器能编码的第一个 codec（MP4 / MOV 优先 H.264 + AAC，Firefox 没有 AAC 编码器时用 Opus）；任何主轨无法转换都报错，不输出缺声音或画面的文件。Worker Tool 页面新增进度条和取消按钮。Browser Mode 在 Chromium、Firefox、WebKit 上核对输出 codec、直接复制、错误码和取消，e2e 覆盖四个样例和缺少 WebCodecs 时的 Empty。macOS 本机和 CI 的 Linux 容器（Playwright 镜像）上，三个引擎都能通过，没有跳过任何用例。⏳ 真实 Safari 待确认。Firefox、Safari 选中 .mkv 时 `File.type` 是空字符串，Chrome 报的是 `video/matroska`，所以文件字段改用 `fileType()` 声明可接受的类型：MIME 类型不在表里时按扩展名判断，通过后把 type 改成表里的 MIME 类型；表单的 accept 同时列出 MIME 类型和扩展名。三个文件型 Tool 都已改用它。
   - ✅ 端侧 AI：Transformers.js（`@huggingface/transformers`）做 Speech to Text，7 个 Locale 内容为 Draft。模型是 Whisper base（MIT，onnx-community 的 ONNX 版，固定 commit）。不用 R2：构建前由 `scripts/fetch-models.ts` 下载、校验 sha256、切成 ≤ 24 MiB 的分片放进静态资源，浏览器里拼回并存进 Cache API（ADR-0018）；ORT 改用 extern-wasm 构建，26.9 MB 的 `.wasm` 也走分片。
     - 推理：有真实 GPU 且支持 `shader-f16` 时，encoder 用 WebGPU fp16，decoder 用 WASM int8，下载约 125 MB；否则全部用 WASM int8，约 107 MB。页面开启跨源隔离，让 WASM 多线程。实测 52 秒英文音频（M 系列 Mac）：Safari 混合方案 3.7 s，纯 WASM 单线程 8.6 s；Chromium、Firefox 隔离后多线程约 5–11 s。WebGPU 跑量化的 decoder 反而比 WASM 慢；headless Chromium 只有 SwiftShader（`isFallbackAdapter`），跑 WebGPU 比 WASM 慢 20 倍，所以排除回退 adapter。
-    - 输入音频或视频（≤ 1 GB、≤ 60 分钟），由 Mediabunny 解码、混成单声道、重采样到 16 kHz；输出纯文本和 SRT 字幕。语言默认自动识别，也可以选 Whisper 支持的 99 种语言，选项名由 `Intl.DisplayNames` 按 Locale 生成（字段 metadata `languageNames`）。进度分"下载模型"和"处理中"两个阶段（`ctx.onProgress` 的 `stage`）。
+    - 输入音频或视频（≤ 1 GB、≤ 60 分钟），由 Mediabunny 解码、混成单声道、重采样到 16 kHz；输出纯文本和 SRT 字幕。语言默认自动识别（Transformers.js 不指定语言时一律按英语转录，所以由 core 自己识别：前 30 秒只解码一步，取语言 token 中 logit 最高的），也可以选 Whisper 支持的 99 种语言，选项名由 `Intl.DisplayNames` 按 Locale 生成（字段 metadata `languageNames`）。进度分"下载模型"和"处理中"两个阶段（`ctx.onProgress` 的 `stage`）。
     - Browser Mode 在三个浏览器上跑 WASM 路径，在有可用 GPU 的浏览器上（本机 macOS 的 WebKit）另跑 WebGPU 路径，两条路径的转录文本一致；德语样例用 WAV，因为各浏览器的 AAC 解码结果略有不同，会让识别结果不同。e2e 覆盖样例转录。⏳ CI 的 Linux 容器里大概率没有可用的 GPU，WebGPU 路径会跳过；真实 Chrome（硬件 adapter + 跨源隔离）的速度待实测。
 - 本地状态：IndexedDB（收藏、最近使用、偏好）、OPFS（中间产物）、"清除本地数据"。
 - 手写 Service Worker：按需缓存、保留 COOP/COEP 响应头、离线兜底页；manifest。
@@ -171,6 +171,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 - 首发 Tool 候选清单需要确认。
 - Background Remover、OCR 所用模型的许可证（必须允许商用）。Speech to Text 用的 Whisper base 是 MIT。
+- Speech to Text 识别普通话时常输出繁体字（Whisper 的已知行为）。Transformers.js 目前不支持 `prompt_ids`，没法用简体提示词引导；可选方案是加简繁转换（需要新依赖）或换更大的模型，内容里已写明这个限制。
 - ~~Rate Limiting binding 在 Free 计划上是否可用~~：可用，但计数近似（见 M2）。
 - `/mcp` 冷启动 CPU 尖峰（16–42ms）在 Free 计划上是否会触发 CPU 超限，需要持续观察。
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。

@@ -52,6 +52,7 @@ L'outil décode l'audio avec Mediabunny et l'API WebCodecs, le convertit en mono
 - **Vitesse :** sur un ordinateur portable récent, une minute d'audio prend quelques secondes avec WebGPU et jusqu'à environ 20 secondes sans.
 - **Téléchargement :** le modèle pèse environ 105 à 125 Mo et est téléchargé à la première utilisation.
 - **Précision :** Whisper base est un petit modèle. Le bruit de fond, la musique et plusieurs personnes parlant en même temps réduisent la qualité.
+- **Chinois :** Whisper écrit souvent le chinois en caractères traditionnels, même pour le mandarin de Chine continentale.
 
 ## Confidentialité
 
