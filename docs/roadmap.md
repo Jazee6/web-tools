@@ -119,9 +119,9 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ✅ on-demand 模式（默认关闭）：开关在 `src/lib/variant-mode.ts`，`astro.config.ts` 按模式用 `injectRoute` 注入 static 或 on-demand 的路由入口。on-demand 模式下 `VariantPageData` 按 Tool × Locale 打包成 `/variant-data/{locale}/{tool}.json`，Worker 经 `env.ASSETS` 读取、isolate 内缓存，SSR 同一个 `VariantPage.astro`；middleware 把结果写入 Cache API（键是路径加构建号），缺失翻译 302、不存在 404，隔离 Tool 的 COOP/COEP 和 `.md` 的 canonical 头由路由补上。
   - Worker 上传包：on-demand 模式第一次构建时 SSR 把 `engine.worker.ts` 连同编码器、WASM 一起打包，上传约 5.5 MB gzip（超过 Free 的 3 MB）；`tool-worker.ts` 在 SSR 构建里不再引用 Worker 后降到约 690 KiB（static 模式约 410 KiB，差的是 React SSR 和 island 代码）。已确认内容文本不在 Worker 包里。
   - `bun run check:variant-modes`（加入 CI）：另建一份 on-demand 产物，启动它的 Worker 预览，与 static 模式逐字节对比 120 个其他静态文件、6 个 Variant 页的 SSR 输出（含 hreflang、canonical）、15 条缺失翻译跳转和 404。第一轮各 Locale 交错并发请求、全部未命中缓存，这就是经过真实 Astro SSR（流式渲染）的并发 Locale 测试；第二轮命中缓存。做过两次变异验证：SSR 页面改一个字段、去掉 middleware 的 Locale 隔离，都会被查出来（后者只有 zh 页面不一致）。
-  - `test/workers/variant-ssr.test.ts`（`@cloudflare/vitest-plugin`）：查找、缺失翻译跳转、非法参数 404、内容包每个 isolate 只读一次、缓存键忽略查询参数且能用于 Cache API。
+  - `test/workers/variant-ssr.test.ts`（`@cloudflare/vitest-plugin`）：查找、缺失翻译跳转、非法参数 404、存在的内容包每个 isolate 只读一次、缓存键忽略查询参数且能用于 Cache API。不存在的内容包不缓存：路径里的 Tool id 来自请求，缓存它们会让任意 slug 把内存撑大。
 
-**退出条件**：样板 Variant 能通过准入门槛，故意构造的薄内容 Variant 会让构建失败；切换开关后两种模式的输出（HTML、sitemap、hreflang）一致。三条都已验证（2026-10-23），M4 完成。
+**退出条件**：样板 Variant 能通过准入门槛，故意构造的薄内容 Variant 会让构建失败；切换开关后两种模式的输出（HTML、sitemap、hreflang）一致。三条都已验证（2026-10-23），M4 完成。样板内容都是 Draft，hreflang、sitemap、llms.txt 和 `.md` 副本里本来没有 Variant；验证时临时把 mov-to-mp4 的 en、zh 改成 reviewed（没有提交，Review Status 只由审核模型决定，ADR-0017）：`check:seo` 通过，`check:variant-modes` 对比 8 个页面（6 个 HTML + 2 个 `.md`）和 20 条跳转（多出 `.md` 的缺失翻译跳转）全部一致，sitemap、hreflang（en、zh-Hans、x-default）和 llms.txt 都包含该 Variant，两种模式下 `.md` 的 Link canonical 头和 302 也相同。
 
 ### M5 内容生产
 

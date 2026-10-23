@@ -17,7 +17,8 @@ export type VariantLookup =
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-// 从 env.ASSETS 读内容包，解析结果按 isolate 缓存（同一个部署里内容不变）；不存在的包也缓存
+// 从 env.ASSETS 读内容包，解析结果按 isolate 缓存（同一个部署里内容不变）。
+// 只缓存存在的包：路径里的 Tool id 来自请求，缓存不存在的包会让任意 slug 撑大内存
 export const assetBundleLoader = (assets: Fetcher): BundleLoader => {
   const bundles = new Map<string, Promise<VariantBundle | undefined>>();
   return (locale, toolId) => {
@@ -26,8 +27,7 @@ export const assetBundleLoader = (assets: Fetcher): BundleLoader => {
     if (!bundle) {
       bundle = assets.fetch(new URL(path, "https://assets.local")).then(async (response) => {
         if (response.ok) return (await response.json()) as VariantBundle;
-        // 读失败（非 404）不缓存，下次重试
-        if (response.status !== 404) bundles.delete(path);
+        bundles.delete(path);
         return undefined;
       });
       bundles.set(path, bundle);

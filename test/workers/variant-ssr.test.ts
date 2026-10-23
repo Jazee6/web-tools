@@ -73,15 +73,17 @@ describe("lookupVariant", () => {
     expect(await lookupVariant(load, params)).toEqual({ status: "not-found" });
   });
 
-  it("reads each bundle from ASSETS once per isolate", async () => {
+  it("reads each existing bundle from ASSETS once per isolate", async () => {
     const { assets, requests } = fakeAssets();
     const load = assetBundleLoader(assets);
     const params = { locale: "zh", slug: "video-converter", variant: "mov-to-mp4" };
     await Promise.all([lookupVariant(load, params), lookupVariant(load, params)]);
     await lookupVariant(load, { slug: "no-such-tool", variant: "x" });
     await lookupVariant(load, { slug: "no-such-tool", variant: "x" });
+    // 存在的包只读一次；不存在的包不缓存（slug 来自请求，缓存它们会让内存无限增长）
     expect(requests).toEqual([
       "/variant-data/zh/video-converter.json",
+      "/variant-data/en/no-such-tool.json",
       "/variant-data/en/no-such-tool.json",
     ]);
   });
