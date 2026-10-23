@@ -90,7 +90,7 @@ const issueMessage = (issue: v.BaseIssue<unknown>) => {
     return m.form_required();
   }
   if (issue.type === "max_size") return m.form_file_too_large();
-  if (issue.type === "mime_type") return m.form_file_type();
+  if (issue.type === "file_type") return m.form_file_type();
   return m.form_invalid();
 };
 

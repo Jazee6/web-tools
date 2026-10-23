@@ -4,11 +4,11 @@ updated: 2026-10-23
 title: Conversor de vídeo – Converta MP4, WebM, MOV e MKV grátis
 description: Converta vídeos entre MP4, WebM, MOV e MKV grátis. Privado e rápido — a conversão acontece no seu navegador com WebCodecs, então seu vídeo nunca é enviado.
 name: Conversor de vídeo
-answer: Escolha um vídeo MP4, MOV ou WebM, selecione o formato de saída e clique em Converter vídeo — o arquivo é convertido no seu dispositivo e você baixa o resultado na hora. Quando só o contêiner muda, leva poucos segundos.
+answer: Escolha um vídeo MP4, MOV, WebM ou MKV, selecione o formato de saída e clique em Converter vídeo — o arquivo é convertido no seu dispositivo e você baixa o resultado na hora. Quando só o contêiner muda, leva poucos segundos.
 action: Converter vídeo
 fields:
   file:
-    label: Vídeo (MP4, MOV ou WebM)
+    label: Vídeo (MP4, MOV, WebM ou MKV)
   format:
     label: Formato de saída
     options:
@@ -24,7 +24,7 @@ errors:
   no_video: Este arquivo não tem faixa de vídeo, só contém áudio.
   unsupported_codec: "Este navegador não consegue decodificar ou codificar uma das faixas deste vídeo. Tente outro formato de saída ou a versão mais recente do Chrome. Codec:"
 steps:
-  - Escolha um vídeo MP4, MOV ou WebM de até 500 MB.
+  - Escolha um vídeo MP4, MOV, WebM ou MKV de até 500 MB.
   - Selecione o formato de saída. MP4 toca em quase todo lugar, WebM é ideal para a web, MOV para os apps da Apple e MKV mantém as faixas originais intactas.
   - Clique em Converter vídeo. Uma barra de progresso mostra o andamento, e você pode cancelar a qualquer momento.
   - Baixe o vídeo convertido.
@@ -38,7 +38,7 @@ faq:
   - q: Quais codecs o arquivo de saída usa?
     a: MP4 e MOV usam vídeo H.264 e áudio AAC quando seu navegador consegue codificá-los. Se não conseguir — o Firefox, por exemplo, não tem codificador AAC — a ferramenta usa outro codec que o formato aceite, como áudio Opus. WebM usa VP9 e Opus. MKV mantém os codecs originais.
   - q: Posso converter arquivos MKV?
-    a: Ainda não. MKV está disponível como formato de saída, mas por enquanto não é possível escolher arquivos MKV como entrada.
+    a: Sim. Arquivos MKV podem ser convertidos para MP4, WebM ou MOV. Converter MKV para MP4 costuma ser rápido, porque as faixas H.264 e AAC são copiadas sem recodificar.
 ---
 
 ## Como a conversão funciona
@@ -47,7 +47,7 @@ A ferramenta lê o vídeo com o Mediabunny, uma biblioteca de mídia de código 
 
 ## Limites
 
-- **Entrada:** arquivos MP4, MOV e WebM de até 500 MB.
+- **Entrada:** arquivos MP4, MOV, WebM e MKV de até 500 MB.
 - **Faixas:** a faixa de vídeo principal e a faixa de áudio principal são convertidas; legendas e faixas de áudio extras são descartadas.
 - **Codecs:** os codecs que podem ser decodificados e codificados dependem do seu navegador e dispositivo. Se uma faixa não puder ser convertida, a ferramenta para com uma mensagem em vez de criar um arquivo sem som ou sem imagem.
 - **Memória:** o vídeo convertido fica na memória até você baixá-lo, então arquivos muito grandes podem falhar em celulares.

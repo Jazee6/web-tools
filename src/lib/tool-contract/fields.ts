@@ -1,9 +1,10 @@
 import * as v from "valibot";
 
 import type { FieldMetadata, ToolSchema } from "./define-tool";
+import { acceptOf as acceptOfTypes, type FileTypes } from "./file-type";
 
 // 表单派生只支持轻量 Tool 用到的基本类型；遇到其他类型直接报错，避免静默渲染成错误控件。
-// table 是对象数组（每列是字符串或数字），只用于输出；file 是 v.file()，accept 取自 v.mimeType()；
+// table 是对象数组（每列是字符串或数字），只用于输出；file 是 v.file()，accept 取自 fileType()（MIME 类型和扩展名）；
 // files 是 v.array(v.file())，有顺序，只用于输入。
 export type FieldSpec =
   | { name: string; kind: "text" | "code" | "url" }
@@ -27,8 +28,8 @@ const unwrap = (schema: AnySchema): AnySchema =>
   schema.type === "optional" || schema.type === "nullish" ? unwrap(schema.wrapped!) : schema;
 
 const acceptOf = (schema: AnySchema) => {
-  const mimeType = schema.pipe?.find((action) => action.type === "mime_type");
-  return [...((mimeType?.requirement as string[]) ?? [])];
+  const action = schema.pipe?.find((item) => item.type === "file_type");
+  return action ? acceptOfTypes(action.requirement as FileTypes) : [];
 };
 
 export const describeFields = (schema: ToolSchema): FieldSpec[] =>

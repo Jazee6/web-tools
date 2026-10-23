@@ -1,13 +1,16 @@
 import * as v from "valibot";
 
 import { defineTool } from "@/lib/tool-contract/define-tool";
+import { fileType } from "@/lib/tool-contract/file-type";
 
 export default defineTool({
   id: "merge-pdf",
   category: "pdf",
   input: v.object({
     files: v.pipe(
-      v.array(v.pipe(v.file(), v.mimeType(["application/pdf"]), v.maxSize(50 * 1024 * 1024))),
+      v.array(
+        v.pipe(v.file(), fileType({ "application/pdf": [".pdf"] }), v.maxSize(50 * 1024 * 1024)),
+      ),
       v.minLength(2),
       v.maxLength(20),
       v.description("The PDF files to merge, in order: 2 to 20 files, up to 50 MB each"),

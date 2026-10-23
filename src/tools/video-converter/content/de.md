@@ -4,11 +4,11 @@ updated: 2026-10-23
 title: Video-Konverter – MP4, WebM, MOV & MKV kostenlos umwandeln
 description: Wandeln Sie Videos kostenlos zwischen MP4, WebM, MOV und MKV um. Privat und schnell – die Umwandlung läuft mit WebCodecs in Ihrem Browser, Ihr Video wird nie hochgeladen.
 name: Video-Konverter
-answer: Wählen Sie ein MP4-, MOV- oder WebM-Video, legen Sie das Ausgabeformat fest und klicken Sie auf Video umwandeln – die Datei wird auf Ihrem Gerät umgewandelt und Sie laden das Ergebnis sofort herunter. Ändert sich nur der Container, dauert es nur Sekunden.
+answer: Wählen Sie ein MP4-, MOV-, WebM- oder MKV-Video, legen Sie das Ausgabeformat fest und klicken Sie auf Video umwandeln – die Datei wird auf Ihrem Gerät umgewandelt und Sie laden das Ergebnis sofort herunter. Ändert sich nur der Container, dauert es nur Sekunden.
 action: Video umwandeln
 fields:
   file:
-    label: Video (MP4, MOV oder WebM)
+    label: Video (MP4, MOV, WebM oder MKV)
   format:
     label: Ausgabeformat
     options:
@@ -24,7 +24,7 @@ errors:
   no_video: Diese Datei hat keine Videospur – sie enthält nur Audio.
   unsupported_codec: "Dieser Browser kann eine Spur dieses Videos nicht dekodieren oder kodieren. Versuchen Sie ein anderes Ausgabeformat oder die neueste Version von Chrome. Codec:"
 steps:
-  - Wählen Sie ein MP4-, MOV- oder WebM-Video mit bis zu 500 MB.
+  - Wählen Sie ein MP4-, MOV-, WebM- oder MKV-Video mit bis zu 500 MB.
   - Legen Sie das Ausgabeformat fest. MP4 läuft fast überall, WebM eignet sich fürs Web, MOV für Apple-Apps, und MKV übernimmt die Originalspuren unverändert.
   - Klicken Sie auf Video umwandeln. Ein Fortschrittsbalken zeigt den Stand der Umwandlung, und Sie können jederzeit abbrechen.
   - Laden Sie das umgewandelte Video herunter.
@@ -38,7 +38,7 @@ faq:
   - q: Welche Codecs verwendet die Ausgabe?
     a: MP4 und MOV verwenden H.264-Video und AAC-Audio, wenn Ihr Browser sie kodieren kann. Wenn nicht – Firefox hat zum Beispiel keinen AAC-Encoder –, weicht das Tool auf einen anderen Codec aus, den das Format unterstützt, etwa Opus-Audio. WebM verwendet VP9 und Opus. MKV behält die Original-Codecs.
   - q: Kann ich MKV-Dateien umwandeln?
-    a: Noch nicht. MKV ist als Ausgabeformat verfügbar, MKV-Dateien lassen sich derzeit aber nicht als Eingabe auswählen.
+    a: Ja. MKV-Dateien lassen sich in MP4, WebM oder MOV umwandeln. Von MKV nach MP4 geht es meist schnell, weil H.264- und AAC-Spuren ohne Neukodierung kopiert werden.
 ---
 
 ## So funktioniert die Umwandlung
@@ -47,7 +47,7 @@ Das Tool liest das Video mit Mediabunny, einer Open-Source-Medienbibliothek, und
 
 ## Grenzen
 
-- **Eingabe:** MP4-, MOV- und WebM-Dateien mit bis zu 500 MB.
+- **Eingabe:** MP4-, MOV-, WebM- und MKV-Dateien mit bis zu 500 MB.
 - **Spuren:** Die Haupt-Videospur und die Haupt-Audiospur werden umgewandelt; Untertitel und zusätzliche Audiospuren entfallen.
 - **Codecs:** Welche Codecs dekodiert und kodiert werden können, hängt von Ihrem Browser und Gerät ab. Lässt sich eine Spur nicht umwandeln, bricht das Tool mit einer Meldung ab, statt eine Datei ohne Ton oder Bild zu erzeugen.
 - **Speicher:** Das umgewandelte Video bleibt bis zum Herunterladen im Arbeitsspeicher, sodass sehr große Dateien auf Smartphones scheitern können.

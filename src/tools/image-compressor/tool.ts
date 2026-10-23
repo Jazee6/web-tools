@@ -1,8 +1,14 @@
 import * as v from "valibot";
 
 import { defineTool } from "@/lib/tool-contract/define-tool";
+import { fileType } from "@/lib/tool-contract/file-type";
 
-const imageTypes = ["image/jpeg", "image/png", "image/webp", "image/avif"] as const;
+const imageTypes = {
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/png": [".png"],
+  "image/webp": [".webp"],
+  "image/avif": [".avif"],
+} as const;
 
 export default defineTool({
   id: "image-compressor",
@@ -10,7 +16,7 @@ export default defineTool({
   input: v.object({
     file: v.pipe(
       v.file(),
-      v.mimeType(imageTypes),
+      fileType(imageTypes),
       v.maxSize(50 * 1024 * 1024),
       v.description("The JPEG, PNG, WebP or AVIF image to compress, up to 50 MB"),
     ),

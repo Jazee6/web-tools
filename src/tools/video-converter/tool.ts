@@ -1,9 +1,15 @@
 import * as v from "valibot";
 
 import { defineTool } from "@/lib/tool-contract/define-tool";
+import { fileType } from "@/lib/tool-contract/file-type";
 
-// MKV 不在输入列表：Firefox、Safari 选中 .mkv 时 File.type 是空字符串，无法按 MIME 类型校验
-const videoTypes = ["video/mp4", "video/quicktime", "video/webm"] as const;
+// .mkv 在 Firefox、Safari 里没有 MIME 类型，靠扩展名识别（fileType）
+const videoTypes = {
+  "video/mp4": [".mp4", ".m4v"],
+  "video/quicktime": [".mov"],
+  "video/webm": [".webm"],
+  "video/x-matroska": [".mkv"],
+} as const;
 
 // 输出容器，顺序即下拉框顺序；codec 由 core 按浏览器能编码的范围选择
 export const videoFormats = ["mp4", "webm", "mov", "mkv"] as const;
@@ -14,9 +20,9 @@ export default defineTool({
   input: v.object({
     file: v.pipe(
       v.file(),
-      v.mimeType(videoTypes),
+      fileType(videoTypes),
       v.maxSize(500 * 1024 * 1024),
-      v.description("The MP4, MOV or WebM video to convert, up to 500 MB"),
+      v.description("The MP4, MOV, WebM or MKV video to convert, up to 500 MB"),
     ),
     format: v.optional(
       v.pipe(
@@ -46,6 +52,11 @@ export default defineTool({
       input: { format: "mp4" },
       files: { file: "clip.mov" },
       output: { file: { type: "video/mp4", maxSize: 20_000 } },
+    },
+    {
+      input: { format: "webm" },
+      files: { file: "clip.mkv" },
+      output: { file: { type: "video/webm", maxSize: 20_000 } },
     },
   ],
   // 编解码全走 WebCodecs，Mediabunny 是纯 TypeScript，不需要 WASM 和跨源隔离

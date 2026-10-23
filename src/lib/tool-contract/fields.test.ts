@@ -2,6 +2,7 @@ import * as v from "valibot";
 import { describe, expect, it } from "vitest";
 
 import { describeFields, initialValues } from "./fields";
+import { fileType } from "./file-type";
 
 const schema = v.object({
   text: v.pipe(v.string(), v.nonEmpty()),
@@ -31,10 +32,13 @@ describe("describeFields", () => {
     ]);
   });
 
-  it("derives file inputs with accepted MIME types", () => {
-    const file = v.pipe(v.file(), v.mimeType(["image/png", "image/jpeg"]));
+  it("derives file inputs with accepted MIME types and extensions", () => {
+    const file = v.pipe(
+      v.file(),
+      fileType({ "image/png": [".png"], "image/jpeg": [".jpg", ".jpeg"] }),
+    );
     expect(describeFields(v.object({ file, any: v.file() }))).toEqual([
-      { name: "file", kind: "file", accept: ["image/png", "image/jpeg"] },
+      { name: "file", kind: "file", accept: ["image/png", "image/jpeg", ".png", ".jpg", ".jpeg"] },
       { name: "any", kind: "file", accept: [] },
     ]);
     expect(initialValues(v.object({ file }))).toEqual({ file: undefined });
@@ -42,11 +46,11 @@ describe("describeFields", () => {
 
   it("derives ordered multi-file inputs from arrays of files", () => {
     const files = v.pipe(
-      v.array(v.pipe(v.file(), v.mimeType(["application/pdf"]))),
+      v.array(v.pipe(v.file(), fileType({ "application/pdf": [".pdf"] }))),
       v.minLength(2),
     );
     expect(describeFields(v.object({ files }))).toEqual([
-      { name: "files", kind: "files", accept: ["application/pdf"] },
+      { name: "files", kind: "files", accept: ["application/pdf", ".pdf"] },
     ]);
     expect(initialValues(v.object({ files }))).toEqual({ files: [] });
   });
