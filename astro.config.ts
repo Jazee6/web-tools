@@ -22,6 +22,12 @@ export default defineConfig({
     routing: { prefixDefaultLocale: false },
   },
   vite: {
+    // jSquash 的 Emscripten 胶水代码用 import.meta.url 定位 .wasm，经依赖预构建后路径会失效
+    optimizeDeps: {
+      exclude: ["@jsquash/jpeg", "@jsquash/webp", "@jsquash/avif", "@jsquash/oxipng"],
+    },
+    // Tool 的 engine.worker.ts 里按格式动态加载编码器，需要 ES 模块格式的 Worker 才能分块
+    worker: { format: "es" },
     plugins: [
       tailwindcss(),
       paraglideVitePlugin({

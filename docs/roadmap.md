@@ -77,16 +77,17 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 ### M3 重型客户端运行时 + PWA
 
-- 类型化的 Web Worker RPC（Transferable）、能力探测和 Empty 状态。
-- 由注册表生成 `_headers`，按页开启 COOP/COEP；未隔离时退回单线程。
+- ✅ 类型化的 Web Worker RPC（`src/lib/runtime/rpc.ts`，Transferable、取消、进度、ToolError 还原）、能力探测（水合后探测，缺失时用 Empty 代替表单，e2e 覆盖）。Worker Tool 不写 `run`，core 只由 `engine.worker.ts` 引用，编码器不进主线程和服务端包。
+- ✅ 由注册表生成 `_headers`，按页开启 COOP/COEP；Worker 脚本需要自身的 COEP，所以 `/_astro/*` 也加（ADR-0008 补充）。e2e 验证 `crossOriginIsolated`；未隔离时 jSquash 自动退回单线程。
+- ✅ 契约支持文件字段：`v.file()` + `v.mimeType()` 派生文件输入和下载输出；examples 用 `files` 指向样例文件，输出文件只比较 MIME 类型和体积上限。WebMCP 只支持 JSON，文件型 Tool 暂不注册 Agent Interface（ADR-0016）。
 - 每个引擎先做一个样板 Tool：
-  - 图片：jSquash（Image Compressor）。
+  - ✅ 图片：jSquash（Image Compressor，新增 Category `image`，7 个 Locale 内容为 Draft）。JPEG / PNG / WebP / AVIF 四个样例在 Chromium、Firefox、WebKit 的 Vitest Browser Mode 和 e2e 中通过。
   - PDF：pdf.js + pdf-lib fork（Merge PDF）。
   - 音视频：Mediabunny + WebCodecs（Video Converter）。
   - 端侧 AI：Transformers.js + WebGPU，模型从 R2 assets 子域加载（Speech to Text），并带 Progress。
 - 本地状态：IndexedDB（收藏、最近使用、偏好）、OPFS（中间产物）、"清除本地数据"。
 - 手写 Service Worker：按需缓存、保留 COOP/COEP 响应头、离线兜底页；manifest。
-- Vitest Browser Mode 覆盖 WASM、WebCodecs、WebGPU 三条路径。
+- Vitest Browser Mode 覆盖 WASM、WebCodecs、WebGPU 三条路径。✅ 已接入（`*.browser.test.ts`，Chromium / Firefox / WebKit），目前覆盖 WASM。
 
 **退出条件**：4 个样板 Tool 在最新版 Chrome、Safari、Firefox 上都能运行（能力缺失时显示 Empty），用过一次后可以离线使用。
 
@@ -171,5 +172,5 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ~~Rate Limiting binding 在 Free 计划上是否可用~~：可用，但计数近似（见 M2）。
 - `/mcp` 冷启动 CPU 尖峰（16–42ms）在 Free 计划上是否会触发 CPU 超限，需要持续观察。
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
-- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB）。
+- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。
 - 内容近似度阈值（M4 根据样本确定）。

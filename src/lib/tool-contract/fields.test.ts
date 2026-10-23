@@ -31,6 +31,15 @@ describe("describeFields", () => {
     ]);
   });
 
+  it("derives file inputs with accepted MIME types", () => {
+    const file = v.pipe(v.file(), v.mimeType(["image/png", "image/jpeg"]));
+    expect(describeFields(v.object({ file, any: v.file() }))).toEqual([
+      { name: "file", kind: "file", accept: ["image/png", "image/jpeg"] },
+      { name: "any", kind: "file", accept: [] },
+    ]);
+    expect(initialValues(v.object({ file }))).toEqual({ file: undefined });
+  });
+
   it("rejects unsupported types", () => {
     expect(() => describeFields(v.object({ list: v.array(v.string()) }))).toThrow(/数组元素/);
     expect(() => describeFields(v.object({ when: v.date() }))).toThrow(/不支持/);

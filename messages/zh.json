@@ -20,5 +20,8 @@
   "search_open": "搜索工具",
   "search_placeholder": "搜索工具…",
   "search_empty": "没有找到工具。",
-  "search_loading": "加载中…"
+  "search_loading": "加载中…",
+  "tool_download": "下载",
+  "tool_unsupported_title": "当前浏览器无法运行此工具",
+  "tool_unsupported_description": "它需要 {features}，但当前浏览器不支持。请使用最新版 Chrome、Edge、Firefox 或 Safari。"
 }

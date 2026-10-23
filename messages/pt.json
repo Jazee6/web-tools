@@ -20,5 +20,8 @@
   "search_open": "Buscar ferramentas",
   "search_placeholder": "Buscar ferramentas…",
   "search_empty": "Nenhuma ferramenta encontrada.",
-  "search_loading": "Carregando…"
+  "search_loading": "Carregando…",
+  "tool_download": "Baixar",
+  "tool_unsupported_title": "Este navegador não consegue executar esta ferramenta",
+  "tool_unsupported_description": "Ela precisa de {features}, que este navegador não suporta. Use a versão mais recente do Chrome, Edge, Firefox ou Safari."
 }

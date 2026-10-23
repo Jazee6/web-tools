@@ -1,7 +1,8 @@
-import { CheckIcon, CopyIcon } from "lucide-react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 
-import { Field, FieldLabel } from "@/components/ui/field";
+import { buttonVariants } from "@/components/ui/button";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import {
   InputGroup,
   InputGroupAddon,
@@ -9,8 +10,10 @@ import {
   InputGroupInput,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
+import { hreflang } from "@/lib/i18n/locales";
 import type { FieldSpec } from "@/lib/tool-contract/fields";
 import { m } from "@/paraglide/messages";
+import { getLocale } from "@/paraglide/runtime";
 
 // 表格依赖 TanStack Table，只有用到表格输出的 Tool 才加载
 const OutputTable = lazy(() => import("./OutputTable"));
@@ -38,6 +41,36 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
+const formatSize = (bytes: number) =>
+  new Intl.NumberFormat(hreflang[getLocale()], {
+    style: "unit",
+    unit: bytes < 1024 * 1024 ? "kilobyte" : "megabyte",
+    maximumFractionDigits: 1,
+  }).format(bytes / (bytes < 1024 * 1024 ? 1024 : 1024 * 1024));
+
+// 文件输出：文件名、体积和下载按钮；object URL 随结果更新或卸载时释放
+function FileOutput({ file }: { file: File }) {
+  const url = useMemo(() => URL.createObjectURL(file), [file]);
+  useEffect(() => () => URL.revokeObjectURL(url), [url]);
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <FieldDescription className="min-w-0 break-all">
+        {file.name} · {formatSize(file.size)}
+      </FieldDescription>
+      <a
+        className={buttonVariants({ variant: "outline" })}
+        href={url}
+        download={file.name}
+        data-type={file.type}
+        data-size={file.size}
+      >
+        <DownloadIcon />
+        {m.tool_download()}
+      </a>
+    </div>
+  );
+}
+
 export function ToolOutput({
   spec,
   value,
@@ -61,6 +94,15 @@ export function ToolOutput({
             labels={label?.columns ?? {}}
           />
         </Suspense>
+      </Field>
+    );
+  }
+
+  if (spec.kind === "file") {
+    return (
+      <Field data-output={spec.name}>
+        <FieldLabel>{title}</FieldLabel>
+        {value instanceof File && <FileOutput file={value} />}
       </Field>
     );
   }

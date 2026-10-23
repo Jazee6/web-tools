@@ -1,4 +1,4 @@
-import type { AnyTool, ToolContext } from "@/lib/tool-contract/define-tool";
+import { type AnyTool, loadRun, type ToolContext } from "@/lib/tool-contract/define-tool";
 
 import { createSafeFetch } from "./safe-fetch";
 
@@ -21,7 +21,7 @@ export const executeTool = async (tool: AnyTool, input: unknown, env: ExecuteEnv
           }),
         }
       : {};
-  const run = await tool.run();
+  const run = await loadRun(tool);
   return run(input, ctx);
 };
 

@@ -20,5 +20,8 @@
   "search_open": "Rechercher des outils",
   "search_placeholder": "Rechercher des outils…",
   "search_empty": "Aucun outil trouvé.",
-  "search_loading": "Chargement…"
+  "search_loading": "Chargement…",
+  "tool_download": "Télécharger",
+  "tool_unsupported_title": "Ce navigateur ne peut pas exécuter cet outil",
+  "tool_unsupported_description": "Il nécessite {features}, que ce navigateur ne prend pas en charge. Essayez la dernière version de Chrome, Edge, Firefox ou Safari."
 }

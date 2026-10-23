@@ -1,5 +1,14 @@
 import { useForm } from "@tanstack/react-form";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import * as v from "valibot";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -24,7 +33,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { registerWebMcpTool } from "@/lib/agent/webmcp";
-import { type AnyTool, ToolError } from "@/lib/tool-contract/define-tool";
+import { type AnyTool, type Capability, loadRun, ToolError } from "@/lib/tool-contract/define-tool";
 import { describeFields, type FieldSpec, initialValues } from "@/lib/tool-contract/fields";
 import { m } from "@/paraglide/messages";
 
@@ -65,8 +74,12 @@ interface RunError {
 
 const noopSubscribe = () => () => {};
 
+const Unsupported = lazy(() => import("./Unsupported"));
+
 const issueMessage = (issue: v.BaseIssue<unknown>) =>
-  issue.type === "non_empty" || issue.type === "min_length" ? m.form_required() : m.form_invalid();
+  issue.type === "non_empty" || issue.type === "min_length" || issue.input === undefined
+    ? m.form_required()
+    : m.form_invalid();
 
 // 平台级错误码（/api/tools 返回）的文案在 messages，Tool 自身的错误码文案在内容 frontmatter
 const platformErrors: Record<string, () => string> = {
@@ -103,6 +116,8 @@ export function ToolForm({
   const siteKey = serverProps?.turnstileSiteKey ?? "";
   const getToken = useCallback(() => getTurnstileToken(challenge.current!, siteKey), [siteKey]);
   const formRef = useRef<HTMLFormElement>(null);
+  // 水合后探测到的缺失能力；有缺失时用 Empty 代替表单
+  const [missing, setMissing] = useState<Capability[]>([]);
 
   // 服务端与水合阶段为 false，水合完成后为 true（e2e 据此等待可交互）
   const hydrated = useSyncExternalStore(
@@ -120,11 +135,33 @@ export function ToolForm({
     return () => element.removeEventListener("focusin", preload);
   }, [server]);
 
-  // 空闲时预取 core，首次提交不用再等网络；requestIdleCallback 不可用时（Safari）退回 setTimeout。
-  // Server-assisted Tool 的 core 只在服务端运行，不预取。
+  // 能力探测放在水合之后，服务端与首次渲染的 HTML 一致
   useEffect(() => {
-    if (server) return;
-    const prefetch = () => void tool.run();
+    const required = tool.runtime.requires ?? [];
+    if (required.length === 0) return;
+    let active = true;
+    void import("@/lib/runtime/capabilities")
+      .then(({ missingCapabilities }) => missingCapabilities(required))
+      .then((result) => active && setMissing(result));
+    return () => {
+      active = false;
+    };
+  }, [tool]);
+
+  // 重型引擎在首次交互时才预热 Worker（下载脚本），WASM 等到真正编码时才加载
+  useEffect(() => {
+    const element = formRef.current;
+    if (!tool.runtime.worker || !element) return;
+    const warm = () => void import("./tool-worker").then(({ warmWorker }) => warmWorker(tool));
+    element.addEventListener("focusin", warm, { once: true });
+    return () => element.removeEventListener("focusin", warm);
+  }, [tool]);
+
+  // 空闲时预取轻量 Tool 的 core，首次提交不用再等网络；requestIdleCallback 不可用时（Safari）退回 setTimeout。
+  // Server-assisted Tool 的 core 只在服务端运行，重型 Tool 的 core 在 Worker 里加载，都不预取。
+  useEffect(() => {
+    if (server || tool.runtime.worker) return;
+    const prefetch = () => void loadRun(tool);
     if ("requestIdleCallback" in window) {
       const id = requestIdleCallback(prefetch);
       return () => cancelIdleCallback(id);
@@ -300,10 +337,31 @@ export function ToolForm({
           </Select>
         );
       }
+      case "file":
+        // 文件输入不能受控，只把选中的 File 交给表单
+        return (
+          <Input
+            id={id}
+            name={field.name}
+            type="file"
+            accept={spec.accept.join(",")}
+            aria-invalid={invalid}
+            onBlur={field.handleBlur}
+            onChange={(event) => onChange(event.target.files?.[0])}
+          />
+        );
       case "table":
         throw new Error(`表格字段 ${spec.name} 只能用于输出`);
     }
   };
+
+  if (missing.length > 0) {
+    return (
+      <Suspense>
+        <Unsupported missing={missing} />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6" data-hydrated={hydrated || undefined}>

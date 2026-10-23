@@ -1,13 +1,19 @@
 /// <reference types="bun" />
 // 构建后生成平台文件和 OG 图（Astro 页面无法输出以 _ 开头的文件，takumi 是 Node 原生模块，不能在 workerd 预渲染中运行）：
 // - _redirects：缺失翻译 302 到 en（ADR-0007）
-// - _headers：不可索引页面的 .md 副本加 X-Robots-Tag: noindex
+// - _headers：不可索引页面的 .md 副本加 X-Robots-Tag: noindex；需要跨源隔离的 Tool 页加 COOP/COEP
 // - og/{locale}/{tool}.png
 import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import { localizePath, locales } from "../src/lib/i18n/locales";
 import { ogImagePath } from "../src/lib/og";
+import {
+  isolatedPaths,
+  isolationHeaders,
+  renderHeaderRules,
+  workerScriptPaths,
+} from "../src/lib/runtime/isolation";
 import { isIndexable, missingTranslationRedirects, renderRedirects } from "../src/lib/seo/indexing";
 import { readCategoryContent, readToolContent, statusesByOwner, loadTools } from "./lib/content";
 import { renderOgImage } from "./lib/og";
@@ -34,8 +40,21 @@ const noindexMarkdown = pages.flatMap((page) =>
 );
 appendFileSync(
   join(root, "_headers"),
-  noindexMarkdown.map((path) => `\n${path}\n  X-Robots-Tag: noindex\n`).join(""),
+  renderHeaderRules(noindexMarkdown, { "X-Robots-Tag": "noindex" }),
 );
+
+const isolated = tools
+  .filter((tool) => tool.runtime.crossOriginIsolated)
+  .flatMap((tool) => isolatedPaths(tool.id, toolStatuses.get(tool.id) ?? {}));
+appendFileSync(join(root, "_headers"), renderHeaderRules(isolated, isolationHeaders));
+if (isolated.length > 0) {
+  appendFileSync(
+    join(root, "_headers"),
+    renderHeaderRules(workerScriptPaths, {
+      "Cross-Origin-Embedder-Policy": isolationHeaders["Cross-Origin-Embedder-Policy"],
+    }),
+  );
+}
 
 const siteNames = Object.fromEntries(
   await Promise.all(
@@ -65,5 +84,5 @@ for (const file of toolContent) {
 }
 
 console.log(
-  `postbuild：${redirects.length} 条重定向，${noindexMarkdown.length} 个 noindex .md，${images} 张 OG 图`,
+  `postbuild：${redirects.length} 条重定向，${noindexMarkdown.length} 个 noindex .md，${isolated.length} 条跨源隔离规则，${images} 张 OG 图`,
 );

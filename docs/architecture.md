@@ -99,7 +99,7 @@
 
 ## 4. 技术栈
 
-所有依赖均已确认（§1 Q17–Q20、Q25、Q32、Q45–Q47）；M2 起新增 `@modelcontextprotocol/server`、`@tanstack/react-table`（2026-10-22 确认）。
+所有依赖均已确认（§1 Q17–Q20、Q25、Q32、Q45–Q47）；M2 起新增 `@modelcontextprotocol/server`、`@tanstack/react-table`（2026-10-22 确认）；M3 新增 `@jsquash/jpeg`、`@jsquash/webp`、`@jsquash/avif`、`@jsquash/oxipng`、`@vitest/browser-playwright`（2026-10-23 确认）。
 
 | 层 | 选型 |
 |---|---|
@@ -141,7 +141,8 @@
     │       ├── tool.ts          # defineTool(...)：契约与元数据
     │       ├── core.ts          # 纯逻辑，可在浏览器 / Web Worker / Workers 运行
     │       ├── core.test.ts
-    │       ├── engine.worker.ts # 重型 Tool 的 Web Worker 入口（可选）
+    │       ├── engine.worker.ts # 重型 Tool 的 Web Worker 入口（可选，exposeRun(core)）
+    │       ├── examples/        # 文件型 examples 用的样例文件（不进构建产物）
     │       ├── ui.tsx           # React island
     │       ├── content/{locale}.md
     │       └── variants/<variant-id>/
@@ -176,18 +177,20 @@ export default defineTool({
   category: 'image',
   alsoListedIn: ['web'],
   // 默认值写在 schema 里（v.optional(schema, default)），表单初始值和 JSON Schema 的 default 都从这里取
-  input: v.object({ file: vFile({ accept: ['image/*'] }), quality: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100)), 75) }),
-  output: v.object({ file: vFile() }),
-  examples: [/* 示例输入与期望输出，用于 e2e、MCP 文档和 JSON-LD */],
+  input: v.object({ file: v.pipe(v.file(), v.mimeType(['image/jpeg', 'image/png'])), quality: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(100)), 75) }),
+  output: v.object({ file: v.file() }),
+  // 示例输入与期望输出，用于契约测试和 e2e；文件字段写样例文件名，输出文件只比较 MIME 类型和体积上限
+  examples: [{ input: {}, files: { file: 'photo.jpg' }, output: { file: { type: 'image/jpeg', maxSize: 8_000 } } }],
   runtime: {
     where: 'client',                   // 'client' | 'server'（Server-assisted Tool）
-    worker: true,                      // 在 Web Worker 里运行
+    worker: true,                      // 在 Web Worker 里运行（engine.worker.ts），此时不写 run
     crossOriginIsolated: true,         // 需要 SharedArrayBuffer → 该页开启 COOP/COEP
     requires: ['wasm'],                // 能力探测：'webgpu' | 'webcodecs' | ...
   },
   // description：Agent Interface 的英文说明，和字段的 v.description() 一样写在契约里
-  agent: { webmcp: true, remote: false, description: 'Compress a JPEG, PNG, WebP or AVIF image…' },
-  run: () => import('./core').then((m) => m.compress),
+  // 文件型 Tool 不注册 Agent Interface（ADR-0016）
+  agent: { webmcp: false, remote: false, description: 'Compress a JPEG, PNG, WebP or AVIF image…' },
+  // 轻量 Tool 与 Server-assisted Tool 写 run: () => import('./core').then((m) => m.xxx)
 })
 ```
 
@@ -206,9 +209,10 @@ export default defineTool({
 
 约束：
 
-- `core.ts` 不能 import UI、DOM 或 Astro；需要的环境能力（进度、取消、OPFS）通过 `ctx` 参数注入。Server-assisted Tool 的对外请求只能用服务端注入的 `ctx.fetch`（带 SSRF 防护和按目标限流），契约测试用同目录 `fixtures.ts` 的假 fetch 跑 `examples`。
+- `core.ts` 不能 import UI、DOM 或 Astro（Worker 里也有的 Web API，如 OffscreenCanvas、createImageBitmap，可以直接用）；需要的环境能力（进度、取消、OPFS）通过 `ctx` 参数注入。Server-assisted Tool 的对外请求只能用服务端注入的 `ctx.fetch`（带 SSRF 防护和按目标限流），契约测试用同目录 `fixtures.ts` 的假 fetch 跑 `examples`。
 - `agent.remote: true` 要求输入输出都可以 JSON 序列化、不含文件，并且能在 Workers CPU 预算内跑完（Free 计划下每个请求只有 10ms）。
-- 文件型输入在 WebMCP 中以 Blob 传递，所以只能在页面内调用。
+- `runtime.worker` 与 `run` 二选一（注册表校验）：Worker Tool 的 core 只由 `engine.worker.ts` 引用，经 `lib/runtime/rpc.ts` 的类型化 RPC 调用，编码器和 WASM 不进主线程和服务端的模块图。它的 examples 在 Vitest Browser Mode（Chromium / Firefox / WebKit）里经 Worker 跑。
+- 有文件字段的 Tool 不能注册 WebMCP 或远程 MCP：两者的输入输出都只有 JSON（ADR-0016）。
 - 契约里没有 `ui` 字段：页面表单从 `input` 派生，island 通过 `tool-loader` 按 id 懒加载 `tool.ts`（每个 Tool 一个分块）；服务端渲染前先加载好，客户端水合时挂起并保留服务端 HTML。
 - `core` 的可预期错误抛 `ToolError(code, { field, detail })`：`code` 对应内容 frontmatter 的 `errors` 文案，`field` 指明在哪个字段下行内显示。
 
@@ -304,7 +308,7 @@ Variant 有两种渲染模式，由一个配置开关切换（路由的 `prerend
 
 - **WebMCP（页面内）**：Tool island 挂载时，经 `lib/agent/webmcp.ts` 适配层注册当前 Tool：名称（Tool id）、`agent.description`、构建期从 Valibot 生成并作为 props 传入的 JSON Schema（浏览器不打包 `@valibot/to-json-schema`），执行时走和表单相同的调用入口（轻量 Tool 跑 `core`，Server-assisted Tool 经 Turnstile 调 `/api/tools`），结果同步显示在表单上；卸载时通过 `registerTool` 的 `signal` 注销。2026-10 的 Chrome 文档（origin trial，Chrome 149+）用的是 `document.modelContext.registerTool(tool, { signal })`，适配层同时探测 `navigator.modelContext`，以 developer.chrome.com 的最新文档为准。调用方看不到 `execute` reject 的原因，所以可预期错误以 `{ error: { code, … } }` 的 JSON 结果返回。
 - **远程 MCP（`/mcp`）**：和站点在同一个 Worker 内，用官方 SDK v2 的 `createMcpHandler` 实现无状态 Streamable HTTP（ADR-0014），同时兼容 2025 与 2026-07-28 两版协议；工具列表由注册表里 `agent.remote: true` 的 Tool 自动生成，结果同时给 `structuredContent` 和 JSON 文本，`ToolError` 以 `isError` 结果返回；匿名可用，按 IP 限流；Free 计划下，每次调用都占用每天的请求配额，并受 10ms CPU 约束。抓取任意网址的 Server-assisted Tool 不开放远程 MCP（ADR-0015）。
-- 重型媒体 Tool 不在服务端运行，只通过 WebMCP 在访客的浏览器里被调用。
+- 重型媒体 Tool 不在服务端运行。WebMCP 目前只支持 JSON 输入输出（2026-10 的 Chrome 文档与规范草案都没有 Blob / File），所以文件型 Tool 暂不注册（ADR-0016）；纯参数、在浏览器里跑的重型 Tool 仍可注册 WebMCP。
 - Tool Variant 不注册独立的 Agent Interface；它的预设作为 Tool 描述里的调用示例。
 
 ## 11. Tool Variant 准入门槛
@@ -336,7 +340,7 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 
 - **线程模型**：所有重型计算都在 Dedicated Web Worker 中进行，主线程只负责 UI。Worker 通信用一个很薄的、自写的类型化 RPC，传大数据时用 Transferable 零拷贝。
 - **能力探测**：页面加载时检测 `runtime.requires`（WebGPU、WebCodecs、`crossOriginIsolated`、OPFS）；缺失时显示 Empty 状态说明原因，不做降级实现。
-- **跨源隔离**：构建时根据注册表生成 `_headers`，只对 `crossOriginIsolated: true` 的 Tool 页（含其 Variant 和各 Locale 版本）加上 `COOP: same-origin` 和 `COEP: credentialless`；on-demand 模式下，SSR 的 Variant 页由 Worker 中间件补上同样的响应头。没有隔离时，多线程 WASM 自动退回单线程。
+- **跨源隔离**：构建时根据注册表生成 `_headers`，只对 `crossOriginIsolated: true` 的 Tool 页（含其 Variant 和各 Locale 版本）加上 `COOP: same-origin` 和 `COEP: credentialless`；on-demand 模式下，SSR 的 Variant 页由 Worker 中间件补上同样的响应头。隔离页创建的 Dedicated Worker 由脚本自身的响应头决定 COEP，缺少时浏览器直接拦截，所以 `/_astro/*` 也加 `COEP: credentialless`（对非文档、非 Worker 资源没有影响）。没有隔离时（例如 Safari 不支持 `credentialless`），多线程 WASM 自动退回单线程。
 - **WASM 与模型**：
   - 不超过 25 MiB 的 WASM 走同源静态资源，文件名带哈希，设置 immutable 缓存。
   - 模型文件和超过 25 MiB 的 WASM（例如 ffmpeg core）放在 R2，通过 R2 自定义域名（assets 子域）直接提供，并配置 CORS。这样请求走 CDN 缓存，不经过 Worker、不占用请求配额；以 CORS 模式请求，同时满足 COEP 的要求。
@@ -390,7 +394,7 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 | 层 | 工具 | 内容 |
 |---|---|---|
 | Tool 核心 | Vitest | 每个 `core.ts` 的单元测试；契约测试（`examples` 必须满足 schema） |
-| 浏览器相关核心 | Vitest Browser Mode（Playwright provider） | WASM / WebCodecs / WebGPU 路径 |
+| 浏览器相关核心 | Vitest Browser Mode（Playwright provider，Chromium / Firefox / WebKit） | WASM / WebCodecs / WebGPU 路径；Worker Tool 的 examples 经 Worker RPC 跑（`*.browser.test.ts`） |
 | Worker 路由 | Vitest + `@cloudflare/vitest-plugin` | `/api/*`、`/mcp`；on-demand 模式下的 Variant SSR 与缓存键 |
 | 端到端 | Playwright | 由注册表和 `examples` 自动生成每个 Tool 的冒烟测试 |
 | 性能 | `@lhci/cli` | §15 预算 |

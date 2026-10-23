@@ -3,7 +3,7 @@ import * as v from "valibot";
 
 import { hreflang, localizePath, locales } from "../src/lib/i18n/locales";
 import { toolApiPath } from "../src/lib/tool-api";
-import type { AnyTool } from "../src/lib/tool-contract/define-tool";
+import type { AnyTool, ExampleFile } from "../src/lib/tool-contract/define-tool";
 import { describeFields } from "../src/lib/tool-contract/fields";
 import { loadTools } from "./load-tools";
 
@@ -31,6 +31,16 @@ const expectOutput = async (page: Page, tool: AnyTool, output: Record<string, un
   for (const spec of describeFields(tool.output)) {
     const field = page.locator(`[data-output="${spec.name}"]`);
     const value = output[spec.name];
+    if (spec.kind === "file") {
+      // 文件输出只比较 MIME 类型和体积上限
+      const { type, maxSize } = value as ExampleFile;
+      const link = field.locator("a[download]");
+      await expect(link).toHaveAttribute("data-type", type);
+      if (maxSize !== undefined) {
+        expect(Number(await link.getAttribute("data-size"))).toBeLessThanOrEqual(maxSize);
+      }
+      continue;
+    }
     if (spec.kind !== "table") {
       await expect(field.locator("textarea, input")).toHaveValue(String(value));
       continue;
@@ -80,14 +90,41 @@ for (const tool of tools) {
       });
     }
 
+    if (tool.runtime.requires?.includes("wasm")) {
+      // 能力缺失时用 Empty 代替表单（architecture §13）
+      test("shows an unsupported state without WebAssembly", async ({ page }) => {
+        await page.addInitScript(() => {
+          delete (globalThis as { WebAssembly?: unknown }).WebAssembly;
+        });
+        await page.goto(`/${tool.id}`);
+        await expect(page.locator("[data-unsupported]")).toContainText("WebAssembly");
+        await expect(page.locator('button[type="submit"]')).toHaveCount(0);
+      });
+    }
+
+    if (tool.runtime.crossOriginIsolated) {
+      // _headers 按页加了 COOP/COEP（ADR-0008）
+      test("is cross-origin isolated", async ({ page }) => {
+        await page.goto(`/${tool.id}`);
+        expect(await page.evaluate(() => crossOriginIsolated)).toBe(true);
+      });
+    }
+
     tool.examples.forEach((example, index) => {
       test(`example ${index} produces the expected output`, async ({ page }) => {
         await stubServer(page, tool, example.output);
         await page.goto(`/${tool.id}`);
         // 等待 Tool island 水合完成
         await page.waitForSelector("[data-hydrated]");
-        const input = v.parse(tool.input, example.input) as Record<string, unknown>;
+        // 文件字段从 examples/ 选择样例文件，其余字段取示例值或 schema 默认值
+        const input = { ...v.getDefaults(tool.input), ...example.input } as Record<string, unknown>;
         for (const spec of describeFields(tool.input)) {
+          if (spec.kind === "file") {
+            await page
+              .locator(`[data-field="${spec.name}"] input[type="file"]`)
+              .setInputFiles(`src/tools/${tool.id}/examples/${example.files![spec.name]}`);
+            continue;
+          }
           await fill(page, spec.name, spec.kind, input[spec.name]);
         }
         await page.locator('button[type="submit"]').click();

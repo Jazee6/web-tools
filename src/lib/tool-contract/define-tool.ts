@@ -42,10 +42,20 @@ export type ToolRun<TIn extends ToolSchema, TOut extends ToolSchema> = (
   ctx: ToolContext,
 ) => v.InferOutput<TOut> | Promise<v.InferOutput<TOut>>;
 
+// 示例输出里的文件只比较 MIME 类型和体积上限：编码产物的字节会随编码器版本变化
+export interface ExampleFile {
+  type: string;
+  maxSize?: number;
+}
+
+export type ExampleOutput<T> = { [K in keyof T]: T[K] extends Blob ? ExampleFile : T[K] };
+
 export interface ToolExample<TIn extends ToolSchema, TOut extends ToolSchema> {
-  // 省略的字段取 schema 默认值
+  // 省略的字段取 schema 默认值；文件字段不写在这里，改用 files
   input: Partial<v.InferInput<TIn>>;
-  output: v.InferOutput<TOut>;
+  // 文件字段 → 同目录 examples/ 下的样例文件名
+  files?: Record<string, string>;
+  output: ExampleOutput<v.InferOutput<TOut>>;
 }
 
 export interface ToolDefinition<
@@ -62,6 +72,7 @@ export interface ToolDefinition<
   examples: readonly [ToolExample<TIn, TOut>, ...ToolExample<TIn, TOut>[]];
   runtime: {
     where: "client" | "server";
+    // 在 Dedicated Web Worker 里运行：同目录 engine.worker.ts 用 exposeRun 暴露 core
     worker?: boolean;
     crossOriginIsolated?: boolean;
     requires?: readonly Capability[];
@@ -73,11 +84,18 @@ export interface ToolDefinition<
     // 页面文案在内容 frontmatter，按 Locale 翻译。说明 Tool 做什么、返回什么、有哪些错误码。
     description: string;
   };
-  run: () => Promise<ToolRun<TIn, TOut>>;
+  // 按需加载 core。Worker Tool 不写 run：它的 core 只由 engine.worker.ts 引用，
+  // 不进主线程和服务端的模块图（编码器、WASM 不会被重复打包）
+  run?: () => Promise<ToolRun<TIn, TOut>>;
 }
 
 // oxlint-disable-next-line typescript/no-explicit-any -- 注册表需要容纳任意 schema 的 Tool
 export type AnyTool = ToolDefinition<any, any>;
+
+export const loadRun = (tool: AnyTool): ReturnType<NonNullable<AnyTool["run"]>> => {
+  if (!tool.run) throw new Error(`Tool ${tool.id} 在 Web Worker 里运行，没有 run`);
+  return tool.run();
+};
 
 export const defineTool = <TIn extends ToolSchema, TOut extends ToolSchema>(
   definition: ToolDefinition<TIn, TOut>,

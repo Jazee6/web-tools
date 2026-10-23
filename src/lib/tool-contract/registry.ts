@@ -37,6 +37,11 @@ export const createRegistry = (modules: Record<string, { default: AnyTool }>): A
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(tool.id)) {
       throw new Error(`Tool id "${tool.id}" 必须是 kebab-case`);
     }
+    if (Boolean(tool.runtime.worker) === Boolean(tool.run)) {
+      throw new Error(
+        `Tool ${tool.id}：runtime.worker 与 run 必须二选一（Worker Tool 由 engine.worker.ts 运行）`,
+      );
+    }
     const owner = taken.get(tool.id);
     if (owner) throw new Error(`Tool id "${tool.id}" 与${owner}冲突`);
     taken.set(tool.id, "Tool");

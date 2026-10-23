@@ -20,5 +20,8 @@
   "search_open": "Tools durchsuchen",
   "search_placeholder": "Tools durchsuchen…",
   "search_empty": "Keine Tools gefunden.",
-  "search_loading": "Wird geladen…"
+  "search_loading": "Wird geladen…",
+  "tool_download": "Herunterladen",
+  "tool_unsupported_title": "Dieser Browser kann dieses Tool nicht ausführen",
+  "tool_unsupported_description": "Es benötigt {features}, was dieser Browser nicht unterstützt. Verwenden Sie die neueste Version von Chrome, Edge, Firefox oder Safari."
 }

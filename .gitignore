@@ -33,3 +33,6 @@ src/paraglide/
 # playwright
 test-results/
 playwright-report/
+
+# vitest browser mode
+.vitest/

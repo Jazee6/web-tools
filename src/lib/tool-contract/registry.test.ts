@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import type { AnyTool } from "./define-tool";
 import { createRegistry } from "./registry";
 
-const module = (id: string) => ({ default: { id } as AnyTool });
+const module = (id: string, tool: Partial<AnyTool> = {}) => ({
+  default: { id, runtime: { where: "client" }, run: async () => () => ({}), ...tool } as AnyTool,
+});
 
 describe("createRegistry", () => {
   it("sorts tools by id", () => {
@@ -20,6 +22,14 @@ describe("createRegistry", () => {
 
   it.each(["developer", "zh", "api", "mcp"])("rejects the taken slug %s", (id) => {
     expect(() => createRegistry({ [`./tools/${id}/tool.ts`]: module(id) })).toThrow(/冲突/);
+  });
+
+  it("requires either a Web Worker or run", () => {
+    const worker = { runtime: { where: "client", worker: true } } as const;
+    expect(() => createRegistry({ "./tools/a/tool.ts": module("a", worker) })).toThrow(/二选一/);
+    expect(() =>
+      createRegistry({ "./tools/a/tool.ts": module("a", { ...worker, run: undefined }) }),
+    ).not.toThrow();
   });
 
   it("rejects non-kebab-case ids", () => {

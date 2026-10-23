@@ -23,11 +23,12 @@ jobs:
       - run: bun run lint
       - run: bun run check
       - run: bun run check:content
+      # Vitest Browser Mode 在三个引擎里跑 WASM 路径，e2e 只用 Chromium
+      - run: bunx playwright install --with-deps chromium firefox webkit
       - run: bun run test
       - run: bun run build
       - run: bun run check:limits
       - run: bun run check:seo
-      - run: bunx playwright install --with-deps chromium
       - run: bun run test:e2e
 
   preview:
