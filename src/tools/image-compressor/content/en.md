@@ -23,7 +23,7 @@ steps:
   - Check the new file size, then download the compressed image.
 faq:
   - q: Are my images uploaded to a server?
-    a: No. The image is decoded and re-encoded inside your browser with WebAssembly codecs, so it never leaves your device. After the page has loaded once, compression keeps working even without a network connection.
+    a: No. The image is decoded and re-encoded inside your browser with WebAssembly codecs, so it never leaves your device.
   - q: Which quality setting should I use?
     a: 75 is a good default for photos — the difference is hard to see while the file is usually much smaller. Use 85–90 for images with fine text or sharp edges, and 50–65 when size matters more than detail, such as thumbnails.
   - q: Why is my PNG only slightly smaller?

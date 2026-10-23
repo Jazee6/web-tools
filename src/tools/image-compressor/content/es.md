@@ -23,7 +23,7 @@ steps:
   - Revisa el nuevo tamaño y descarga la imagen comprimida.
 faq:
   - q: ¿Se suben mis imágenes a un servidor?
-    a: No. La imagen se decodifica y se vuelve a codificar dentro de tu navegador con códecs WebAssembly, así que nunca sale de tu dispositivo. Una vez cargada la página, la compresión sigue funcionando incluso sin conexión.
+    a: No. La imagen se decodifica y se vuelve a codificar dentro de tu navegador con códecs WebAssembly, así que nunca sale de tu dispositivo.
   - q: ¿Qué calidad debo usar?
     a: 75 es un buen valor para fotos — la diferencia apenas se nota y el archivo suele ser mucho más pequeño. Usa 85–90 para imágenes con texto fino o bordes nítidos, y 50–65 cuando el tamaño importa más que el detalle, como en miniaturas.
   - q: ¿Por qué mi PNG apenas se reduce?

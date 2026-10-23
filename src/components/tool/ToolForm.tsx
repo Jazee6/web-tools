@@ -76,10 +76,14 @@ const noopSubscribe = () => () => {};
 
 const Unsupported = lazy(() => import("./Unsupported"));
 
-const issueMessage = (issue: v.BaseIssue<unknown>) =>
-  issue.type === "non_empty" || issue.type === "min_length" || issue.input === undefined
-    ? m.form_required()
-    : m.form_invalid();
+const issueMessage = (issue: v.BaseIssue<unknown>) => {
+  if (issue.type === "non_empty" || issue.type === "min_length" || issue.input === undefined) {
+    return m.form_required();
+  }
+  if (issue.type === "max_size") return m.form_file_too_large();
+  if (issue.type === "mime_type") return m.form_file_type();
+  return m.form_invalid();
+};
 
 // 平台级错误码（/api/tools 返回）的文案在 messages，Tool 自身的错误码文案在内容 frontmatter
 const platformErrors: Record<string, () => string> = {

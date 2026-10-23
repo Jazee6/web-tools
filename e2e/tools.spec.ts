@@ -103,10 +103,18 @@ for (const tool of tools) {
     }
 
     if (tool.runtime.crossOriginIsolated) {
-      // _headers 按页加了 COOP/COEP（ADR-0008）
-      test("is cross-origin isolated", async ({ page }) => {
-        await page.goto(`/${tool.id}`);
-        expect(await page.evaluate(() => crossOriginIsolated)).toBe(true);
+      // _headers 按页加了 COOP/COEP（ADR-0008）。WebKit 不支持 COEP: credentialless，页面不隔离，
+      // 多线程 WASM 退回单线程，examples 在三个引擎上都要能跑通。
+      test("is cross-origin isolated where COEP credentialless is supported", async ({
+        page,
+        browserName,
+      }) => {
+        for (const path of [`/${tool.id}`, localizePath("zh", `/${tool.id}`)]) {
+          await page.goto(path);
+          expect(await page.evaluate(() => crossOriginIsolated), path).toBe(
+            browserName !== "webkit",
+          );
+        }
       });
     }
 

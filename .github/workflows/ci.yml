@@ -23,7 +23,7 @@ jobs:
       - run: bun run lint
       - run: bun run check
       - run: bun run check:content
-      # Vitest Browser Mode 在三个引擎里跑 WASM 路径，e2e 只用 Chromium
+      # Vitest Browser Mode 和 e2e 都在 Chromium、Firefox、WebKit 三个引擎里跑
       - run: bunx playwright install --with-deps chromium firefox webkit
       - run: bun run test
       - run: bun run build
@@ -57,7 +57,7 @@ jobs:
           test -n "$url"
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "Preview: $url" >> "$GITHUB_STEP_SUMMARY"
-      - run: bunx playwright install --with-deps chromium
+      - run: bunx playwright install --with-deps chromium firefox webkit
       - run: bun run test:e2e
         env:
           BASE_URL: ${{ steps.upload.outputs.url }}

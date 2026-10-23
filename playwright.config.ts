@@ -10,7 +10,12 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? "github" : "list",
   use: { baseURL },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  // 三个引擎都跑：跨源隔离和多线程 WASM 的行为在引擎之间不同（WebKit 不支持 COEP: credentialless）
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+  ],
   webServer: process.env.BASE_URL
     ? undefined
     : {

@@ -23,7 +23,7 @@ steps:
   - Vérifiez la nouvelle taille, puis téléchargez l'image compressée.
 faq:
   - q: Mes images sont-elles envoyées sur un serveur ?
-    a: Non. L'image est décodée et réencodée dans votre navigateur avec des codecs WebAssembly ; elle ne quitte jamais votre appareil. Une fois la page chargée, la compression fonctionne même sans connexion.
+    a: Non. L'image est décodée et réencodée dans votre navigateur avec des codecs WebAssembly ; elle ne quitte jamais votre appareil.
   - q: Quelle qualité choisir ?
     a: 75 convient bien aux photos — la différence se voit à peine et le fichier est souvent bien plus léger. Prenez 85–90 pour les images avec du texte fin ou des contours nets, et 50–65 quand le poids compte plus que les détails, par exemple pour des vignettes.
   - q: Pourquoi mon PNG n'a-t-il presque pas diminué ?

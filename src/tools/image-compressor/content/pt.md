@@ -23,7 +23,7 @@ steps:
   - Confira o novo tamanho e baixe a imagem comprimida.
 faq:
   - q: Minhas imagens são enviadas para um servidor?
-    a: Não. A imagem é decodificada e recodificada dentro do seu navegador com codecs WebAssembly, então nunca sai do seu dispositivo. Depois que a página carrega uma vez, a compressão continua funcionando mesmo sem internet.
+    a: Não. A imagem é decodificada e recodificada dentro do seu navegador com codecs WebAssembly, então nunca sai do seu dispositivo.
   - q: Qual qualidade devo usar?
     a: 75 é um bom padrão para fotos — a diferença é difícil de perceber e o arquivo costuma ficar bem menor. Use 85–90 para imagens com texto pequeno ou bordas nítidas, e 50–65 quando o tamanho importa mais que os detalhes, como em miniaturas.
   - q: Por que meu PNG diminuiu tão pouco?

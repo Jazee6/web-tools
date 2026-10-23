@@ -78,10 +78,10 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 ### M3 重型客户端运行时 + PWA
 
 - ✅ 类型化的 Web Worker RPC（`src/lib/runtime/rpc.ts`，Transferable、取消、进度、ToolError 还原）、能力探测（水合后探测，缺失时用 Empty 代替表单，e2e 覆盖）。Worker Tool 不写 `run`，core 只由 `engine.worker.ts` 引用，编码器不进主线程和服务端包。
-- ✅ 由注册表生成 `_headers`，按页开启 COOP/COEP；Worker 脚本需要自身的 COEP，所以 `/_astro/*` 也加（ADR-0008 补充）。e2e 验证 `crossOriginIsolated`；未隔离时 jSquash 自动退回单线程。
+- ✅ 由注册表生成 `_headers`，按页开启 COOP/COEP，Locale 用 `:locale` 占位符（每个 Tool 固定 4 条规则）；Worker 脚本需要自身的 COEP，所以 `/_astro/*` 也加（ADR-0008 补充）。e2e 验证 Chromium、Firefox 隔离、WebKit 不隔离（不支持 `credentialless`），未隔离时 jSquash 自动退回单线程。`check:limits` 统计 `_headers` 规则数（上限 100）。⏳ 推送后在生产核对响应头，并在真实 Safari 里确认单线程回退。
 - ✅ 契约支持文件字段：`v.file()` + `v.mimeType()` 派生文件输入和下载输出；examples 用 `files` 指向样例文件，输出文件只比较 MIME 类型和体积上限。WebMCP 只支持 JSON，文件型 Tool 暂不注册 Agent Interface（ADR-0016）。
 - 每个引擎先做一个样板 Tool：
-  - ✅ 图片：jSquash（Image Compressor，新增 Category `image`，7 个 Locale 内容为 Draft）。JPEG / PNG / WebP / AVIF 四个样例在 Chromium、Firefox、WebKit 的 Vitest Browser Mode 和 e2e 中通过。
+  - ✅ 图片：jSquash（Image Compressor，新增 Category `image`，7 个 Locale 内容为 Draft）。JPEG / PNG / WebP / AVIF 四个样例在 Chromium、Firefox、WebKit 上都通过：Vitest Browser Mode 跑未隔离的单线程路径，页面级 e2e 在 Chromium、Firefox 上跑隔离后的多线程路径、在 WebKit 上跑单线程回退。
   - PDF：pdf.js + pdf-lib fork（Merge PDF）。
   - 音视频：Mediabunny + WebCodecs（Video Converter）。
   - 端侧 AI：Transformers.js + WebGPU，模型从 R2 assets 子域加载（Speech to Text），并带 Progress。
@@ -174,3 +174,4 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
 - ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。
 - 内容近似度阈值（M4 根据样本确定）。
+- `_headers` 最多 100 条规则（已核实）。目前 41 条，其中 35 条是不可索引页面 `.md` 副本的 `X-Robots-Tag: noindex`，按"页面 × Locale"逐条生成；首发约 30 个 Tool × 7 个 Locale 全是 Draft 时会远超上限。补齐 Tool 之前要换方案，例如让 robots.txt 禁止抓取 Draft 的 `.md`，或核实占位符能否匹配 `/:page.md` 这类半个路径段。

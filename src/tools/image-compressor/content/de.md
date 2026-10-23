@@ -23,7 +23,7 @@ steps:
   - Prüfen Sie die neue Dateigröße und laden Sie das komprimierte Bild herunter.
 faq:
   - q: Werden meine Bilder auf einen Server hochgeladen?
-    a: Nein. Das Bild wird in Ihrem Browser mit WebAssembly-Codecs dekodiert und neu kodiert und verlässt Ihr Gerät nie. Nachdem die Seite einmal geladen wurde, funktioniert die Komprimierung auch ohne Internetverbindung.
+    a: Nein. Das Bild wird in Ihrem Browser mit WebAssembly-Codecs dekodiert und neu kodiert und verlässt Ihr Gerät nie.
   - q: Welche Qualität sollte ich wählen?
     a: 75 ist ein guter Standardwert für Fotos – der Unterschied ist kaum zu sehen, die Datei meist deutlich kleiner. Nehmen Sie 85–90 für Bilder mit feiner Schrift oder scharfen Kanten und 50–65, wenn die Größe wichtiger ist als Details, etwa bei Vorschaubildern.
   - q: Warum wird mein PNG nur wenig kleiner?

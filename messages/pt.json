@@ -23,5 +23,7 @@
   "search_loading": "Carregando…",
   "tool_download": "Baixar",
   "tool_unsupported_title": "Este navegador não consegue executar esta ferramenta",
-  "tool_unsupported_description": "Ela precisa de {features}, que este navegador não suporta. Use a versão mais recente do Chrome, Edge, Firefox ou Safari."
+  "tool_unsupported_description": "Ela precisa de {features}, que este navegador não suporta. Use a versão mais recente do Chrome, Edge, Firefox ou Safari.",
+  "form_file_too_large": "Este arquivo é grande demais.",
+  "form_file_type": "Este tipo de arquivo não é compatível."
 }

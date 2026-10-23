@@ -45,7 +45,7 @@ appendFileSync(
 
 const isolated = tools
   .filter((tool) => tool.runtime.crossOriginIsolated)
-  .flatMap((tool) => isolatedPaths(tool.id, toolStatuses.get(tool.id) ?? {}));
+  .flatMap((tool) => isolatedPaths(tool.id));
 appendFileSync(join(root, "_headers"), renderHeaderRules(isolated, isolationHeaders));
 if (isolated.length > 0) {
   appendFileSync(

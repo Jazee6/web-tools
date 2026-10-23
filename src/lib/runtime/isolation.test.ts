@@ -1,15 +1,22 @@
 import { describe, expect, it } from "vitest";
 
-import { isolatedPaths, isolationHeaders, renderHeaderRules } from "./isolation";
+import { countHeaderRules, isolatedPaths, isolationHeaders, renderHeaderRules } from "./isolation";
 
 describe("isolatedPaths", () => {
-  it("covers every published Locale and its Variants", () => {
-    expect(isolatedPaths("image-compressor", { en: "draft", zh: "reviewed" })).toEqual([
+  it("covers every Locale and the Variants with four rules", () => {
+    expect(isolatedPaths("image-compressor")).toEqual([
       "/image-compressor",
       "/image-compressor/*",
-      "/zh/image-compressor",
-      "/zh/image-compressor/*",
+      "/:locale/image-compressor",
+      "/:locale/image-compressor/*",
     ]);
+  });
+});
+
+describe("countHeaderRules", () => {
+  it("counts URL patterns only", () => {
+    const headers = `# comment\n/_astro/*\n  Cache-Control: immutable\n${renderHeaderRules(["/a", "/b"], isolationHeaders)}`;
+    expect(countHeaderRules(headers)).toBe(3);
   });
 });
 

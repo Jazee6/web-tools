@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { evaluateLimits, MAX_FILE_BYTES, MAX_FILES, WARN_FILES } from "./check-limits";
+import {
+  evaluateLimits,
+  MAX_FILE_BYTES,
+  MAX_FILES,
+  MAX_HEADER_RULES,
+  WARN_FILES,
+  WARN_HEADER_RULES,
+} from "./check-limits";
 
 const files = (count: number, size = 1) =>
   Array.from({ length: count }, (_, i) => ({ path: `f${i}.html`, size }));
@@ -22,6 +29,11 @@ describe("evaluateLimits", () => {
 
   it("fails above the file limit", () => {
     expect(evaluateLimits(files(MAX_FILES + 1)).errors).toHaveLength(1);
+  });
+
+  it("warns and fails on too many _headers rules", () => {
+    expect(evaluateLimits(files(1), WARN_HEADER_RULES + 1).warnings).toHaveLength(1);
+    expect(evaluateLimits(files(1), MAX_HEADER_RULES + 1).errors).toHaveLength(1);
   });
 
   it("fails on a file larger than 25 MiB", () => {
