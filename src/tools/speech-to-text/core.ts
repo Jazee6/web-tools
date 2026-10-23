@@ -61,16 +61,23 @@ env.backends.onnx.wasm!.wasmPaths = { mjs: ortFactoryUrl };
 interface GpuAdapter {
   features: ReadonlySet<string>;
   info?: { isFallbackAdapter?: boolean };
+  requestDevice(descriptor: { requiredFeatures: string[] }): Promise<{ destroy(): void }>;
 }
 
-// 只有真实 GPU 且支持 shader-f16 时 encoder 才用 WebGPU（fp16）。headless 浏览器常见的 SwiftShader 是软件回退，
-// 实测比 WASM 慢 20 倍，按 isFallbackAdapter 排除。
+// 只有真实 GPU 且能创建支持 shader-f16 的设备时 encoder 才用 WebGPU（fp16）。headless 浏览器常见的 SwiftShader
+// 是软件回退，实测比 WASM 慢 20 倍，按 isFallbackAdapter 排除。这里必须判断准确：WebGPU 初始化失败后不能在同一个
+// Worker 里改用 WASM（Transformers.js 串行创建 session，一次失败会让后续 session 全部失败），只能报错后换新 Worker。
 export const detectBackend = async (): Promise<Backend> => {
   const gpu = (navigator as { gpu?: { requestAdapter(): Promise<GpuAdapter | null> } }).gpu;
   const adapter = await gpu?.requestAdapter().catch(() => null);
-  return adapter && !adapter.info?.isFallbackAdapter && adapter.features.has("shader-f16")
-    ? "webgpu"
-    : "wasm";
+  if (!adapter || adapter.info?.isFallbackAdapter || !adapter.features.has("shader-f16")) {
+    return "wasm";
+  }
+  const device = await adapter
+    .requestDevice({ requiredFeatures: ["shader-f16"] })
+    .catch(() => null);
+  device?.destroy();
+  return device ? "webgpu" : "wasm";
 };
 
 type Transcriber = Awaited<ReturnType<typeof createTranscriber>>;
@@ -115,18 +122,6 @@ const getTranscriber = (backend: Backend, ctx: ToolContext): Promise<Transcriber
     transcriber.catch(() => transcribers.delete(backend));
   }
   return transcriber;
-};
-
-// WebGPU 初始化失败（驱动问题等）时改用 WASM，结果相同，只是慢一些
-const loadTranscriber = async (backend: Backend, ctx: ToolContext) => {
-  try {
-    return await getTranscriber(backend, ctx);
-  } catch (error) {
-    ctx.signal?.throwIfAborted();
-    if (backend === "wasm") throw error;
-    console.warn("WebGPU 初始化失败，改用 WASM", error);
-    return getTranscriber("wasm", ctx);
-  }
 };
 
 // 解码主音轨，混成单声道并重采样到 16 kHz。Worker 里没有 AudioContext，借用 Mediabunny 的转换管线：
@@ -215,7 +210,7 @@ export const transcribe = async (
   const { signal, onProgress } = ctx;
   // 先解码：文件有问题时立即报错，不用先下载模型
   const audio = await decodeAudio(file, ctx);
-  const transcriber = await loadTranscriber(backend ?? (await detectBackend()), ctx);
+  const transcriber = await getTranscriber(backend ?? (await detectBackend()), ctx);
   signal?.throwIfAborted();
 
   // 每个窗口生成结束时（streamer.end）推进进度；每生成一个 token（streamer.put）检查是否已取消
