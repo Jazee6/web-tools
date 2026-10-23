@@ -1,6 +1,9 @@
+import { renderHeaderRules } from "@/lib/runtime/isolation";
+
 // 页面的静态 .md 副本（architecture §10）：与 HTML 同一骨架，供 AI 引用。
 export interface MarkdownLink {
   name: string;
+  // 链接目标：有 .md 副本时指向副本，否则指向 HTML 页面（markdownHref）
   path: string;
   summary?: string;
 }
@@ -19,7 +22,7 @@ export interface ToolMarkdown {
 
 const linkList = (links: MarkdownLink[]) =>
   links
-    .map((link) => `- [${link.name}](${link.path}.md)${link.summary ? `: ${link.summary}` : ""}`)
+    .map((link) => `- [${link.name}](${link.path})${link.summary ? `: ${link.summary}` : ""}`)
     .join("\n");
 
 export const renderToolMarkdown = (page: ToolMarkdown): string =>
@@ -70,3 +73,8 @@ export const renderLlmsTxt = (site: {
   ]
     .join("\n\n")
     .concat("\n");
+
+// .md 副本和 HTML 页面内容相同：用一条 splat 规则给所有副本加 canonical 指向 HTML 页面，
+// 避免重复收录（ADR-0019）。:splat 会在 header 值里被替换，/zh/x.md → </zh/x>。
+export const canonicalMarkdownRule = (siteUrl: string): string =>
+  renderHeaderRules(["/*.md"], { Link: `<${siteUrl}/:splat>; rel="canonical"` });

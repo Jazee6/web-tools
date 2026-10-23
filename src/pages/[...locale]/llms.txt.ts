@@ -27,7 +27,7 @@ export const GET: APIRoute = async ({ props }) => {
           .filter((tool) => isIndexable(tool.statuses, locale))
           .map((tool) => ({
             name: tool.entries[locale]!.data.name,
-            path: localizePath(locale, tool.path),
+            path: `${localizePath(locale, tool.path)}.md`,
             summary: tool.entries[locale]!.data.answer,
           })),
       })),

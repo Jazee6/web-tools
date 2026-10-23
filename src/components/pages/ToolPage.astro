@@ -29,6 +29,8 @@ const { catalog, node, locale } = Astro.props;
 const entry = node.entries[locale]!;
 const data = entry.data;
 const path = localizePath(locale, node.path);
+// Draft 页面没有 .md 副本（ADR-0019）
+const indexable = isIndexable(node.statuses, locale);
 const category = categoryOf(catalog, node);
 const categoryEntry = category.entries[locale];
 const { Content } = await render(entry);
@@ -77,10 +79,10 @@ const updated = new Intl.DateTimeFormat(hreflang[locale], { dateStyle: "long" })
 <BaseLayout
   title={data.title}
   description={data.description}
-  indexable={isIndexable(node.statuses, locale)}
+  indexable={indexable}
   alternates={alternates(node.statuses, locale, node.path)}
   ogImage={ogImagePath(locale, node.id)}
-  markdown={`${path}.md`}
+  markdown={indexable ? `${path}.md` : undefined}
   jsonLd={[
     webApplicationJsonLd({
       name: data.name,

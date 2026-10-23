@@ -229,7 +229,7 @@ URL 是扁平的：英文没有前缀，其他 Locale 用 `/{locale}/` 前缀（
 | Category | `/{category}` | 预渲染 |
 | Tool | `/{tool}` | 预渲染 |
 | Tool Variant | `/{tool}/{variant}` | 见下方"Variant 渲染模式" |
-| Markdown 副本 | 上述任一 URL + `.md` | 跟随原页面 |
+| Markdown 副本 | 上述任一可索引页面的 URL + `.md`（ADR-0019） | 跟随原页面 |
 | llms.txt | `/llms.txt`、`/{locale}/llms.txt` | 预渲染 |
 | Sitemap | `/sitemap-index.xml` → 按 Locale × Category 拆分 | 预渲染 |
 
@@ -302,7 +302,7 @@ Variant 有两种渲染模式，由一个配置开关切换（路由的 `prerend
   5. FAQ
   6. 相关 Tool
 - 页面上可见"最后更新"日期；关于页说明团队、方法和隐私承诺（E-E-A-T）。
-- 每个页面都有静态的 `.md` 副本，通过 `<link rel="alternate" type="text/markdown">` 声明。基于 `Accept: text/markdown` 的内容协商需要 Worker 参与，所以只在 on-demand 模式下启用。
+- 每个可索引页面都有静态的 `.md` 副本，通过 `<link rel="alternate" type="text/markdown">` 声明；Draft 页面没有副本。所有副本由 `_headers` 的一条 `/*.md` 规则加 `Link: <…>; rel="canonical"` 指向 HTML 页面（ADR-0019）。基于 `Accept: text/markdown` 的内容协商需要 Worker 参与，所以只在 on-demand 模式下启用。
 - 每个 Locale 都有 `llms.txt`：按 Category 列出 Tool，附一句话说明和 `.md` 链接。
 
 ### 可被 agent 调用

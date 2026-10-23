@@ -124,6 +124,15 @@ describe("checkContent", () => {
     expect(errors.some((error) => error.includes('"## "'))).toBe(true);
   });
 
+  it("only allows .md links to indexable pages", () => {
+    // Category 是 Reviewed，有 .md 副本；Tool 还是 Draft，没有
+    const body = "## Links\n\n[ok](/developer.md) [draft](/demo.md)\n";
+    const errors = run([toolFile({ body })]).errors;
+    expect(errors).toEqual([
+      "src/tools/demo/content/en.md：内链 /demo.md 指向的页面不可索引，没有 .md 副本",
+    ]);
+  });
+
   it("reports coverage per locale", () => {
     const { coverage } = run([toolFile()]);
     expect(coverage.find((row) => row.locale === "en")).toEqual({

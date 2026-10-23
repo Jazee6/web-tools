@@ -189,4 +189,4 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - 内容近似度阈值（M4 根据样本确定）。
 - 第三方许可证声明：站点会分发 PDFium（Apache-2.0，含它捆绑的第三方库）和 jSquash 编解码器的 WASM、Mediabunny（MPL-2.0）、Transformers.js（Apache-2.0）、ONNX Runtime Web（MIT）以及 Whisper base 的权重（MIT），上线前（M6）要补一个许可证声明页。
 - Service Worker 的 `assets` 缓存不随部署清理（已打开的旧页面还可能按需加载旧分块），每次部署后用过的旧分块会一直留着，直到"清除本地数据"。需要时再加按时间或数量的清理。
-- `_headers` 最多 100 条规则（已核实）。目前 80 条（Speech to Text 加了 4 条跨源隔离规则和 7 条 noindex，已到 80% 告警线），其中 70 条是不可索引页面 `.md` 副本的 `X-Robots-Tag: noindex`，按"页面 × Locale"逐条生成；首发约 30 个 Tool × 7 个 Locale 全是 Draft 时会远超上限。补齐 Tool 之前要换方案，例如让 robots.txt 禁止抓取 Draft 的 `.md`，或核实占位符能否匹配 `/:page.md` 这类半个路径段。
+- ~~`_headers` 最多 100 条规则，不可索引页面 `.md` 副本的 noindex 逐条生成会超限~~：已改为只给可索引页面发布 `.md`，所有副本用一条 `/*.md` 规则声明 canonical（ADR-0019），规则数从 80 降到 11（2026-10-23）。剩下的主要是每个跨源隔离 Tool 固定 4 条，约 20 个隔离 Tool 时会再次接近上限。

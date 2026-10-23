@@ -3,6 +3,7 @@
 // frontmatter 的字段类型和长度由 src/content.config.ts 在构建时校验。
 
 import { defaultLocale, type Locale, localizePath, locales } from "../src/lib/i18n/locales";
+import { isIndexable } from "../src/lib/seo/indexing";
 import type { AnyTool } from "../src/lib/tool-contract/define-tool";
 import { describeFields } from "../src/lib/tool-contract/fields";
 import {
@@ -11,6 +12,7 @@ import {
   loadTools,
   readCategoryContent,
   readToolContent,
+  statusesByOwner,
 } from "./lib/content";
 
 const sameKeys = (actual: string[], expected: string[]) =>
@@ -122,10 +124,25 @@ export const checkContent = ({ tools, categories, toolContent, categoryContent }
     if (!/^## \S/m.test(file.body)) errors.push(`${file.path}：正文至少需要一个 "## " 小节`);
   }
 
+  // 只有可索引页面有 .md 副本（ADR-0019）
+  const statuses = statusesByOwner(all);
+  const markdownPages = new Set(
+    [...statuses].flatMap(([owner, byLocale]) =>
+      locales
+        .filter((locale) => isIndexable(byLocale, locale))
+        .map((locale) => `${localizePath(locale, `/${owner}`)}.md`),
+    ),
+  );
+
   for (const file of all) {
     for (const [, href] of file.body.matchAll(/\]\((\/[^)\s#?]*)/g)) {
-      const path = href!.replace(/\.md$/, "");
-      if (!pages.has(path)) errors.push(`${file.path}：内链 ${href} 指向不存在的页面`);
+      if (href!.endsWith(".md")) {
+        if (!markdownPages.has(href!)) {
+          errors.push(`${file.path}：内链 ${href} 指向的页面不可索引，没有 .md 副本`);
+        }
+      } else if (!pages.has(href!)) {
+        errors.push(`${file.path}：内链 ${href} 指向不存在的页面`);
+      }
     }
   }
 

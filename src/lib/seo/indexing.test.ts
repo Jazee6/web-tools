@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   alternates,
   isIndexable,
+  markdownHref,
   missingTranslationRedirects,
   publishedLocales,
   renderRedirects,
@@ -43,10 +44,17 @@ describe("alternates", () => {
   });
 });
 
+describe("markdownHref", () => {
+  it("links the .md copy only when the page is indexable", () => {
+    expect(markdownHref({ en: "reviewed", zh: "reviewed" }, "zh", "/x")).toBe("/zh/x.md");
+    expect(markdownHref({ en: "draft", zh: "reviewed" }, "zh", "/x")).toBe("/zh/x");
+  });
+});
+
 describe("missingTranslationRedirects", () => {
   it("redirects every locale without content to en, including the .md copy", () => {
     const redirects = missingTranslationRedirects(
-      { en: "draft", zh: "draft", ja: "reviewed", es: "draft", pt: "draft", de: "draft" },
+      { en: "reviewed", zh: "draft", ja: "reviewed", es: "draft", pt: "draft", de: "draft" },
       "/json-formatter",
     );
     expect(redirects).toEqual([
@@ -58,8 +66,8 @@ describe("missingTranslationRedirects", () => {
     );
   });
 
-  it("does not redirect draft content", () => {
-    expect(missingTranslationRedirects({ en: "draft" }, "/x")).toHaveLength(12);
+  it("does not redirect draft content, nor to a .md copy en does not have", () => {
+    expect(missingTranslationRedirects({ en: "draft" }, "/x")).toHaveLength(6);
     expect(publishedLocales({ en: "draft", fr: "reviewed" })).toEqual(["en", "fr"]);
   });
 });

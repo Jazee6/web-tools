@@ -1,6 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 
 import { hreflang, localizePath, locales } from "../src/lib/i18n/locales";
+import { site } from "../src/lib/site";
 import { toolApiPath } from "../src/lib/tool-api";
 import type { AnyTool } from "../src/lib/tool-contract/define-tool";
 import { describeFields } from "../src/lib/tool-contract/fields";
@@ -160,9 +161,25 @@ for (const tool of tools) {
   });
 }
 
-test("serves Markdown copies, llms.txt and the search index", async ({ request }) => {
-  for (const path of ["/json-formatter.md", "/zh/json-formatter.md", "/llms.txt", "/search.json"]) {
+test("serves llms.txt and the search index", async ({ request }) => {
+  for (const path of ["/llms.txt", "/search.json"]) {
     const response = await request.get(path);
     expect(response.status(), path).toBe(200);
+  }
+});
+
+// 只有可索引页面有 .md 副本，副本用 Link 头声明 canonical 指向 HTML 页面（ADR-0019）
+test("serves a Markdown copy exactly where the page links one", async ({ page, request }) => {
+  for (const path of ["/json-formatter", "/zh/json-formatter", "/developer"]) {
+    await page.goto(path);
+    const link = page.locator('link[rel="alternate"][type="text/markdown"]');
+    const response = await request.get(`${path}.md`, { maxRedirects: 0 });
+    if ((await link.count()) === 0) {
+      expect(response.status(), path).toBe(404);
+      continue;
+    }
+    await expect(link).toHaveAttribute("href", `${path}.md`);
+    expect(response.status(), path).toBe(200);
+    expect(response.headers().link).toBe(`<${new URL(path, site.url).href}>; rel="canonical"`);
   }
 });

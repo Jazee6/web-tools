@@ -32,13 +32,19 @@ export interface Redirect {
   to: string;
 }
 
-// 缺失翻译不发布，302 到英文版（ADR-0007）；.md 副本同样处理。
+// .md 副本只为可索引页面生成（ADR-0019）：Draft 页面没有副本，链接退回 HTML 页面
+export const markdownHref = (statuses: Statuses, locale: Locale, path: string): string =>
+  isIndexable(statuses, locale) ? `${localizePath(locale, path)}.md` : localizePath(locale, path);
+
+// 缺失翻译不发布，302 到英文版（ADR-0007）；en 有 .md 副本时，.md 同样跳转。
 export const missingTranslationRedirects = (statuses: Statuses, path: string): Redirect[] =>
   locales
     .filter((locale) => locale !== defaultLocale && statuses[locale] === undefined)
     .flatMap((locale) => [
       { from: localizePath(locale, path), to: path },
-      { from: localizePath(locale, `${path}.md`), to: `${path}.md` },
+      ...(isIndexable(statuses, defaultLocale)
+        ? [{ from: localizePath(locale, `${path}.md`), to: `${path}.md` }]
+        : []),
     ]);
 
 export const renderRedirects = (redirects: Redirect[]): string =>

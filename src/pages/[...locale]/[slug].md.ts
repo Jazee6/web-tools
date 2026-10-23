@@ -2,18 +2,21 @@ import type { APIRoute, GetStaticPaths } from "astro";
 
 import { categoryOf, getCatalog, publishedPages, toolsInCategory } from "@/lib/catalog";
 import { defaultLocale, hreflang, type Locale, localizePath } from "@/lib/i18n/locales";
+import { markdownHref } from "@/lib/seo/indexing";
 import { renderCategoryMarkdown, renderToolMarkdown } from "@/lib/seo/markdown";
 import { site } from "@/lib/site";
 import { m } from "@/paraglide/messages";
 
-// Tool / Category 页面的 .md 副本（architecture §10）
+// Tool / Category 页面的 .md 副本（architecture §10），只为可索引页面生成（ADR-0019）
 export const getStaticPaths = (async () => {
   const catalog = await getCatalog();
   return [...catalog.tools, ...catalog.categories].flatMap((node) =>
-    publishedPages(node).map((page) => ({
-      params: { locale: page.locale === defaultLocale ? undefined : page.locale, slug: node.id },
-      props: { node, locale: page.locale },
-    })),
+    publishedPages(node)
+      .filter((page) => page.indexable)
+      .map((page) => ({
+        params: { locale: page.locale === defaultLocale ? undefined : page.locale, slug: node.id },
+        props: { node, locale: page.locale },
+      })),
   );
 }) satisfies GetStaticPaths;
 
@@ -51,7 +54,7 @@ export const GET: APIRoute = async ({ props }) => {
       faq: data.faq,
       related: related.map((other) => ({
         name: other.entries[locale]!.data.name,
-        path: localizePath(locale, other.path),
+        path: markdownHref(other.statuses, locale, other.path),
         summary: other.entries[locale]!.data.answer,
       })),
     });
@@ -65,7 +68,7 @@ export const GET: APIRoute = async ({ props }) => {
       toolsHeading: m.category_tools({}, options),
       tools: toolsInCategory(catalog, node.id, locale).map((tool) => ({
         name: tool.entries[locale]!.data.name,
-        path: localizePath(locale, tool.path),
+        path: markdownHref(tool.statuses, locale, tool.path),
         summary: tool.entries[locale]!.data.answer,
       })),
     });
