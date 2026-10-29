@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Conversor de vídeo – Convierte MP4, WebM, MOV y MKV gratis
 description: Convierte vídeos entre MP4, WebM, MOV y MKV gratis. Privado y rápido — la conversión se hace en tu navegador con WebCodecs, así que tu vídeo nunca se sube.
 name: Conversor de vídeo
@@ -20,8 +20,8 @@ output:
   file:
     label: Vídeo convertido
 errors:
-  invalid_video: No se pudo leer este archivo como vídeo. Puede estar dañado o usar un formato que esta herramienta no admite.
-  no_video: Este archivo no tiene pista de vídeo, solo contiene audio.
+  invalid_video: No se pudo leer este archivo como vídeo. Puede estar dañado o usar un formato que esta herramienta no admite. Expórtalo de nuevo como MP4 e inténtalo otra vez.
+  no_video: Este archivo no tiene pista de vídeo, solo contiene audio. Elige un archivo de vídeo.
   unsupported_codec: "Este navegador no puede decodificar ni codificar una de las pistas de este vídeo. Prueba otro formato de salida o la versión más reciente de Chrome. Códec:"
 steps:
   - Elige un vídeo MP4, MOV, WebM o MKV de hasta 500 MB.
@@ -49,7 +49,7 @@ La herramienta lee el vídeo con Mediabunny, una biblioteca multimedia de códig
 
 - **Entrada:** archivos MP4, MOV, WebM y MKV de hasta 500 MB.
 - **Pistas:** se convierten la pista de vídeo principal y la pista de audio principal; los subtítulos y las pistas de audio adicionales se descartan.
-- **Códecs:** los códecs que se pueden decodificar y codificar dependen de tu navegador y dispositivo. Si una pista no se puede convertir, la herramienta se detiene con un mensaje en lugar de crear un archivo sin sonido o sin imagen.
+- **Códecs:** los códecs que se pueden decodificar y codificar dependen de tu navegador y dispositivo. Firefox, por ejemplo, no tiene codificador AAC, por lo que allí MP4 y MOV usan audio Opus; la última versión de Chrome admite más códecs. Si una pista no se puede convertir, la herramienta se detiene con un mensaje en lugar de crear un archivo sin sonido o sin imagen.
 - **Memoria:** el vídeo convertido se guarda en memoria hasta que lo descargas, así que los archivos muy grandes pueden fallar en móviles.
 
 ## Privacidad

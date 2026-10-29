@@ -1,8 +1,8 @@
 ---
-review: draft
-updated: 2026-10-23
-title: Compressor de imagens – Comprima JPEG, PNG, WebP e AVIF
-description: Reduza imagens JPEG, PNG, WebP e AVIF sem enviá-las. Grátis e privado — a compressão roda no seu navegador com os mesmos codecs do Squoosh.
+review: reviewed
+updated: 2026-10-29
+title: Compressor de imagens – Comprima JPEG, PNG, WebP e AVIF online
+description: Comprima imagens JPEG, PNG, WebP e AVIF sem enviá-las. Grátis e privado — a compressão é processada no seu navegador com os mesmos codecs do Squoosh.
 name: Compressor de imagens
 answer: Escolha uma imagem, ajuste a qualidade se quiser e clique em Comprimir imagem — o arquivo é recodificado no seu dispositivo no mesmo formato e depois você baixa a cópia menor.
 action: Comprimir imagem
@@ -15,7 +15,7 @@ output:
   file:
     label: Imagem comprimida
 errors:
-  decode_failed: Não foi possível ler esta imagem. Ela pode estar corrompida ou usar um formato que seu navegador não consegue decodificar.
+  decode_failed: Não foi possível ler esta imagem. Ela pode estar corrompida ou usar um formato que seu navegador não consegue decodificar. Tente outra cópia da imagem ou abra a página na versão mais recente do Chrome, Firefox ou Safari.
 steps:
   - Escolha uma imagem JPEG, PNG, WebP ou AVIF de até 50 MB.
   - Mantenha a qualidade padrão de 75 ou defina a sua — valores menores geram arquivos menores, com mais artefatos visíveis. O PNG ignora essa opção porque é sempre comprimido sem perdas.
@@ -29,7 +29,7 @@ faq:
   - q: Por que meu PNG diminuiu tão pouco?
     a: Aqui a compressão de PNG é sem perdas — cada pixel continua exatamente igual e só a codificação é otimizada. Arquivos já salvos por uma ferramenta de otimização podem diminuir muito pouco. Para fotos, converter para JPEG, WebP ou AVIF economiza muito mais.
   - q: A compressão muda as dimensões ou o formato?
-    a: Não. O resultado mantém o formato e as dimensões em pixels originais. Se a recodificação deixasse o arquivo maior, você recebe o original sem alterações.
+    a: Não. O resultado mantém o formato e as dimensões em pixels originais. Se a recodificação deixar o arquivo maior, você recebe o original sem alterações.
   - q: Os metadados da foto são mantidos?
     a: Em JPEG, WebP e AVIF, metadados como os dados EXIF da câmera e a localização GPS são removidos, o que também protege sua privacidade. A imagem é girada antes conforme a orientação EXIF, então continua aparecendo na posição certa.
 ---
@@ -40,10 +40,12 @@ Arquivos JPEG são recodificados com MozJPEG, WebP com libwebp e AVIF com libaom
 
 ## Limites
 
-- **Formatos:** entrada JPEG, PNG, WebP e AVIF; saída no mesmo formato.
+- **Formatos:** entrada JPEG, PNG, WebP e AVIF; saída no mesmo formato. Outros formatos, como GIF, SVG ou BMP, não são aceitos.
 - **Tamanho:** até 50 MB por imagem. Imagens muito grandes exigem bastante memória e podem falhar no celular.
-- **Uma imagem por vez.** WebP e AVIF animados ficam só com o primeiro quadro.
+- **Quantidade:** uma imagem por vez.
+- **Animação:** WebP e AVIF animados ficam só com o primeiro quadro.
 - **Velocidade:** a codificação AVIF é a mais lenta. Em navegadores que permitem várias threads, ela usa vários núcleos da CPU.
+- **Navegadores:** seu navegador decodifica a imagem primeiro, então um formato que ele não consegue exibir, como AVIF em um navegador antigo, é recusado.
 
 ## Privacidade
 

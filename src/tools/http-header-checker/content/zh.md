@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-22
+review: reviewed
+updated: 2026-10-29
 title: HTTP 响应头检查工具 – 查看响应头与重定向链
 description: 查看任意公开网址的 HTTP 状态码、响应头和完整的重定向链。免费、即时，无需注册，不保存任何数据。
 name: HTTP 响应头检查
@@ -8,7 +8,7 @@ answer: 输入网址并点击"检查响应头"——工具会从我们的服务�
 action: 检查响应头
 fields:
   url:
-    label: 网址
+    label: URL
     placeholder: example.com
   followRedirects:
     label: 跟随重定向
@@ -28,14 +28,14 @@ output:
       status: 状态码
       url: 网址
 errors:
-  invalid_url: 请输入有效的 http:// 或 https:// 地址。
-  blocked_url: 无法检查这个地址。不允许内网、本机地址或非标准端口。
-  timeout: 对方服务器响应超时。
-  fetch_failed: 无法连接到对方服务器。
-  too_many_redirects: 该网址重定向超过 5 次。
+  invalid_url: 这不是有效的网址。请输入以 http:// 或 https:// 开头、不超过 2,048 个字符的地址。
+  blocked_url: 无法检查这个地址。不允许内网、本机地址或非标准端口——请使用端口 80 或 443 上的公开 http:// 或 https:// 网址。
+  timeout: 对方服务器响应超时。请确认网站可以正常访问，稍后再试。
+  fetch_failed: 无法连接到对方服务器。请检查网址拼写以及网站是否在线，然后再试一次。
+  too_many_redirects: 该网址重定向超过 5 次。关闭"跟随重定向"查看第一次响应，或检查网站是否存在重定向循环。
 steps:
-  - 输入要检查的地址。如果省略协议，默认使用 https://。
-  - 保持"跟随重定向"开启可以追踪到最终页面的每一跳；关闭则只查看第一个响应。
+  - 输入要检查的 URL。如果省略协议，默认使用 https://。
+  - 保持"跟随重定向"开启以追踪到最终页面的每一跳；关闭则只查看第一个响应。
   - 点击"检查响应头"，查看状态码、最终网址、响应头和重定向链。
 faq:
   - q: 为什么检查要在服务器上进行，而不是在我的浏览器里？
@@ -52,13 +52,13 @@ faq:
 
 ## 这个工具能查看什么
 
-它向你输入的地址发送 HEAD 请求，并报告服务器的应答：HTTP 状态码、服务器返回的响应头（名称统一为小写），以及在跟随重定向时每一跳的状态码。可以用来检查 `cache-control` 等缓存头、`strict-transport-security`、`content-security-policy` 等安全头，或者确认旧网址是否跳转到了预期的位置。
+它向你输入的地址发送 HEAD 请求（[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#name-head)），并报告服务器的应答：HTTP 状态码、服务器返回的响应头（名称统一为小写），以及在跟随重定向时每一跳的状态码。可以用来检查 `cache-control` 等缓存头、`strict-transport-security`、`content-security-policy` 等安全头，或者确认旧网址是否跳转到了预期的位置。
 
 ## 选项与限制
 
 - **重定向：**最多跟随 5 跳，每一跳在请求前都会重新校验。
 - **超时：**整个检查（含重定向）必须在 8 秒内完成。
-- **地址：**只支持默认端口 80 和 443 上的公开 `http://`、`https://` 网址。
+- **地址：**只支持默认端口 80 和 443 上、长度不超过 2,048 个字符的公开 `http://`、`https://` 网址。
 - **限流：**每位访客每分钟只能检查几次，每个目标网站也有上限。
 - **不包含：**页面正文、你浏览器里的 Cookie，以及 HTTP/2、HTTP/3 的协议细节。
 

@@ -1,8 +1,8 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Bildkompressor – JPEG, PNG, WebP und AVIF online komprimieren
-description: JPEG-, PNG-, WebP- und AVIF-Bilder verkleinern, ohne sie hochzuladen. Kostenlos und privat – komprimiert wird im Browser mit denselben Codecs wie Squoosh.
+description: JPEG-, PNG-, WebP- und AVIF-Bilder komprimieren, ohne sie hochzuladen. Kostenlos und privat – die Komprimierung läuft in Ihrem Browser mit denselben Codecs wie Squoosh.
 name: Bildkompressor
 answer: Wählen Sie ein Bild, passen Sie bei Bedarf die Qualität an und klicken Sie auf Bild komprimieren – die Datei wird auf Ihrem Gerät im selben Format neu kodiert, danach laden Sie die kleinere Kopie herunter.
 action: Bild komprimieren
@@ -15,7 +15,7 @@ output:
   file:
     label: Komprimiertes Bild
 errors:
-  decode_failed: Dieses Bild konnte nicht gelesen werden. Es ist möglicherweise beschädigt oder in einem Format, das Ihr Browser nicht dekodieren kann.
+  decode_failed: Dieses Bild konnte nicht gelesen werden. Es ist möglicherweise beschädigt oder in einem Format, das Ihr Browser nicht dekodieren kann. Versuchen Sie eine andere Kopie des Bildes oder öffnen Sie die Seite in der neuesten Version von Chrome, Firefox oder Safari.
 steps:
   - Wählen Sie ein JPEG-, PNG-, WebP- oder AVIF-Bild mit bis zu 50 MB.
   - Behalten Sie die Standardqualität 75 bei oder legen Sie einen eigenen Wert fest – niedrigere Werte ergeben kleinere Dateien mit sichtbareren Artefakten. PNG ignoriert diese Einstellung, weil es immer verlustfrei komprimiert wird.
@@ -40,10 +40,12 @@ JPEG-Dateien werden mit MozJPEG neu kodiert, WebP mit libwebp und AVIF mit libao
 
 ## Grenzen
 
-- **Formate:** JPEG, PNG, WebP und AVIF als Eingabe; Ausgabe im selben Format.
+- **Formate:** JPEG, PNG, WebP und AVIF als Eingabe; Ausgabe im selben Format. Andere Formate wie GIF, SVG oder BMP werden nicht akzeptiert.
 - **Größe:** bis zu 50 MB pro Bild. Sehr große Bilder brauchen viel Speicher und können auf Smartphones fehlschlagen.
-- **Ein Bild auf einmal.** Animierte WebP- und AVIF-Dateien werden auf das erste Bild reduziert.
+- **Anzahl:** ein Bild auf einmal.
+- **Animation:** Animierte WebP- und AVIF-Dateien werden auf das erste Bild reduziert.
 - **Geschwindigkeit:** AVIF ist am langsamsten. In Browsern, die Multithreading erlauben, werden mehrere CPU-Kerne genutzt.
+- **Browser:** Ihr Browser dekodiert das Bild zuerst; ein Format, das er nicht darstellen kann, etwa AVIF in einem älteren Browser, wird abgelehnt.
 
 ## Datenschutz
 

@@ -1,8 +1,8 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "site_name": "Web Tools",
-  "home_title": "Kostenlose Online-Tools, die in deinem Browser laufen",
-  "home_description": "Schnelle, private Tools für Bilder, PDFs, Audio, Video und Entwickler. Alles läuft in deinem Browser – deine Dateien verlassen nie dein Gerät.",
+  "home_title": "Kostenlose Online-Tools, die in Ihrem Browser laufen",
+  "home_description": "Schnelle, private Tools für Bilder, PDFs, Audio, Video und Entwickler. Alles läuft in Ihrem Browser – Ihre Dateien verlassen nie Ihr Gerät.",
   "nav_home": "Startseite",
   "nav_breadcrumb": "Brotkrümelnavigation",
   "category_tools": "Tools",
@@ -36,8 +36,8 @@
   "tool_progress": "Wird verarbeitet …",
   "tool_progress_download": "Modell wird heruntergeladen (nur beim ersten Mal) …",
   "tool_cancel": "Abbrechen",
-  "offline_title": "Du bist offline",
-  "offline_description": "Diese Seite ist noch nicht auf diesem Gerät gespeichert. Tools, die du schon verwendet hast, funktionieren auch offline.",
+  "offline_title": "Sie sind offline",
+  "offline_description": "Diese Seite ist noch nicht auf diesem Gerät gespeichert. Tools, die Sie schon verwendet haben, funktionieren auch offline.",
   "offline_retry": "Erneut versuchen",
   "search_favorites": "Favoriten",
   "search_recent": "Zuletzt verwendet",
@@ -46,6 +46,6 @@
   "favorite_remove": "{name} aus Favoriten entfernen",
   "footer_clear": "Lokale Daten löschen",
   "clear_title": "Lokale Daten löschen?",
-  "clear_description": "Dadurch werden deine Favoriten, zuletzt verwendeten Tools, gespeicherten Optionen und alles, was für die Offline-Nutzung gespeichert wurde (einschließlich heruntergeladener Modelle), aus diesem Browser entfernt. Das lässt sich nicht rückgängig machen.",
+  "clear_description": "Dadurch werden Ihre Favoriten, zuletzt verwendeten Tools, gespeicherten Optionen und alles, was für die Offline-Nutzung gespeichert wurde (einschließlich heruntergeladener Modelle), aus diesem Browser entfernt. Das lässt sich nicht rückgängig machen.",
   "clear_confirm": "Daten löschen"
 }

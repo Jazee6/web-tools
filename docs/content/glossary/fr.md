@@ -3,7 +3,7 @@
 ## Ton
 
 - Vouvoiement ("vous") ou formulation impersonnelle dans les étapes ; impératif à la 2e personne du pluriel pour les actions (« Collez votre JSON », « Cliquez sur Formater le JSON » — reprendre le libellé exact de `action`).
-- Typographie française : espace insécable avant `:`, `;`, `?`, `!` et à l’intérieur des guillemets « … » ; apostrophe courbe ’ .
+- Typographie française : espace insécable avant `:`, `;`, `?`, `!` et à l’intérieur des guillemets « … » ; apostrophe droite `'` dans les fichiers de contenu (comme le contenu existant), ’ dans `messages/fr.json`.
 - Libellés de boutons identiques à `action` / `label`.
 
 ## Concepts du site et termes d’interface
@@ -31,8 +31,8 @@
 | id | Nom |
 |---|---|
 | json-formatter | Formateur JSON |
-| http-header-checker | Vérificateur d’en-têtes HTTP |
-| image-compressor | Compresseur d’images |
+| http-header-checker | Vérificateur d'en-têtes HTTP |
+| image-compressor | Compresseur d'images |
 | merge-pdf | Fusionner PDF |
 | video-converter | Convertisseur vidéo |
 | speech-to-text | Transcription audio en texte |

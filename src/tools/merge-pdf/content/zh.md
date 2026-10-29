@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: PDF 合并工具 – 免费在线合并多个 PDF 文件
 description: 把多个 PDF 文件按你选择的顺序合并成一个。免费且私密——合并在你的浏览器中完成，文档不会被上传。
 name: PDF 合并
@@ -14,7 +14,7 @@ output:
     label: 合并后的 PDF
 errors:
   encrypted: 这个 PDF 设置了打开密码。请先去掉密码再试：
-  invalid_pdf: 无法把这个文件读取为 PDF，文件可能已损坏：
+  invalid_pdf: 无法把这个文件读取为 PDF，文件可能已损坏。请重新导出该文件，或把它从列表中移除后再试：
 steps:
   - 选择要合并的 PDF 文件——2 到 20 个，每个不超过 50 MB。可以分几次添加。
   - 用上下箭头调整文件顺序；误加的文件可以移除。

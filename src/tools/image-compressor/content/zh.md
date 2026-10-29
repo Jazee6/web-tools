@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: 图片压缩工具 – 在线压缩 JPEG、PNG、WebP 和 AVIF
 description: 无需上传即可压缩 JPEG、PNG、WebP 和 AVIF 图片。免费且私密——压缩在你的浏览器中完成，使用与 Squoosh 相同的编码器。
 name: 图片压缩
@@ -15,7 +15,7 @@ output:
   file:
     label: 压缩后的图片
 errors:
-  decode_failed: 无法读取这张图片。文件可能已损坏，或者使用了浏览器无法解码的格式。
+  decode_failed: 无法读取这张图片。文件可能已损坏，或者使用了浏览器无法解码的格式。请换一份图片副本，或用最新版 Chrome、Firefox、Safari 打开本页再试。
 steps:
   - 选择一张不超过 50 MB 的 JPEG、PNG、WebP 或 AVIF 图片。
   - 保持默认质量 75，或自行设置——数值越低，文件越小，压缩痕迹也越明显。PNG 始终无损压缩，会忽略这个设置。
@@ -40,10 +40,12 @@ JPEG 使用 MozJPEG 重新编码，WebP 使用 libwebp，AVIF 使用 libaom—�
 
 ## 限制
 
-- **格式：** 输入 JPEG、PNG、WebP 和 AVIF，输出相同格式。
+- **格式：** 输入 JPEG、PNG、WebP 和 AVIF，输出相同格式。不接受 GIF、SVG、BMP 等其他格式。
 - **大小：** 每张图片最大 50 MB。超大图片需要大量内存，在手机上可能失败。
-- **一次一张。** 动态 WebP 和 AVIF 只保留第一帧。
+- **数量：** 一次一张。
+- **动画：** 动态 WebP 和 AVIF 只保留第一帧。
 - **速度：** AVIF 编码最慢。在支持多线程的浏览器中会同时使用多个 CPU 核心。
+- **浏览器：** 图片先由浏览器解码，所以浏览器显示不了的格式（例如旧版浏览器中的 AVIF）会被拒绝。
 
 ## 隐私
 

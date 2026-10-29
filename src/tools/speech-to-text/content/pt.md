@@ -1,8 +1,8 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Voz para texto – Transcreva áudio e vídeo online grátis
-description: Transcreva áudio e vídeo em texto e legendas SRT de graça. Privado — o modelo de reconhecimento de fala Whisper roda no seu navegador e o arquivo nunca é enviado.
+description: Transcreva áudio e vídeo em texto e legendas SRT de graça. Privado — o modelo de reconhecimento de fala Whisper é processado no seu navegador e o arquivo nunca é enviado.
 name: Voz para texto
 answer: Escolha um arquivo de áudio ou vídeo, deixe o idioma em Detectar automaticamente ou escolha o idioma falado e clique em Transcrever. O Whisper transforma a fala em texto no seu dispositivo, e você pode copiar a transcrição ou baixá-la como legendas SRT.
 action: Transcrever
@@ -19,14 +19,14 @@ output:
   subtitles:
     label: Legendas (SRT)
 errors:
-  invalid_audio: Não foi possível ler este arquivo como áudio. Ele pode estar danificado ou usar um formato que esta ferramenta não suporta.
-  no_audio: Este arquivo não tem faixa de áudio, então não há nada para transcrever.
+  invalid_audio: Não foi possível ler este arquivo como áudio. Ele pode estar danificado ou usar um formato que esta ferramenta não suporta. Tente uma cópia da gravação em MP3 ou WAV.
+  no_audio: Este arquivo não tem faixa de áudio, então não há nada para transcrever. Escolha um arquivo que contenha som.
   unsupported_codec: "Este navegador não consegue decodificar o áudio deste arquivo. Tente outro formato de arquivo ou a versão mais recente do Chrome. Codec:"
   too_long: A gravação tem mais de 60 minutos. Divida-a em partes menores e transcreva uma de cada vez.
-  no_speech: Nenhuma fala foi encontrada nesta gravação.
+  no_speech: Nenhuma fala foi encontrada nesta gravação. Verifique se a gravação está audível e contém fala clara, e tente novamente.
 steps:
   - Escolha um arquivo de áudio ou vídeo de até 1 GB e 60 minutos.
-  - Deixe o idioma em Detectar automaticamente ou escolha o idioma falado. Escolher o idioma ajuda em trechos curtos e com sotaque forte.
+  - Deixe Idioma falado em Detectar automaticamente ou escolha o idioma falado. Escolher o idioma ajuda em trechos curtos e com sotaque forte.
   - Clique em Transcrever. Na primeira vez, o modelo de reconhecimento de fala (cerca de 105–125 MB) é baixado e salvo no seu navegador; depois disso, começa na hora.
   - Copie a transcrição ou baixe o arquivo SRT para usar como legenda em um player ou editor de vídeo.
 faq:
@@ -49,7 +49,8 @@ A ferramenta decodifica o áudio com o Mediabunny e a API WebCodecs, converte pa
 ## Limites
 
 - **Entrada:** áudio MP3, M4A, AAC, WAV, OGG, Opus, FLAC e WebM, ou a faixa de áudio de um vídeo MP4, MOV, WebM ou MKV, com até 1 GB e 60 minutos.
-- **Velocidade:** em um notebook recente, um minuto de áudio leva alguns segundos com WebGPU e até cerca de 20 segundos sem ele.
+- **Velocidade:** o reconhecimento é mais rápido em navegadores que oferecem uma GPU real via WebGPU e nos que permitem várias threads; caso contrário, ele usa um caminho mais lento, de thread única.
+- **Navegadores:** o áudio é decodificado com a API WebCodecs, então os arquivos que funcionam dependem dos codecs do seu navegador; a versão mais recente do Chrome é a que suporta mais.
 - **Download:** o modelo tem cerca de 105–125 MB e é baixado no primeiro uso.
 - **Precisão:** o Whisper base é um modelo pequeno. Ruído de fundo, música e várias pessoas falando ao mesmo tempo reduzem a qualidade.
 - **Chinês:** o Whisper costuma escrever o chinês com caracteres tradicionais, mesmo o mandarim da China continental.

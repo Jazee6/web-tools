@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-22
+review: reviewed
+updated: 2026-10-29
 title: Formateador JSON – Formatea, valida y minifica JSON online
 description: "Pega JSON para embellecerlo, validarlo, minificarlo u ordenar sus claves. Gratis, instantáneo y privado: los datos se procesan en tu navegador y nunca se suben."
 name: Formateador JSON
@@ -23,7 +23,7 @@ output:
   formatted:
     label: JSON formateado
 errors:
-  invalid_json: Esto no es JSON válido.
+  invalid_json: Esto no es JSON válido. Comprueba si hay comas finales, comillas simples, claves sin comillas o comentarios y vuelve a intentarlo.
 steps:
   - Pega o escribe tu JSON en el cuadro de entrada.
   - "Elige una sangría: 2 espacios, 4 espacios, tabulaciones o Minificar para dejarlo todo en una línea."
@@ -50,9 +50,9 @@ Analiza tu entrada con el mismo analizador JSON estricto que usan los navegadore
 
 - **Sangría:** 2 espacios, 4 espacios, tabulaciones o minificado en una sola línea.
 - **Ordenar claves:** de forma recursiva y alfabética por punto de código; el orden de los arrays nunca cambia.
-- **Tamaño:** solo lo limita la memoria de tu dispositivo. Entradas de varios megabytes se formatean en menos de un segundo en un portátil normal.
+- **Tamaño:** solo lo limita la memoria de tu dispositivo.
 - **No compatible:** extensiones de JSON5 o JSONC como comentarios y comas finales; elimínalas antes.
 
 ## Privacidad
 
-Todo ocurre en tu dispositivo. La página no envía tu JSON a ningún sitio, no lo guarda y no usa cookies.
+Tu JSON se procesa solo en tu dispositivo. La página no lo sube, no lo guarda y no usa cookies.

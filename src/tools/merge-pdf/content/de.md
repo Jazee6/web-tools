@@ -1,8 +1,8 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: PDF zusammenfügen – PDF-Dateien kostenlos online kombinieren
-description: Fügen Sie mehrere PDF-Dateien in der gewünschten Reihenfolge zu einer zusammen. Kostenlos und privat – alles läuft im Browser, Ihre Dokumente werden nie hochgeladen.
+description: Fügen Sie mehrere PDF-Dateien in Ihrer Reihenfolge zu einer zusammen. Kostenlos und privat – alles wird in Ihrem Browser verarbeitet und nie hochgeladen.
 name: PDF zusammenfügen
 answer: Fügen Sie zwei oder mehr PDF-Dateien hinzu, bringen Sie sie in die gewünschte Reihenfolge und klicken Sie auf PDF zusammenfügen – die Seiten werden auf Ihrem Gerät zu einer PDF kombiniert, die Sie sofort herunterladen können.
 action: PDF zusammenfügen
@@ -14,7 +14,7 @@ output:
     label: Zusammengefügte PDF
 errors:
   encrypted: "Diese PDF ist mit einem Passwort geschützt. Entfernen Sie das Passwort und versuchen Sie es erneut:"
-  invalid_pdf: "Diese Datei konnte nicht als PDF gelesen werden. Sie ist möglicherweise beschädigt:"
+  invalid_pdf: "Diese Datei konnte nicht als PDF gelesen werden. Sie ist möglicherweise beschädigt. Exportieren Sie sie erneut oder entfernen Sie sie aus der Liste und versuchen Sie es noch einmal:"
 steps:
   - Wählen Sie die PDF-Dateien aus, die Sie kombinieren möchten – 2 bis 20 Dateien mit je bis zu 50 MB. Sie können Dateien auch in mehreren Schritten hinzufügen.
   - Bringen Sie die Dateien mit den Pfeilen nach oben und unten in die richtige Reihenfolge oder entfernen Sie eine versehentlich hinzugefügte Datei.
@@ -22,9 +22,9 @@ steps:
   - Laden Sie die zusammengefügte PDF herunter.
 faq:
   - q: Werden meine PDF-Dateien auf einen Server hochgeladen?
-    a: Nein. Die Dateien werden in Ihrem Browser mit PDFium, kompiliert zu WebAssembly, gelesen und kombiniert. Sie verlassen Ihr Gerät also nie.
+    a: Nein. Die Dateien werden in Ihrem Browser mit dem zu WebAssembly kompilierten PDFium gelesen und kombiniert. Sie verlassen Ihr Gerät also nie.
   - q: Kann ich die Reihenfolge der Dateien ändern?
-    a: Ja. Die Liste zeigt die Dateien in der Reihenfolge, in der sie zusammengefügt werden. Verschieben Sie eine Datei mit den Pfeiltasten nach oben oder unten, bevor Sie auf PDF zusammenfügen klicken.
+    a: Ja. Die Liste zeigt die Dateien in der Reihenfolge, in der sie zusammengefügt werden. Verschieben Sie eine Datei mit den Pfeilen nach oben oder unten, bevor Sie auf PDF zusammenfügen klicken.
   - q: Kann ich passwortgeschützte PDFs zusammenfügen?
     a: Nicht, wenn zum Öffnen ein Passwort nötig ist. Öffnen Sie die Datei in einem PDF-Reader, speichern Sie eine Kopie ohne Passwort und fügen Sie diese Kopie hinzu.
   - q: Verringert das Zusammenfügen die Qualität?
@@ -35,7 +35,7 @@ faq:
 
 ## So funktioniert das Zusammenfügen
 
-Das Tool verwendet PDFium – die PDF-Engine von Google Chrome – kompiliert zu WebAssembly. Es öffnet jede Datei, kopiert alle Seiten in der Reihenfolge Ihrer Liste in ein neues Dokument und speichert das Ergebnis. Die Arbeit läuft in einem Hintergrund-Thread, sodass die Seite auch bei großen Dateien reaktionsfähig bleibt.
+Das Tool verwendet das zu WebAssembly kompilierte PDFium – die PDF-Engine von Google Chrome. Es öffnet jede Datei, kopiert alle Seiten in der Reihenfolge Ihrer Liste in ein neues Dokument und speichert das Ergebnis. Die Arbeit läuft in einem Hintergrund-Thread, sodass die Seite auch bei großen Dateien reaktionsfähig bleibt.
 
 ## Einschränkungen
 

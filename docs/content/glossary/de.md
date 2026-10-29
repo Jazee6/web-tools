@@ -2,7 +2,7 @@
 
 ## Ton
 
-- Anrede mit "du" (kleingeschrieben), Imperativ in Schritten und Buttons ("Füge dein JSON ein", "Klicke auf JSON formatieren").
+- Förmliche Anrede mit "Sie"/"Ihr" (großgeschrieben) auf der ganzen Website, auch in `messages/de.json`; Imperativ in Schritten und Buttons ("Fügen Sie Ihr JSON ein", "Klicken Sie auf JSON formatieren"). Kein "du".
 - Neue Rechtschreibung, "ß" nach Regeln (nicht "ss" ersetzen), Anführungszeichen „…“.
 - Zusammensetzungen mit Bindestrich bei Fremdwörtern: `JSON-Formatierer`, `HTTP-Header-Checker`, `Video-Konverter`.
 - Buttonnamen identisch mit `action` / `label`.
@@ -14,13 +14,13 @@
 | Tool | Tool | Anwendung, Werkzeug |
 | Category | Kategorie | Rubrik, Tag |
 | preset | Voreinstellung | Variante |
-| läuft im Browser | wird in deinem Browser verarbeitet | clientseitig |
-| nicht hochgeladen | wird nie hochgeladen / verlässt dein Gerät nicht | wird nicht in die Cloud gesendet |
+| läuft im Browser | wird in Ihrem Browser verarbeitet | clientseitig |
+| nicht hochgeladen | wird nie hochgeladen / verlässt Ihr Gerät nicht | wird nicht in die Cloud gesendet |
 | Copy / Download / Cancel | Kopieren / Herunterladen / Abbrechen | Speichern |
 | How to use / FAQ / Related tools | So funktioniert’s / Häufige Fragen / Ähnliche Tools | Anleitung |
-| validate | validieren | prüfen, verifizieren |
+| validate / check | prüfen（JSON は auch „validieren“ möglich） | verifizieren |
 | compress | komprimieren | verkleinern |
-| minify | minimieren (JSON: „in eine Zeile“) | komprimieren |
+| minify | minifizieren (JSON: „in eine Zeile“) | komprimieren, minimieren |
 | format (JSON) | formatieren | verschönern |
 | indentation | Einrückung | Indentierung |
 | transcribe | transkribieren | erkennen |

@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Video-Konverter – MP4, WebM, MOV & MKV kostenlos umwandeln
 description: Wandeln Sie Videos kostenlos zwischen MP4, WebM, MOV und MKV um. Privat und schnell – die Umwandlung läuft mit WebCodecs in Ihrem Browser, Ihr Video wird nie hochgeladen.
 name: Video-Konverter
@@ -20,8 +20,8 @@ output:
   file:
     label: Umgewandeltes Video
 errors:
-  invalid_video: Diese Datei konnte nicht als Video gelesen werden. Sie ist möglicherweise beschädigt oder hat ein Format, das dieses Tool nicht unterstützt.
-  no_video: Diese Datei hat keine Videospur – sie enthält nur Audio.
+  invalid_video: Diese Datei konnte nicht als Video gelesen werden. Sie ist möglicherweise beschädigt oder hat ein Format, das dieses Tool nicht unterstützt. Exportieren Sie sie erneut als MP4 und versuchen Sie es noch einmal.
+  no_video: Diese Datei hat keine Videospur – sie enthält nur Audio. Wählen Sie eine Videodatei.
   unsupported_codec: "Dieser Browser kann eine Spur dieses Videos nicht dekodieren oder kodieren. Versuchen Sie ein anderes Ausgabeformat oder die neueste Version von Chrome. Codec:"
 steps:
   - Wählen Sie ein MP4-, MOV-, WebM- oder MKV-Video mit bis zu 500 MB.
@@ -49,7 +49,7 @@ Das Tool liest das Video mit Mediabunny, einer Open-Source-Medienbibliothek, und
 
 - **Eingabe:** MP4-, MOV-, WebM- und MKV-Dateien mit bis zu 500 MB.
 - **Spuren:** Die Haupt-Videospur und die Haupt-Audiospur werden umgewandelt; Untertitel und zusätzliche Audiospuren entfallen.
-- **Codecs:** Welche Codecs dekodiert und kodiert werden können, hängt von Ihrem Browser und Gerät ab. Lässt sich eine Spur nicht umwandeln, bricht das Tool mit einer Meldung ab, statt eine Datei ohne Ton oder Bild zu erzeugen.
+- **Codecs:** Welche Codecs dekodiert und kodiert werden können, hängt von Ihrem Browser und Gerät ab. Firefox hat zum Beispiel keinen AAC-Encoder, daher verwenden MP4 und MOV dort Opus-Audio; die neueste Version von Chrome unterstützt die meisten Codecs. Lässt sich eine Spur nicht umwandeln, bricht das Tool mit einer Meldung ab, statt eine Datei ohne Ton oder Bild zu erzeugen.
 - **Speicher:** Das umgewandelte Video bleibt bis zum Herunterladen im Arbeitsspeicher, sodass sehr große Dateien auf Smartphones scheitern können.
 
 ## Datenschutz

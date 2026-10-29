@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Voz a texto – Transcribe audio y vídeo online gratis
 description: Transcribe audio y vídeo a texto y subtítulos SRT gratis. Privado — el modelo de reconocimiento de voz Whisper funciona en tu navegador y tu archivo nunca se sube.
 name: Voz a texto
@@ -19,14 +19,14 @@ output:
   subtitles:
     label: Subtítulos (SRT)
 errors:
-  invalid_audio: No se pudo leer este archivo como audio. Puede estar dañado o usar un formato que esta herramienta no admite.
-  no_audio: Este archivo no tiene pista de audio, así que no hay nada que transcribir.
+  invalid_audio: No se pudo leer este archivo como audio. Puede estar dañado o usar un formato que esta herramienta no admite. Prueba con una copia en MP3 o WAV.
+  no_audio: Este archivo no tiene pista de audio, así que no hay nada que transcribir. Elige un archivo que contenga sonido.
   unsupported_codec: "Este navegador no puede decodificar el audio de este archivo. Prueba con otro formato de archivo o con la última versión de Chrome. Códec:"
   too_long: La grabación dura más de 60 minutos. Divídela en partes más cortas y transcríbelas una a una.
-  no_speech: No se encontró voz en esta grabación.
+  no_speech: No se encontró voz en esta grabación. Comprueba que se oiga bien y que contenga voz clara, y vuelve a intentarlo.
 steps:
   - Elige un archivo de audio o vídeo de hasta 1 GB y 60 minutos.
-  - Deja el idioma en Detectar automáticamente o elige el idioma que se habla. Elegirlo ayuda con clips cortos y acentos marcados.
+  - Deja Idioma hablado en Detectar automáticamente o elige el idioma que se habla. Elegirlo ayuda con clips cortos y acentos marcados.
   - Pulsa Transcribir. La primera vez se descarga el modelo de reconocimiento de voz (unos 105–125 MB) y se guarda en tu navegador; después empieza al instante.
   - Copia la transcripción o descarga el archivo SRT para usarlo como subtítulos en un reproductor o editor de vídeo.
 faq:
@@ -49,7 +49,8 @@ La herramienta decodifica el audio con Mediabunny y la API WebCodecs, lo convier
 ## Límites
 
 - **Entrada:** audio MP3, M4A, AAC, WAV, OGG, Opus, FLAC y WebM, o la pista de audio de un vídeo MP4, MOV, WebM o MKV, de hasta 1 GB y 60 minutos.
-- **Velocidad:** en un portátil reciente, un minuto de audio tarda unos segundos con WebGPU y hasta unos 20 segundos sin él.
+- **Velocidad:** el reconocimiento es más rápido en navegadores que ofrecen una GPU real mediante WebGPU y en los que permiten varios hilos; si no, pasa a una ruta más lenta de un solo hilo.
+- **Navegadores:** el audio se decodifica con la API WebCodecs, así que los archivos que funcionan dependen de los códecs de tu navegador; la última versión de Chrome admite más.
 - **Descarga:** el modelo ocupa unos 105–125 MB y se descarga la primera vez.
 - **Precisión:** Whisper base es un modelo pequeño. El ruido de fondo, la música y varias personas hablando a la vez reducen la calidad.
 - **Chino:** Whisper suele escribir el chino con caracteres tradicionales, incluso el mandarín de China continental.

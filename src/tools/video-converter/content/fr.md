@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Convertisseur vidéo – Convertir MP4, WebM, MOV et MKV gratuitement
 description: Convertissez vos vidéos entre MP4, WebM, MOV et MKV gratuitement. Privé et rapide — la conversion se fait dans votre navigateur avec WebCodecs, sans envoi de la vidéo.
 name: Convertisseur vidéo
@@ -20,24 +20,24 @@ output:
   file:
     label: Vidéo convertie
 errors:
-  invalid_video: Ce fichier n'a pas pu être lu comme une vidéo. Il est peut-être endommagé ou dans un format que cet outil ne prend pas en charge.
-  no_video: Ce fichier n'a pas de piste vidéo, il ne contient que de l'audio.
-  unsupported_codec: "Ce navigateur ne peut pas décoder ou encoder l'une des pistes de cette vidéo. Essayez un autre format de sortie ou la dernière version de Chrome. Codec :"
+  invalid_video: Ce fichier n'a pas pu être lu comme une vidéo. Il est peut-être endommagé ou dans un format que cet outil ne prend pas en charge. Exportez-le à nouveau en MP4 et réessayez.
+  no_video: Ce fichier n'a pas de piste vidéo, il ne contient que de l'audio. Choisissez un fichier vidéo.
+  unsupported_codec: "Ce navigateur ne peut pas décoder ou encoder l'une des pistes de cette vidéo. Essayez un autre format de sortie ou la dernière version de Chrome. Codec :"
 steps:
   - Choisissez une vidéo MP4, MOV, WebM ou MKV de 500 Mo maximum.
   - Sélectionnez le format de sortie. Le MP4 se lit presque partout, le WebM convient au web, le MOV aux apps Apple, et le MKV conserve les pistes d'origine telles quelles.
   - Cliquez sur Convertir la vidéo. Une barre de progression indique l'avancement, et vous pouvez annuler à tout moment.
   - Téléchargez la vidéo convertie.
 faq:
-  - q: Ma vidéo est-elle envoyée sur un serveur ?
+  - q: Ma vidéo est-elle envoyée sur un serveur ?
     a: Non. La vidéo est lue, décodée et encodée dans votre navigateur avec l'API WebCodecs, elle ne quitte donc jamais votre appareil.
-  - q: Pourquoi la conversion est-elle parfois presque instantanée ?
+  - q: Pourquoi la conversion est-elle parfois presque instantanée ?
     a: Si la vidéo et l'audio utilisent déjà un codec que le nouveau format accepte — par exemple H.264 et AAC de MOV vers MP4 — les pistes sont copiées telles quelles et seul le conteneur est réécrit. Rien n'est réencodé, c'est donc rapide et la qualité ne change pas.
-  - q: La conversion réduit-elle la qualité ?
+  - q: La conversion réduit-elle la qualité ?
     a: Seulement quand la vidéo doit être réencodée, par exemple de WebM vers MP4. L'outil encode avec une qualité élevée, la différence est donc généralement difficile à voir, mais un réencodage n'est jamais parfaitement sans perte.
-  - q: Quels codecs le fichier de sortie utilise-t-il ?
+  - q: Quels codecs le fichier de sortie utilise-t-il ?
     a: Le MP4 et le MOV utilisent la vidéo H.264 et l'audio AAC lorsque votre navigateur sait les encoder. Sinon — Firefox, par exemple, n'a pas d'encodeur AAC — l'outil se rabat sur un autre codec accepté par le format, comme l'audio Opus. Le WebM utilise VP9 et Opus. Le MKV conserve les codecs d'origine.
-  - q: Puis-je convertir des fichiers MKV ?
+  - q: Puis-je convertir des fichiers MKV ?
     a: Oui. Les fichiers MKV peuvent être convertis en MP4, WebM ou MOV. Passer du MKV au MP4 est souvent rapide, car les pistes H.264 et AAC sont copiées sans réencodage.
 ---
 
@@ -47,10 +47,10 @@ L'outil lit la vidéo avec Mediabunny, une bibliothèque multimédia open source
 
 ## Limites
 
-- **Entrée :** fichiers MP4, MOV, WebM et MKV de 500 Mo maximum.
-- **Pistes :** la piste vidéo principale et la piste audio principale sont converties ; les sous-titres et les pistes audio supplémentaires sont supprimés.
-- **Codecs :** les codecs que l'on peut décoder et encoder dépendent de votre navigateur et de votre appareil. Si une piste ne peut pas être convertie, l'outil s'arrête avec un message au lieu de créer un fichier sans son ni image.
-- **Mémoire :** la vidéo convertie reste en mémoire jusqu'au téléchargement, les très gros fichiers peuvent donc échouer sur mobile.
+- **Entrée :** fichiers MP4, MOV, WebM et MKV de 500 Mo maximum.
+- **Pistes :** la piste vidéo principale et la piste audio principale sont converties ; les sous-titres et les pistes audio supplémentaires sont supprimés.
+- **Codecs :** les codecs que l'on peut décoder et encoder dépendent de votre navigateur et de votre appareil. Firefox, par exemple, n'a pas d'encodeur AAC : MP4 et MOV y utilisent donc de l'audio Opus ; la dernière version de Chrome prend en charge le plus de codecs. Si une piste ne peut pas être convertie, l'outil s'arrête avec un message au lieu de créer un fichier sans son ni image.
+- **Mémoire :** la vidéo convertie reste en mémoire jusqu'au téléchargement, les très gros fichiers peuvent donc échouer sur mobile.
 
 ## Confidentialité
 

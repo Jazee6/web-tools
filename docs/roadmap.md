@@ -128,7 +128,9 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ✅ 风格指南 `docs/content/style-guide.md`（frontmatter 字段表、正文三块、内链按 Locale 加前缀、翻译与审核规则），7 个 Locale 各一份术语表 `docs/content/glossary/{locale}.md`。术语表的译法取自已有内容和 `messages/*.json`，改译法要同步改已有内容。
 - ✅ 项目内 skill（`.claude/skills/`）：`write-tool-content`、`translate-content`、`add-variant`。
 - ✅ 审核流程试点：用 `pi` 调用 `antigravity/gemini-3.8-flash`（thinking high）审核 JSON Formatter 的 en，对照 `tool.ts`、`core.ts` 和风格指南，判定 PASS，另提两条建议（`errors.invalid_json` 缺下一步指引、隐私句式与其他 Tool 不一致）。只做了试点，没有改动任何 `review` 字段。
-- 内容产出：首发 Tool 的 en 内容 → pi + `antigravity/gemini-3.8-flash`（thinking high）审核 en → 翻译 6 个 Locale → 同样审核，PASS 即 Reviewed（ADR-0017）。审核时**优先 en**，因为非 en 页面要等 en 也是 Reviewed 才能被索引。
+- ✅ 6 个已实现 Tool（JSON Formatter、HTTP Header Checker、Image Compressor、Merge PDF、Video Converter、Speech to Text）的 en 内容和 6 个 Locale 译文全部经 Gemini 审核 PASS，`review: reviewed`（2026-10-29）。en 审核补全了 errors 的下一步指引、真实的浏览器差异和限制，删掉了源码里没有的性能说法；译文对照 en 审核了两到三轮，修了漏译、术语和长度问题。审核结果有随机性，同一份文件可能一次 PASS 一次 FAIL，所以只按具体缺陷修改，不追求逐条采纳建议。
+- ✅ 术语表按已有内容对齐：de 全站统一用敬称 Sie（`messages/de.json` 和 developer 分类同步改过），fr 的内容文件用直撇号和不换行空格，ja 用「デバイス」。
+- 内容产出（其余部分）：4 个 Category 的 en 内容 → 审核 → 翻译 6 个 Locale → 审核；之后每个新 Tool 都走「en 内容 → 审核 → 翻译 → 审核」。审核时**优先 en**，因为非 en 页面要等 en 也是 Reviewed 才能被索引。
 - 首批 Variant：每个 Tool 挑需求依据最充分的几个，不追求数量。
 
 **退出条件**：首发 Tool 的 en 内容全部 Reviewed，其他 Locale 的 Reviewed 覆盖率有报告。

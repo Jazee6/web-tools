@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Juntar PDF – Combine arquivos PDF online grátis
 description: Combine vários arquivos PDF em um só, na ordem que você escolher. Grátis e privado — a junção acontece no seu navegador, e seus documentos nunca são enviados.
 name: Juntar PDF
@@ -14,7 +14,7 @@ output:
     label: PDF combinado
 errors:
   encrypted: "Este PDF está protegido por senha. Remova a senha e tente de novo:"
-  invalid_pdf: "Não foi possível ler este arquivo como PDF. Ele pode estar danificado:"
+  invalid_pdf: "Não foi possível ler este arquivo como PDF. Ele pode estar danificado. Exporte-o novamente ou remova-o da lista e tente novamente:"
 steps:
   - Escolha os arquivos PDF que deseja combinar — de 2 a 20 arquivos, com até 50 MB cada. Você pode adicioná-los em várias etapas.
   - Use as setas para cima e para baixo para ordenar os arquivos, ou remova um arquivo adicionado por engano.

@@ -1,10 +1,10 @@
 ---
-review: draft
-updated: 2026-10-23
-title: Conversor de vídeo – Converta MP4, WebM, MOV e MKV grátis
-description: Converta vídeos entre MP4, WebM, MOV e MKV grátis. Privado e rápido — a conversão acontece no seu navegador com WebCodecs, então seu vídeo nunca é enviado.
+review: reviewed
+updated: 2026-10-29
+title: Conversor de vídeo – Converta MP4, WebM, MOV e MKV online grátis
+description: Converta vídeos entre MP4, WebM, MOV e MKV grátis. Privado e rápido — a conversão é processada no seu navegador com WebCodecs, então seu vídeo nunca é enviado.
 name: Conversor de vídeo
-answer: Escolha um vídeo MP4, MOV, WebM ou MKV, selecione o formato de saída e clique em Converter vídeo — o arquivo é convertido no seu dispositivo e você baixa o resultado na hora. Quando só o contêiner muda, leva poucos segundos.
+answer: Escolha um vídeo MP4, MOV, WebM ou MKV, selecione o formato de saída e clique em Converter vídeo — o arquivo é convertido no seu dispositivo e você baixa o resultado. Quando só o contêiner muda, leva poucos segundos.
 action: Converter vídeo
 fields:
   file:
@@ -20,12 +20,12 @@ output:
   file:
     label: Vídeo convertido
 errors:
-  invalid_video: Não foi possível ler este arquivo como vídeo. Ele pode estar danificado ou usar um formato que esta ferramenta não suporta.
-  no_video: Este arquivo não tem faixa de vídeo, só contém áudio.
+  invalid_video: Não foi possível ler este arquivo como vídeo. Ele pode estar danificado ou usar um formato que esta ferramenta não suporta. Exporte-o novamente como MP4 e tente de novo.
+  no_video: Este arquivo não tem faixa de vídeo, só contém áudio. Escolha um arquivo de vídeo.
   unsupported_codec: "Este navegador não consegue decodificar ou codificar uma das faixas deste vídeo. Tente outro formato de saída ou a versão mais recente do Chrome. Codec:"
 steps:
   - Escolha um vídeo MP4, MOV, WebM ou MKV de até 500 MB.
-  - Selecione o formato de saída. MP4 toca em quase todo lugar, WebM é ideal para a web, MOV para os apps da Apple e MKV mantém as faixas originais intactas.
+  - Selecione o formato de saída. MP4 roda em quase todo lugar, WebM é ideal para a web, MOV para os apps da Apple e MKV mantém as faixas originais intactas.
   - Clique em Converter vídeo. Uma barra de progresso mostra o andamento, e você pode cancelar a qualquer momento.
   - Baixe o vídeo convertido.
 faq:
@@ -49,7 +49,7 @@ A ferramenta lê o vídeo com o Mediabunny, uma biblioteca de mídia de código 
 
 - **Entrada:** arquivos MP4, MOV, WebM e MKV de até 500 MB.
 - **Faixas:** a faixa de vídeo principal e a faixa de áudio principal são convertidas; legendas e faixas de áudio extras são descartadas.
-- **Codecs:** os codecs que podem ser decodificados e codificados dependem do seu navegador e dispositivo. Se uma faixa não puder ser convertida, a ferramenta para com uma mensagem em vez de criar um arquivo sem som ou sem imagem.
+- **Codecs:** os codecs que podem ser decodificados e codificados dependem do seu navegador e dispositivo. O Firefox, por exemplo, não tem codificador AAC, então lá MP4 e MOV usam áudio Opus; a versão mais recente do Chrome suporta o maior número de codecs. Se uma faixa não puder ser convertida, a ferramenta para com uma mensagem em vez de criar um arquivo sem som ou sem imagem.
 - **Memória:** o vídeo convertido fica na memória até você baixá-lo, então arquivos muito grandes podem falhar em celulares.
 
 ## Privacidade

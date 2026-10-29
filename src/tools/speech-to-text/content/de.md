@@ -1,10 +1,10 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Sprache zu Text – Audio & Video kostenlos online transkribieren
-description: Audio und Video kostenlos in Text und SRT-Untertitel umwandeln. Privat – das Spracherkennungsmodell Whisper läuft im Browser, Ihre Datei wird nie hochgeladen.
+description: Audio und Video kostenlos in Text und SRT-Untertitel transkribieren. Privat – das Spracherkennungsmodell Whisper läuft im Browser, Ihre Datei wird nie hochgeladen.
 name: Sprache zu Text
-answer: Wählen Sie eine Audio- oder Videodatei, lassen Sie die Sprache auf Automatisch erkennen oder wählen Sie die gesprochene Sprache und klicken Sie auf Transkribieren. Whisper wandelt die Sprache auf Ihrem Gerät in Text um; Sie können ihn kopieren oder als SRT-Untertitel herunterladen.
+answer: Wählen Sie eine Audio- oder Videodatei, lassen Sie die Sprache auf Automatisch erkennen oder wählen Sie die gesprochene Sprache und klicken Sie auf Transkribieren. Whisper wandelt die Sprache auf Ihrem Gerät in Text um; Sie können das Transkript kopieren oder als SRT-Untertitel herunterladen.
 action: Transkribieren
 fields:
   file:
@@ -19,14 +19,14 @@ output:
   subtitles:
     label: Untertitel (SRT)
 errors:
-  invalid_audio: Diese Datei konnte nicht als Audio gelesen werden. Sie ist möglicherweise beschädigt oder hat ein Format, das dieses Tool nicht unterstützt.
-  no_audio: Diese Datei hat keine Tonspur, es gibt also nichts zu transkribieren.
+  invalid_audio: Diese Datei konnte nicht als Audio gelesen werden. Sie ist möglicherweise beschädigt oder hat ein Format, das dieses Tool nicht unterstützt. Versuchen Sie eine MP3- oder WAV-Kopie der Aufnahme.
+  no_audio: Diese Datei hat keine Tonspur, es gibt also nichts zu transkribieren. Wählen Sie eine Datei mit Ton.
   unsupported_codec: "Dieser Browser kann den Ton in dieser Datei nicht decodieren. Versuchen Sie ein anderes Dateiformat oder die neueste Version von Chrome. Codec:"
   too_long: Die Aufnahme ist länger als 60 Minuten. Teilen Sie sie in kürzere Abschnitte auf und transkribieren Sie diese einzeln.
-  no_speech: In dieser Aufnahme wurde keine Sprache gefunden.
+  no_speech: In dieser Aufnahme wurde keine Sprache gefunden. Prüfen Sie, ob die Aufnahme hörbar ist und deutliche Sprache enthält, und versuchen Sie es erneut.
 steps:
   - Wählen Sie eine Audio- oder Videodatei mit höchstens 1 GB und 60 Minuten.
-  - Lassen Sie die Sprache auf Automatisch erkennen oder wählen Sie die gesprochene Sprache. Das hilft bei kurzen Clips und starkem Akzent.
+  - Lassen Sie Gesprochene Sprache auf Automatisch erkennen oder wählen Sie die gesprochene Sprache. Das hilft bei kurzen Clips und starkem Akzent.
   - Klicken Sie auf Transkribieren. Beim ersten Mal wird das Spracherkennungsmodell (etwa 105–125 MB) heruntergeladen und im Browser gespeichert; danach startet es sofort.
   - Kopieren Sie das Transkript oder laden Sie die SRT-Datei herunter, um sie in einem Videoplayer oder Schnittprogramm als Untertitel zu verwenden.
 faq:
@@ -49,7 +49,8 @@ Das Tool decodiert den Ton mit Mediabunny und der WebCodecs-API, wandelt ihn in 
 ## Grenzen
 
 - **Eingabe:** MP3-, M4A-, AAC-, WAV-, OGG-, Opus-, FLAC- und WebM-Audio oder die Tonspur eines MP4-, MOV-, WebM- oder MKV-Videos, bis 1 GB und 60 Minuten.
-- **Geschwindigkeit:** Auf einem aktuellen Laptop dauert eine Minute Audio mit WebGPU wenige Sekunden, ohne WebGPU bis zu etwa 20 Sekunden.
+- **Geschwindigkeit:** Die Erkennung ist schneller in Browsern, die über WebGPU eine echte GPU bereitstellen, und in solchen, die Multithreading erlauben; andernfalls läuft sie über einen langsameren Pfad mit einem einzigen Thread.
+- **Browser:** Der Ton wird mit der WebCodecs-API decodiert; welche Dateien funktionieren, hängt also von den Codecs Ihres Browsers ab, die neueste Version von Chrome unterstützt die meisten.
 - **Download:** Das Modell ist etwa 105–125 MB groß und wird bei der ersten Nutzung heruntergeladen.
 - **Genauigkeit:** Whisper base ist ein kleines Modell. Hintergrundgeräusche, Musik und mehrere gleichzeitige Sprecher verringern die Qualität.
 - **Chinesisch:** Whisper schreibt Chinesisch oft in Langzeichen, auch bei Mandarin aus Festlandchina.

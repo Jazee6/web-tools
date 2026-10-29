@@ -22,7 +22,7 @@
 | compress（体积） | 压缩 | 缩小 |
 | minify | 压缩（JSON 里写"压缩为一行"） | 精简 |
 | format（JSON） | 格式化（美化） | 美化代码 |
-| transcribe | 转写 / 转文字（Tool 名用"转文字"） | 识别 |
+| transcribe | 转录（Tool 名用"语音转文字"；动词不用"识别"，"语音识别模型"可用） | 识别 |
 | merge | 合并 | 拼接、组合 |
 | device | 设备 | 机器 |
 | model（AI） | 模型 | — |

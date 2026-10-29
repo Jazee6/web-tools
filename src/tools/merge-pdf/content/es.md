@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Unir PDF – Combina archivos PDF en línea gratis
 description: "Combina varios archivos PDF en uno, en el orden que elijas. Gratis y privado: la unión se hace en tu navegador, así que tus documentos nunca se suben."
 name: Unir PDF
@@ -14,7 +14,7 @@ output:
     label: PDF unido
 errors:
   encrypted: "Este PDF está protegido con contraseña. Quita la contraseña e inténtalo de nuevo:"
-  invalid_pdf: "No se pudo leer este archivo como PDF. Puede estar dañado:"
+  invalid_pdf: "No se pudo leer este archivo como PDF. Puede estar dañado. Expórtalo de nuevo o quítalo de la lista y vuelve a intentarlo:"
 steps:
   - "Elige los archivos PDF que quieres combinar: entre 2 y 20 archivos, de hasta 50 MB cada uno. Puedes añadirlos en varias tandas."
   - Usa las flechas arriba y abajo para ordenar los archivos, o quita uno que hayas añadido por error.
