@@ -1,8 +1,8 @@
 ---
-review: draft
-updated: 2026-10-23
-title: "Outils vidéo et audio – Convertir vidéo et audio en ligne"
-description: "Outils vidéo et audio gratuits : convertissez entre MP4, WebM, MOV, MKV et plus. Tout fonctionne dans votre navigateur — vos enregistrements ne sont jamais envoyés."
+review: reviewed
+updated: 2026-10-29
+title: "Outils vidéo et audio – Convertir des vidéos, transcrire en ligne"
+description: "Outils vidéo et audio gratuits : convertissez MP4, WebM, MOV et MKV, ou transcrivez la voix en texte et SRT. Tout est traité dans votre navigateur, rien n'est envoyé."
 name: "Vidéo et audio"
-intro: "Convertissez et traitez vos fichiers vidéo et audio sans les envoyer. Chaque outil fonctionne sur votre appareil avec les codecs intégrés du navigateur, si bien que même les longs enregistrements restent privés."
+intro: "Convertissez des vidéos et transformez la voix en texte sans envoyer vos fichiers. Chaque outil fonctionne sur votre appareil : même les longs enregistrements restent privés."
 ---

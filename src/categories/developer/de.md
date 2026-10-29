@@ -1,8 +1,8 @@
 ---
-review: draft
-updated: 2026-10-22
-title: "Entwickler- & Text-Tools – kostenlos online"
-description: "Kostenlose Online-Tools für Entwickler und Text: JSON formatieren, Daten kodieren und dekodieren, Einheiten umrechnen und mehr. Alles läuft im Browser."
+review: reviewed
+updated: 2026-10-29
+title: "Entwickler-Tools – JSON formatieren, HTTP-Header online prüfen"
+description: "Kostenlose Online-Tools für Entwickler: JSON im Browser formatieren und prüfen sowie HTTP-Status, Response-Header und Weiterleitungen einer öffentlichen URL abfragen."
 name: "Entwickler & Text"
-intro: "Alltagswerkzeuge für Code, Daten und Text – Formatierer, Kodierer, Umrechner und Zähler, die sofort im Browser laufen, ohne Ihre Daten irgendwohin zu senden."
+intro: "Alltägliche Tools zur Fehlersuche. Beim JSON-Formatierer werden Ihre Eingaben vollständig in Ihrem Browser verarbeitet; der HTTP-Header-Checker schickt die eingegebene URL zum Abruf an unseren Server und speichert nichts."
 ---

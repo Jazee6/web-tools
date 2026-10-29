@@ -1,8 +1,8 @@
 ---
-review: draft
-updated: 2026-10-23
-title: "Outils image – Compresser et convertir des images en ligne"
-description: "Outils image gratuits : compressez, convertissez, redimensionnez et recadrez vos JPEG, PNG, WebP et AVIF. Tout se fait dans le navigateur, sans envoi de photos."
+review: reviewed
+updated: 2026-10-29
+title: "Outils image – Compresser JPEG, PNG, WebP et AVIF en ligne"
+description: "Outils image gratuits : compressez vos images JPEG, PNG, WebP et AVIF. Tout est traité dans votre navigateur, vos photos ne sont jamais envoyées."
 name: "Image"
-intro: "Compressez, convertissez et modifiez vos images sans les envoyer. Chaque outil fonctionne sur votre appareil : vos photos privées le restent et les gros fichiers sont traités sans attendre un serveur."
+intro: "Compressez vos images sans les envoyer. Chaque outil fonctionne sur votre appareil : vos photos privées le restent et les gros fichiers sont traités sans attendre un serveur."
 ---

@@ -1,8 +1,8 @@
 ---
-review: draft
-updated: 2026-10-22
-title: "Developer & Text Tools – Free Online Utilities"
-description: "Free online tools for developers and text: format JSON, encode and decode data, convert units and more. Everything runs in your browser — nothing is uploaded."
+review: reviewed
+updated: 2026-10-29
+title: "Developer Tools – Format JSON, Check HTTP Headers Online"
+description: "Free online developer tools: format and validate JSON in your browser, and check the HTTP status, response headers and redirects of any public URL."
 name: "Developer & Text"
-intro: "Everyday utilities for code, data and text — formatters, encoders, converters and counters that run instantly in your browser without sending your data anywhere."
+intro: "Everyday tools for debugging. The JSON Formatter runs entirely in your browser; the HTTP Header Checker sends the URL you enter to our server to fetch it and stores nothing."
 ---

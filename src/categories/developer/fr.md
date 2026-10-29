@@ -1,8 +1,8 @@
 ---
-review: draft
-updated: 2026-10-22
-title: "Outils pour développeurs et texte – Gratuits en ligne"
-description: "Outils en ligne gratuits pour développeurs et texte : formater du JSON, encoder et décoder des données, convertir des unités, etc. Tout s'exécute dans le navigateur."
+review: reviewed
+updated: 2026-10-29
+title: "Outils pour développeurs – JSON et en-têtes HTTP en ligne"
+description: "Outils gratuits pour développeurs : formatez et validez du JSON dans votre navigateur, consultez le statut HTTP, les en-têtes et les redirections d'une URL publique."
 name: "Développeurs et texte"
-intro: "Des utilitaires du quotidien pour le code, les données et le texte : formateurs, encodeurs, convertisseurs et compteurs qui fonctionnent instantanément dans votre navigateur, sans envoyer vos données."
+intro: "Des outils de débogage du quotidien. Le Formateur JSON fonctionne entièrement dans votre navigateur ; le Vérificateur d'en-têtes HTTP envoie l'URL saisie à notre serveur pour la consulter, sans rien conserver."
 ---
