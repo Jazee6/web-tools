@@ -24,6 +24,7 @@
 | 压缩（去空白） | minify | compress |
 | 美化 | format / pretty-print | beautify |
 | 转录 | transcribe | recognize, convert speech |
+| encode / decode / URL-safe / padding | encode / decode / URL-safe / padding | — |
 
 ## Tool 与 Category 名称
 
@@ -35,4 +36,5 @@
 | merge-pdf | Merge PDF |
 | video-converter | Video Converter |
 | speech-to-text | Speech to Text |
+| base64-encode-decode | Base64 Encode/Decode |
 | developer / image / pdf / media | Developer & Text / Image / PDF / Video & Audio |

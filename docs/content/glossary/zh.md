@@ -26,6 +26,7 @@
 | merge | 合并 | 拼接、组合 |
 | device | 设备 | 机器 |
 | model（AI） | 模型 | — |
+| encode / decode / URL-safe / padding | 编码 / 解码 / URL 安全 / 填充（=） | 加密、转码 |
 
 ## Tool 与 Category 名称
 
@@ -37,4 +38,5 @@
 | merge-pdf | PDF 合并 |
 | video-converter | 视频格式转换 |
 | speech-to-text | 语音转文字 |
+| base64-encode-decode | Base64 编码/解码 |
 | developer / image / pdf / media | 开发者与文本 / 图片 / PDF / 音视频 |

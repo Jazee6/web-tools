@@ -26,6 +26,7 @@
 | transcribe | transkribieren | erkennen |
 | merge | zusammenfügen | verbinden, mergen |
 | device | Gerät | Rechner |
+| encode / decode / URL-safe / padding | kodieren / dekodieren / URL-sicher / Auffüllung (Padding) | verschlüsseln, enkodieren |
 
 ## Namen von Tools und Kategorien
 
@@ -37,4 +38,5 @@
 | merge-pdf | PDF zusammenfügen |
 | video-converter | Video-Konverter |
 | speech-to-text | Sprache zu Text |
+| base64-encode-decode | Base64 kodieren/dekodieren |
 | developer / image / pdf / media | Entwickler & Text / Bild / PDF / Video & Audio |
