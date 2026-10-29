@@ -27,6 +27,7 @@
 | device | appareil | machine |
 | encode / decode / URL-safe / padding | encoder / décoder / compatible URL / bourrage (padding) | chiffrer, crypter |
 | percent-encoding / hash (digest) | encodage en pourcentage / hachage (le résultat : empreinte) | hash, condensat |
+| JWT / header / payload / claim / signature | JWT / en-tête / charge utile / claim / signature | payload, revendication |
 
 ## Noms des outils et des catégories
 
@@ -41,4 +42,5 @@
 | base64-encode-decode | Encodeur/décodeur Base64 |
 | url-encode-decode | Encodeur/décodeur d'URL |
 | hash-generator | Générateur de hachage |
+| jwt-decoder | Décodeur JWT |
 | developer / image / pdf / media | Développeurs et texte / Image / PDF / Vidéo et audio |

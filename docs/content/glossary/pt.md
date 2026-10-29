@@ -27,6 +27,7 @@
 | device | dispositivo | aparelho |
 | encode / decode / URL-safe / padding | codificar / decodificar / seguro para URL / preenchimento (padding) | criptografar, cifrar |
 | percent-encoding / hash (digest) | codificação por porcentagem / hash | resumo, impressão digital |
+| JWT / header / payload / claim / signature | JWT / cabeçalho / carga útil / claim / assinatura | reivindicação, payload |
 
 ## Nomes de ferramentas e categorias
 
@@ -41,4 +42,5 @@
 | base64-encode-decode | Codificar e decodificar Base64 |
 | url-encode-decode | Codificar e decodificar URL |
 | hash-generator | Gerador de hash |
+| jwt-decoder | Decodificador de JWT |
 | developer / image / pdf / media | Desenvolvedores e texto / Imagem / PDF / Vídeo e áudio |

@@ -28,6 +28,7 @@
 | model（AI） | 模型 | — |
 | encode / decode / URL-safe / padding | 编码 / 解码 / URL 安全 / 填充（=） | 加密、转码 |
 | percent-encoding / hash (digest) | 百分号编码 / 哈希 | URL 转义、散列、摘要 |
+| JWT / header / payload / claim / signature | JWT / 头部 / 载荷 / 声明 / 签名 | 头信息、负载、有效载荷 |
 
 ## Tool 与 Category 名称
 
@@ -42,4 +43,5 @@
 | base64-encode-decode | Base64 编码/解码 |
 | url-encode-decode | URL 编码/解码 |
 | hash-generator | 哈希生成器 |
+| jwt-decoder | JWT 解码器 |
 | developer / image / pdf / media | 开发者与文本 / 图片 / PDF / 音视频 |

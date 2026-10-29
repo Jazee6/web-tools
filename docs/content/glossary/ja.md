@@ -27,6 +27,7 @@
 | device | デバイス | 端末 |
 | encode / decode / URL-safe / padding | エンコード / デコード / URL セーフ / パディング | 暗号化 |
 | percent-encoding / hash (digest) | パーセントエンコーディング / ハッシュ | ダイジェスト（「ハッシュ値」で統一） |
+| JWT / header / payload / claim / signature | JWT / ヘッダー / ペイロード / クレーム / 署名 | 請求、シグネチャ |
 
 ## ツールとカテゴリの名称
 
@@ -41,4 +42,5 @@
 | base64-encode-decode | Base64 エンコード/デコード |
 | url-encode-decode | URL エンコード/デコード |
 | hash-generator | ハッシュ生成 |
+| jwt-decoder | JWT デコーダー |
 | developer / image / pdf / media | 開発者・テキスト／画像／PDF／動画・音声 |

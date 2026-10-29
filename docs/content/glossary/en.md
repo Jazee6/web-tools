@@ -26,6 +26,7 @@
 | 转录 | transcribe | recognize, convert speech |
 | encode / decode / URL-safe / padding | encode / decode / URL-safe / padding | — |
 | percent-encoding / hash (digest) | percent-encoding / hash | — |
+| JWT / header / payload / claim / signature | JWT / header / payload / claim / signature | — |
 
 ## Tool 与 Category 名称
 
@@ -40,4 +41,5 @@
 | base64-encode-decode | Base64 Encode/Decode |
 | url-encode-decode | URL Encode/Decode |
 | hash-generator | Hash Generator |
+| jwt-decoder | JWT Decoder |
 | developer / image / pdf / media | Developer & Text / Image / PDF / Video & Audio |

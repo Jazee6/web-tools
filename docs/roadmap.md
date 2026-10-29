@@ -145,6 +145,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
   - ✅ Base64 Encode/Decode（`base64-encode-decode`）：7 个 Locale 全部 Reviewed。只处理文本（加文件输入会失去 Agent Interface，ADR-0016）；解码接受标准和 URL 安全两种字母表、忽略空白、容忍缺失的 padding；非 UTF-8 字节单独报 `invalid_utf8`。
   - ✅ URL Encode/Decode（`url-encode-decode`）：core 与测试完成，en 和 zh/ja/es/pt/fr Reviewed。⏳ de 译文待审核（审核模型 2026-10-29 额度用完）。三种范围：URL 组成部分（`encodeURIComponent`）、完整 URL（`encodeURI`）、表单数据（空格转 +，在 `encodeURIComponent` 上改写，孤立代理项同样报错）。
   - ✅ Hash Generator（`hash-generator`）：core 与测试完成，en Reviewed。⏳ 6 个 Locale 译文待审核（同上）。SHA-1/256/384/512 用 Web Crypto；Web Crypto 没有 MD5，所以自写了 `md5.ts`（RFC 1321，用官方测试向量和 `md5` / `shasum` 交叉核对）。
+  - ✅ JWT Decoder（`jwt-decoder`）：core 与测试完成，en 和 6 个 Locale 译文均为 Draft，⏳ 待审核（审核模型额度恢复后，与上面两项一起审）。只解码、不验证签名；输出头部、载荷、签名和 iat/nbf/exp 的 UTC 时间表（时间不与当前时刻比较，examples 才能精确匹配）；容忍 `Bearer ` 前缀，接受签名为空的未签名令牌，五段的 JWE 报 `encrypted_token`。
   - UUID Generator 暂缓：输出是随机的，而 examples 要求精确匹配输出，需要先让契约支持「按格式校验」的示例。
   - 开发者 Category 的文案要在这一批 Tool 做完后统一更新并重审（每批只改一次）。
 - 上线清单：
