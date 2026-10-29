@@ -1,5 +1,5 @@
 ---
-review: draft
+review: reviewed
 updated: 2026-10-23
 title: MOV to MP4 Converter – Convert QuickTime Videos Free Online
 description: Convert MOV to MP4 in your browser for free. iPhone and QuickTime videos usually convert in seconds without re-encoding, and nothing is uploaded.

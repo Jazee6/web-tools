@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: MKV to MP4 Converter – Convert Matroska Videos Free Online
 description: Convert MKV to MP4 in your browser for free. H.264 and AAC streams are copied without re-encoding, so most files take seconds. No upload, no sign-up.
 name: MKV to MP4
@@ -14,9 +14,9 @@ faq:
   - q: Why won't my MKV play on my TV or phone?
     a: Matroska (MKV) is a flexible container that many devices and apps don't open, even when they can play the video inside. Moving the same streams into MP4 usually fixes that.
   - q: What happens to subtitles and extra audio languages?
-    a: Only the main video track and the main audio track are kept. Embedded subtitles and additional audio tracks are dropped, because the converter writes a single-track MP4.
+    a: Only the main video track and the main audio track are kept. Embedded subtitles and additional audio tracks are dropped, because the converter writes an MP4 with one video track and one audio track.
   - q: Why is my file re-encoded instead of copied?
-    a: MP4 is limited here to H.264 or HEVC video and AAC audio, the combination that plays on nearly every device. VP9 or AV1 video and Opus, Vorbis or FLAC audio are re-encoded, which takes longer and is not perfectly lossless.
+    a: MP4 is limited here to H.264 or HEVC video and AAC audio, the combination that plays on nearly every device. VP9 or AV1 video and Opus, Vorbis or FLAC audio are re-encoded, which takes longer and is not perfectly lossless. The audio is encoded to AAC, or to Opus in Firefox, which has no AAC encoder.
   - q: Can I convert MKV files larger than 500 MB?
     a: Not with this tool. The converted file is held in memory until you download it, so the input is capped at 500 MB to stay reliable on laptops and phones.
 table:
