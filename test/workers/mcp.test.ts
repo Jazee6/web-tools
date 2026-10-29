@@ -123,9 +123,17 @@ describe("/mcp (2026-07-28)", () => {
   it("lists and calls Tools with plain JSON responses", async () => {
     const list = await modern("tools/list", {});
     expect(list.response.headers.get("content-type")).toMatch(/application\/json/);
-    expect(JSON.parse(list.text).result.tools.map((tool: { name: string }) => tool.name)).toEqual([
-      "json-formatter",
-    ]);
+    // 列表由 agent.remote 为真的 Tool 自动生成
+    expect(
+      JSON.parse(list.text)
+        .result.tools.map((tool: { name: string }) => tool.name)
+        .toSorted(),
+    ).toEqual(
+      tools
+        .filter((tool) => tool.agent.remote)
+        .map((tool) => tool.id)
+        .toSorted(),
+    );
     const call = await modern("tools/call", {
       name: "json-formatter",
       arguments: { json: "[1, 2]", indent: "minify" },
