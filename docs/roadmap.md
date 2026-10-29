@@ -146,6 +146,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
   - ✅ URL Encode/Decode（`url-encode-decode`）：core 与测试完成，en 和 zh/ja/es/pt/fr Reviewed。⏳ de 译文待审核（审核模型 2026-10-29 额度用完）。三种范围：URL 组成部分（`encodeURIComponent`）、完整 URL（`encodeURI`）、表单数据（空格转 +，在 `encodeURIComponent` 上改写，孤立代理项同样报错）。
   - ✅ Hash Generator（`hash-generator`）：core 与测试完成，en Reviewed。⏳ 6 个 Locale 译文待审核（同上）。SHA-1/256/384/512 用 Web Crypto；Web Crypto 没有 MD5，所以自写了 `md5.ts`（RFC 1321，用官方测试向量和 `md5` / `shasum` 交叉核对）。
   - ✅ JWT Decoder（`jwt-decoder`）：core 与测试完成，en 和 6 个 Locale 译文均为 Draft，⏳ 待审核（审核模型额度恢复后，与上面两项一起审）。只解码、不验证签名；输出头部、载荷、签名和 iat/nbf/exp 的 UTC 时间表（时间不与当前时刻比较，examples 才能精确匹配）；容忍 `Bearer ` 前缀，接受签名为空的未签名令牌，五段的 JWE 报 `encrypted_token`。
+  - ✅ Image Converter（`image-converter`，图片 Category）：core、Browser Mode 测试和 e2e（含离线）完成，7 个 Locale 内容为 Draft，⏳ 待审核。输入 HEIC / HEIF / JPEG / PNG / WebP / AVIF（≤ 50 MB），输出 JPEG / PNG / WebP / AVIF。HEIC 用 `libheif-js`（2026-10-29 确认引入；libheif 是 LGPL-3.0，见开放项里的许可证声明）解码，选 HEIC 文件时才加载约 2 MB 的 `libheif-bundle`（WASM 内联在 JS 里，同源静态资源）；其余格式沿用浏览器解码和 jSquash 编码，PNG 输出用浏览器编码后再过 OxiPNG；JPEG 输出把透明区域铺白。没有 HEIC 编码器，所以 HEIC 只能作输入。⏳ 用真实 iPhone 照片确认旋转（`irot`）被 libheif 正确应用；样例 `photo.heic` 由 macOS `sips` 从 JPEG 转出，没有旋转标记。⏳ 图片 Category 的文案要补上转换（已 Reviewed，等审核额度恢复后与新 Tool 一起重写重审）。
   - UUID Generator 暂缓：输出是随机的，而 examples 要求精确匹配输出，需要先让契约支持「按格式校验」的示例。
   - 开发者 Category 的文案要在这一批 Tool 做完后统一更新并重审（每批只改一次）。
 - 上线清单：
@@ -178,7 +179,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
   - Variant 切换到 on-demand 模式（ADR-0004）。
   - 启用 `Accept: text/markdown` 内容协商。
   - 事件抽样比例提高到 100%。
-- 有新依赖的 Tool（HEIC、PDF 压缩等）逐个确认依赖后再做。
+- 有新依赖的 Tool（PDF 压缩等）逐个确认依赖后再做；HEIC 解码已随 Image Converter 引入。
 - 把远程 MCP 提交到 MCP registry 等可被发现的渠道。
 
 **退出条件**：Tool 数达到 100 个以上，Variant 的收录率稳定，没有出现规模化内容滥用相关的人工处罚。
@@ -207,7 +208,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
 - ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。多文件控件按需加载，其他 Tool 页不受影响；Merge PDF 页约 158.5 KB，离上限只剩约 1.5 KB。M3 加入进度条和取消按钮后，用同一口径对比前后两次构建：在 Playwright 中加载页面直到网络空闲，把所有脚本逐个 gzip 后求和。JSON Formatter 页从 157.9 KB 增加到 158.3 KB，Merge PDF 页从 159.8 KB 增加到 160.2 KB。这个口径比上面的旧数字高约 1.3 KB（包含空闲时预取的 core），按它算 Merge PDF 页已经略超 160 KB。M6 接入 `@lhci/cli` 时要统一口径，继续往首屏加代码之前先瘦身。M3 加入 Speech to Text（语言名下拉选项、进度阶段）后用同一方法（Node zlib 默认级别 gzip）再测：JSON Formatter 157.6 KB，Merge PDF 159.5 KB，Speech to Text 157.8 KB；和前面的数字压缩级别可能不同，不能直接相减。另外试过把取消按钮也放进按需加载的分块，结果 Base UI 的公共模块被拆成单独的分块，首屏反而多了约 0.6 KB，所以没有采用。M3 加入本地状态后用同一方法（Playwright 加载到网络空闲、Node zlib 逐个 gzip 求和）前后对比：JSON Formatter 158.9 → 161.2 KB，Merge PDF 160.8 → 162.2 KB，Speech to Text 159.1 → 161.5 KB，首页 1.3 → 1.7 KB。增量主要是水合后按需加载的 local-store（0.76 KB）和偏好分块（0.28 KB），以及页脚脚本（0.4 KB）；它们不阻塞首次渲染，但这个口径会计入。M6 统一口径时要决定水合后的按需分块算不算首屏。
 - ~~内容近似度阈值（M4 根据样本确定）~~：0.3，依据见 M4。
-- 第三方许可证声明：站点会分发 PDFium（Apache-2.0，含它捆绑的第三方库）和 jSquash 编解码器的 WASM、Mediabunny（MPL-2.0）、Transformers.js（Apache-2.0）、ONNX Runtime Web（MIT）以及 Whisper base 的权重（MIT），上线前（M6）要补一个许可证声明页。
+- 第三方许可证声明：站点会分发 libheif（LGPL-3.0，经 `libheif-js`，声明页要写明库名、版本、许可证全文和源码链接；现在 WASM 内联在 libheif-bundle 的 JS 里，是否满足 LGPL 对用户可替换的要求待确认，保守做法是改用独立的 `libheif.wasm` 文件）、PDFium（Apache-2.0，含它捆绑的第三方库）和 jSquash 编解码器的 WASM、Mediabunny（MPL-2.0）、Transformers.js（Apache-2.0）、ONNX Runtime Web（MIT）以及 Whisper base 的权重（MIT），上线前（M6）要补一个许可证声明页。
 - Service Worker 的 `assets` 缓存不随部署清理（已打开的旧页面还可能按需加载旧分块），每次部署后用过的旧分块会一直留着，直到"清除本地数据"。需要时再加按时间或数量的清理。
 - `_redirects` 最多 2,000 条静态规则（已核实，`check:limits` 统计并在 80% 时告警）。缺失翻译按"页面 × 缺失的 Locale"逐条生成，en 可索引后每条还多一条 `.md`：首发约 30 个 Tool × 每个约 20 个 Variant，只要大部分 Variant 没翻译完，就会超过上限。放量 Variant 之前要换方案，例如按 Tool 用 splat 规则（动态规则上限 100 条），或缺失翻译时干脆返回 404。
 - ~~`_headers` 最多 100 条规则，不可索引页面 `.md` 副本的 noindex 逐条生成会超限~~：已改为只给可索引页面发布 `.md`，所有副本用一条 `/*.md` 规则声明 canonical（ADR-0019），规则数从 80 降到 11（2026-10-23）。剩下的主要是每个跨源隔离 Tool 固定 4 条，约 20 个隔离 Tool 时会再次接近上限。

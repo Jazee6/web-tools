@@ -37,6 +37,7 @@
 | json-formatter | Formateador JSON |
 | http-header-checker | Comprobador de cabeceras HTTP |
 | image-compressor | Compresor de imágenes |
+| image-converter | Conversor de imágenes |
 | merge-pdf | Unir PDF |
 | video-converter | Conversor de vídeo |
 | speech-to-text | Voz a texto |

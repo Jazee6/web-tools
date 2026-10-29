@@ -37,6 +37,7 @@
 | json-formatter | JSON 格式化 |
 | http-header-checker | HTTP 响应头检查 |
 | image-compressor | 图片压缩 |
+| image-converter | 图片格式转换 |
 | merge-pdf | PDF 合并 |
 | video-converter | 视频格式转换 |
 | speech-to-text | 语音转文字 |

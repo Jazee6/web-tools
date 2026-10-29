@@ -36,6 +36,7 @@
 | json-formatter | JSON フォーマッター |
 | http-header-checker | HTTP ヘッダーチェッカー |
 | image-compressor | 画像圧縮 |
+| image-converter | 画像変換 |
 | merge-pdf | PDF 結合 |
 | video-converter | 動画変換 |
 | speech-to-text | 音声文字起こし |
