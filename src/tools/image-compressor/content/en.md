@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Image Compressor – Compress JPEG, PNG, WebP & AVIF Online
 description: Shrink JPEG, PNG, WebP and AVIF images without uploading them. Free and private — compression runs in your browser with the same codecs as Squoosh.
 name: Image Compressor
@@ -15,7 +15,7 @@ output:
   file:
     label: Compressed image
 errors:
-  decode_failed: This image could not be read. It may be damaged or use a format your browser cannot decode.
+  decode_failed: This image could not be read. It may be damaged or use a format your browser cannot decode. Try another copy of the image, or open the page in the latest Chrome, Firefox or Safari.
 steps:
   - Choose a JPEG, PNG, WebP or AVIF image up to 50 MB.
   - Keep the default quality of 75 or set your own — lower values give smaller files with more visible artifacts. PNG ignores this setting because it is always compressed losslessly.
@@ -40,10 +40,12 @@ JPEG files are re-encoded with MozJPEG, WebP with libwebp and AVIF with libaom �
 
 ## Limits
 
-- **Formats:** JPEG, PNG, WebP and AVIF in; the same format out.
+- **Formats:** JPEG, PNG, WebP and AVIF in; the same format out. Other formats such as GIF, SVG or BMP are not accepted.
 - **Size:** up to 50 MB per image. Very large images need a lot of memory and may fail on phones.
-- **One image at a time.** Animated WebP and AVIF files are reduced to their first frame.
+- **Quantity:** one image at a time.
+- **Animation:** animated WebP and AVIF files are reduced to their first frame.
 - **Speed:** AVIF encoding is the slowest. In browsers that allow multithreading it uses several CPU cores.
+- **Browsers:** your browser decodes the image first, so a format it cannot display, such as AVIF in an older browser, is rejected.
 
 ## Privacy
 

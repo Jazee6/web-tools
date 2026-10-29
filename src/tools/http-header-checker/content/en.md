@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-22
+review: reviewed
+updated: 2026-10-29
 title: HTTP Header Checker – View Response Headers & Redirects
 description: Check the HTTP status, response headers and full redirect chain of any public URL. Free and instant, with no sign-up and nothing stored.
 name: HTTP Header Checker
@@ -28,13 +28,13 @@ output:
       status: Status
       url: URL
 errors:
-  invalid_url: Enter a valid http:// or https:// address.
-  blocked_url: This address can't be checked. Private, local and non-standard-port addresses are not allowed.
-  timeout: The server took too long to respond.
-  fetch_failed: The server could not be reached.
-  too_many_redirects: The URL redirected more than 5 times.
+  invalid_url: This is not a valid URL. Enter an address that starts with http:// or https://, up to 2,048 characters.
+  blocked_url: This address can't be checked. Private, local and non-standard-port addresses are not allowed — use a public http:// or https:// URL on port 80 or 443.
+  timeout: The server took too long to respond. Check that the site is online, then try again in a moment.
+  fetch_failed: The server could not be reached. Check the spelling of the URL and that the site is online, then try again.
+  too_many_redirects: The URL redirected more than 5 times. Turn off Follow redirects to see the first response, or check the site for a redirect loop.
 steps:
-  - Enter the address you want to inspect. If you leave out the scheme, https:// is assumed.
+  - Enter the URL you want to inspect. If you leave out the scheme, https:// is assumed.
   - Keep Follow redirects on to trace every hop to the final page, or turn it off to see only the first response.
   - Press Check headers and review the status code, the final URL, the response headers and the redirect chain.
 faq:
@@ -52,13 +52,13 @@ faq:
 
 ## What this header checker shows
 
-It sends a HEAD request to the address you enter and reports what the server answered: the HTTP status code, the response headers as the server sent them (names in lower case), and — when redirects are followed — each hop with its status code. This is useful for checking caching headers such as `cache-control`, security headers like `strict-transport-security` and `content-security-policy`, and whether an old URL redirects where you expect.
+It sends a HEAD request ([RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#name-head)) to the address you enter and reports what the server answered: the HTTP status code, the response headers as the server sent them (names in lower case), and — when redirects are followed — each hop with its status code. This is useful for checking caching headers such as `cache-control`, security headers like `strict-transport-security` and `content-security-policy`, and whether an old URL redirects where you expect.
 
 ## Options and limits
 
 - **Redirects:** up to 5 hops are followed, each one checked again before it is requested.
 - **Timeout:** the whole check, including redirects, must finish within 8 seconds.
-- **Addresses:** only public `http://` and `https://` URLs on the default ports 80 and 443.
+- **Addresses:** only public `http://` and `https://` URLs of up to 2,048 characters, on the default ports 80 and 443.
 - **Rate limits:** a few checks per minute per visitor, and a cap per target site.
 - **Not included:** the page body, cookies you have in your browser, and HTTP/2 or HTTP/3 protocol details.
 

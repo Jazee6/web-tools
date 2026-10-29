@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Merge PDF – Combine PDF Files Online for Free
 description: Combine several PDF files into one, in the order you choose. Free and private — merging runs in your browser, so your documents are never uploaded.
 name: Merge PDF
@@ -14,7 +14,7 @@ output:
     label: Merged PDF
 errors:
   encrypted: "This PDF is protected with a password. Remove the password and try again:"
-  invalid_pdf: "This file could not be read as a PDF. It may be damaged:"
+  invalid_pdf: "This file could not be read as a PDF. It may be damaged. Export it again or remove it from the list, then try again:"
 steps:
   - Choose the PDF files you want to combine — between 2 and 20 files, up to 50 MB each. You can add more files in several rounds.
   - Use the up and down arrows to put the files in order, or remove a file you added by mistake.

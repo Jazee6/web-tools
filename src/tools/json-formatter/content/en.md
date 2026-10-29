@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-22
+review: reviewed
+updated: 2026-10-29
 title: JSON Formatter – Format, Validate & Minify JSON Online
 description: Paste JSON to pretty-print, validate, minify or sort its keys. Free, instant and private — your data is formatted in your browser and never uploaded.
 name: JSON Formatter
@@ -23,7 +23,7 @@ output:
   formatted:
     label: Formatted JSON
 errors:
-  invalid_json: This is not valid JSON.
+  invalid_json: This is not valid JSON. Check for trailing commas, single quotes, unquoted keys or comments, then try again.
 steps:
   - Paste or type your JSON into the input box.
   - Choose an indentation — 2 spaces, 4 spaces, tabs, or Minify to put everything on one line.
@@ -50,9 +50,9 @@ It parses your input with the same strict JSON parser browsers use, so anything 
 
 - **Indentation:** 2 spaces, 4 spaces, tabs, or minified to a single line.
 - **Sort keys:** recursive, alphabetical by code point; array order is never changed.
-- **Size:** limited only by your device's memory. Inputs of several megabytes format in well under a second on a typical laptop.
+- **Size:** limited only by your device's memory.
 - **Not supported:** JSON5 or JSONC extensions such as comments and trailing commas — remove them first.
 
 ## Privacy
 
-Everything happens on your device. The page does not send your JSON anywhere, does not store it, and does not use cookies.
+Your JSON is processed only on your device. The page does not upload it, store it or use cookies.

@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Speech to Text – Transcribe Audio & Video Online Free
 description: Transcribe audio and video to text and SRT subtitles for free. Private — the Whisper speech recognition model runs in your browser, so your file is never uploaded.
 name: Speech to Text
@@ -19,14 +19,14 @@ output:
   subtitles:
     label: Subtitles (SRT)
 errors:
-  invalid_audio: This file could not be read as audio. It may be damaged or use a format this tool does not support.
-  no_audio: This file has no audio track, so there is nothing to transcribe.
+  invalid_audio: This file could not be read as audio. It may be damaged or use a format this tool does not support. Try an MP3 or WAV copy of the recording.
+  no_audio: This file has no audio track, so there is nothing to transcribe. Choose a file that contains sound.
   unsupported_codec: "This browser can't decode the audio in this file. Try another file format or the latest Chrome. Codec:"
   too_long: The recording is longer than 60 minutes. Split it into shorter parts and transcribe them one at a time.
-  no_speech: No speech was found in this recording.
+  no_speech: No speech was found in this recording. Check that the recording is audible and contains clear speech, then try again.
 steps:
   - Choose an audio or video file up to 1 GB and 60 minutes long.
-  - Leave the language on Detect automatically, or pick the language that is spoken. Picking it helps with short clips and strong accents.
+  - Leave Spoken language on Detect automatically, or pick the language that is spoken. Picking it helps with short clips and strong accents.
   - Press Transcribe. The first time, the speech recognition model (about 105–125 MB) is downloaded and saved in your browser; after that it starts right away.
   - Copy the transcript, or download the SRT file to use as subtitles in a video player or editor.
 faq:
@@ -49,7 +49,8 @@ The tool decodes the audio with Mediabunny and the WebCodecs API, converts it to
 ## Limits
 
 - **Input:** MP3, M4A, AAC, WAV, OGG, Opus, FLAC and WebM audio, or the audio track of an MP4, MOV, WebM or MKV video, up to 1 GB and 60 minutes.
-- **Speed:** on a recent laptop, one minute of audio takes a few seconds with WebGPU and up to about 20 seconds without it.
+- **Speed:** recognition runs faster in browsers that provide a real GPU through WebGPU and in browsers that allow multithreading; otherwise it falls back to a slower single-threaded path.
+- **Browsers:** audio is decoded with the WebCodecs API, so which files work depends on the codecs your browser supports; the latest Chrome supports the most.
 - **Download:** the model is about 105–125 MB and is downloaded on first use.
 - **Accuracy:** Whisper base is a small model. Background noise, music and several people talking at once lower the quality.
 - **Chinese:** Whisper often writes Chinese in Traditional characters, even for Mandarin from mainland China.

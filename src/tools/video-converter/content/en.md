@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-23
+review: reviewed
+updated: 2026-10-29
 title: Video Converter – Convert MP4, WebM, MOV & MKV Online Free
 description: Convert videos between MP4, WebM, MOV and MKV for free. Private and fast — conversion runs in your browser with WebCodecs, so your video is never uploaded.
 name: Video Converter
@@ -20,8 +20,8 @@ output:
   file:
     label: Converted video
 errors:
-  invalid_video: This file could not be read as a video. It may be damaged or use a format this tool does not support.
-  no_video: This file has no video track — it contains only audio.
+  invalid_video: This file could not be read as a video. It may be damaged or use a format this tool does not support. Export it again as MP4 and retry.
+  no_video: This file has no video track — it contains only audio. Choose a video file instead.
   unsupported_codec: "This browser can't decode or encode one of the tracks in this video. Try another output format or the latest Chrome. Codec:"
 steps:
   - Choose an MP4, MOV, WebM or MKV video up to 500 MB.
@@ -49,7 +49,7 @@ The tool reads the video with Mediabunny, an open-source media library, and uses
 
 - **Input:** MP4, MOV, WebM and MKV files up to 500 MB.
 - **Tracks:** the main video track and the main audio track are converted; subtitles and extra audio tracks are dropped.
-- **Codecs:** which codecs can be decoded and encoded depends on your browser and device. If a track can't be converted, the tool stops with a message instead of creating a file without sound or picture.
+- **Codecs:** which codecs can be decoded and encoded depends on your browser and device. Firefox, for example, has no AAC encoder, so MP4 and MOV get Opus audio there; the latest Chrome supports the most codecs. If a track can't be converted, the tool stops with a message instead of creating a file without sound or picture.
 - **Memory:** the converted video is kept in memory until you download it, so very large files may fail on phones.
 
 ## Privacy
