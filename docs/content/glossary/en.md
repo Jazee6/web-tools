@@ -25,6 +25,7 @@
 | 美化 | format / pretty-print | beautify |
 | 转录 | transcribe | recognize, convert speech |
 | encode / decode / URL-safe / padding | encode / decode / URL-safe / padding | — |
+| percent-encoding / hash (digest) | percent-encoding / hash | — |
 
 ## Tool 与 Category 名称
 
@@ -37,4 +38,6 @@
 | video-converter | Video Converter |
 | speech-to-text | Speech to Text |
 | base64-encode-decode | Base64 Encode/Decode |
+| url-encode-decode | URL Encode/Decode |
+| hash-generator | Hash Generator |
 | developer / image / pdf / media | Developer & Text / Image / PDF / Video & Audio |

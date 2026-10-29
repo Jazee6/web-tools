@@ -26,6 +26,7 @@
 | merge | 結合 | 統合 |
 | device | デバイス | 端末 |
 | encode / decode / URL-safe / padding | エンコード / デコード / URL セーフ / パディング | 暗号化 |
+| percent-encoding / hash (digest) | パーセントエンコーディング / ハッシュ | ダイジェスト（「ハッシュ値」で統一） |
 
 ## ツールとカテゴリの名称
 
@@ -38,4 +39,6 @@
 | video-converter | 動画変換 |
 | speech-to-text | 音声文字起こし |
 | base64-encode-decode | Base64 エンコード/デコード |
+| url-encode-decode | URL エンコード/デコード |
+| hash-generator | ハッシュ生成 |
 | developer / image / pdf / media | 開発者・テキスト／画像／PDF／動画・音声 |

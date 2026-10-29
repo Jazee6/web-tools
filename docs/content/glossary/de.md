@@ -27,6 +27,7 @@
 | merge | zusammenfügen | verbinden, mergen |
 | device | Gerät | Rechner |
 | encode / decode / URL-safe / padding | kodieren / dekodieren / URL-sicher / Auffüllung (Padding) | verschlüsseln, enkodieren |
+| percent-encoding / hash (digest) | Prozentkodierung / Hash | Streuwert, Prüfsumme (nur für Checksum) |
 
 ## Namen von Tools und Kategorien
 
@@ -39,4 +40,6 @@
 | video-converter | Video-Konverter |
 | speech-to-text | Sprache zu Text |
 | base64-encode-decode | Base64 kodieren/dekodieren |
+| url-encode-decode | URL kodieren/dekodieren |
+| hash-generator | Hash-Generator |
 | developer / image / pdf / media | Entwickler & Text / Bild / PDF / Video & Audio |

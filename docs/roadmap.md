@@ -141,7 +141,12 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - Cloudflare Web Analytics。
 - `/api/e`：事件抽样 10%，错误全量上报并在同一会话内去重，写入 Analytics Engine。
 - `@lhci/cli` 预算门禁全量开启（首屏 JS 按 architecture §15：Tool 页 ≤ 160 KB、其他页 ≤ 10 KB gzip，LCP ≤ 2.0s，CLS ≤ 0.05，TBT ≤ 150ms）。
-- 补齐首发 Tool（见下方候选清单）。
+- 补齐首发 Tool（见下方候选清单，2026-10-29 确认按清单推进；每个 Tool 走「core + 测试 → en 内容 → 审核 → 翻译 → 审核」）：
+  - ✅ Base64 Encode/Decode（`base64-encode-decode`）：7 个 Locale 全部 Reviewed。只处理文本（加文件输入会失去 Agent Interface，ADR-0016）；解码接受标准和 URL 安全两种字母表、忽略空白、容忍缺失的 padding；非 UTF-8 字节单独报 `invalid_utf8`。
+  - ✅ URL Encode/Decode（`url-encode-decode`）：core 与测试完成，en 和 zh/ja/es/pt/fr Reviewed。⏳ de 译文待审核（审核模型 2026-10-29 额度用完）。三种范围：URL 组成部分（`encodeURIComponent`）、完整 URL（`encodeURI`）、表单数据（空格转 +，在 `encodeURIComponent` 上改写，孤立代理项同样报错）。
+  - ✅ Hash Generator（`hash-generator`）：core 与测试完成，en Reviewed。⏳ 6 个 Locale 译文待审核（同上）。SHA-1/256/384/512 用 Web Crypto；Web Crypto 没有 MD5，所以自写了 `md5.ts`（RFC 1321，用官方测试向量和 `md5` / `shasum` 交叉核对）。
+  - UUID Generator 暂缓：输出是随机的，而 examples 要求精确匹配输出，需要先让契约支持「按格式校验」的示例。
+  - 开发者 Category 的文案要在这一批 Tool 做完后统一更新并重审（每批只改一次）。
 - 上线清单：
   - Search Console 与 Bing Webmaster 验证，提交 sitemap。
   - IndexNow 推送接入 CI。

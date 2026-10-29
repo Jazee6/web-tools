@@ -27,6 +27,7 @@
 | device | 设备 | 机器 |
 | model（AI） | 模型 | — |
 | encode / decode / URL-safe / padding | 编码 / 解码 / URL 安全 / 填充（=） | 加密、转码 |
+| percent-encoding / hash (digest) | 百分号编码 / 哈希 | URL 转义、散列、摘要 |
 
 ## Tool 与 Category 名称
 
@@ -39,4 +40,6 @@
 | video-converter | 视频格式转换 |
 | speech-to-text | 语音转文字 |
 | base64-encode-decode | Base64 编码/解码 |
+| url-encode-decode | URL 编码/解码 |
+| hash-generator | 哈希生成器 |
 | developer / image / pdf / media | 开发者与文本 / 图片 / PDF / 音视频 |

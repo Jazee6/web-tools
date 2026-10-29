@@ -26,6 +26,7 @@
 | merge | fusionner | assembler, joindre |
 | device | appareil | machine |
 | encode / decode / URL-safe / padding | encoder / décoder / compatible URL / bourrage (padding) | chiffrer, crypter |
+| percent-encoding / hash (digest) | encodage en pourcentage / hachage (le résultat : empreinte) | hash, condensat |
 
 ## Noms des outils et des catégories
 
@@ -38,4 +39,6 @@
 | video-converter | Convertisseur vidéo |
 | speech-to-text | Transcription audio en texte |
 | base64-encode-decode | Encodeur/décodeur Base64 |
+| url-encode-decode | Encodeur/décodeur d'URL |
+| hash-generator | Générateur de hachage |
 | developer / image / pdf / media | Développeurs et texte / Image / PDF / Vidéo et audio |
