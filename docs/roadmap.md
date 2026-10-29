@@ -125,8 +125,9 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 ### M5 内容生产
 
-- 风格指南写在 `docs/content/`，并为 7 个 Locale 各建一份术语表。
-- 项目内 skill：`write-tool-content`、`translate-content`、`add-variant`。
+- ✅ 风格指南 `docs/content/style-guide.md`（frontmatter 字段表、正文三块、内链按 Locale 加前缀、翻译与审核规则），7 个 Locale 各一份术语表 `docs/content/glossary/{locale}.md`。术语表的译法取自已有内容和 `messages/*.json`，改译法要同步改已有内容。
+- ✅ 项目内 skill（`.claude/skills/`）：`write-tool-content`、`translate-content`、`add-variant`。
+- ✅ 审核流程试点：用 `pi` 调用 `antigravity/gemini-3.8-flash`（thinking high）审核 JSON Formatter 的 en，对照 `tool.ts`、`core.ts` 和风格指南，判定 PASS，另提两条建议（`errors.invalid_json` 缺下一步指引、隐私句式与其他 Tool 不一致）。只做了试点，没有改动任何 `review` 字段。
 - 内容产出：首发 Tool 的 en 内容 → pi + `antigravity/gemini-3.8-flash`（thinking high）审核 en → 翻译 6 个 Locale → 同样审核，PASS 即 Reviewed（ADR-0017）。审核时**优先 en**，因为非 en 页面要等 en 也是 Reviewed 才能被索引。
 - 首批 Variant：每个 Tool 挑需求依据最充分的几个，不追求数量。
 

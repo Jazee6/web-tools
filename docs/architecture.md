@@ -329,7 +329,7 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 
 内容由 Claude Code 或其他 agent 会话生成和翻译，不写自动化流水线脚本。可重复性靠下面三件事保证：
 
-- **项目内 skill**（`.claude/skills/`，后续创建）：
+- **项目内 skill**（`.claude/skills/`）：
   - `write-tool-content`：撰写英文 Tool 内容
   - `translate-content`：把内容翻译到指定 Locale
   - `add-variant`：新增 Variant，包括数据和需求依据
