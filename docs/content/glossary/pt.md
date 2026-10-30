@@ -29,6 +29,7 @@
 | percent-encoding / hash (digest) | codificação por porcentagem / hash | resumo, impressão digital |
 | JWT / header / payload / claim / signature | JWT / cabeçalho / carga útil / claim / assinatura | reivindicação, payload |
 | Unix timestamp / time zone | timestamp Unix / fuso horário | carimbo de data/hora, zona horária |
+| alpha / hue / gamut | alfa (transparência) / matiz / gamut | opacidade, tom, gama de cores |
 
 ## Nomes de ferramentas e categorias
 
@@ -46,4 +47,5 @@
 | hash-generator | Gerador de hash |
 | jwt-decoder | Decodificador de JWT |
 | timestamp-converter | Conversor de timestamp |
+| color-converter | Conversor de cores |
 | developer / image / pdf / media | Desenvolvedores e texto / Imagem / PDF / Vídeo e áudio |

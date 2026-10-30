@@ -29,6 +29,7 @@
 | percent-encoding / hash (digest) | encodage en pourcentage / hachage (le résultat : empreinte) | hash, condensat |
 | JWT / header / payload / claim / signature | JWT / en-tête / charge utile / claim / signature | payload, revendication |
 | Unix timestamp / time zone | horodatage Unix / fuseau horaire | timestamp, zone horaire |
+| alpha / hue / gamut | alpha (transparence) / teinte / gamut | opacité, nuance, gamme de couleurs |
 
 ## Noms des outils et des catégories
 
@@ -46,4 +47,5 @@
 | hash-generator | Générateur de hachage |
 | jwt-decoder | Décodeur JWT |
 | timestamp-converter | Convertisseur d'horodatage |
+| color-converter | Convertisseur de couleurs |
 | developer / image / pdf / media | Développeurs et texte / Image / PDF / Vidéo et audio |

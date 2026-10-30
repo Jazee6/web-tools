@@ -28,6 +28,7 @@
 | percent-encoding / hash (digest) | percent-encoding / hash | — |
 | JWT / header / payload / claim / signature | JWT / header / payload / claim / signature | — |
 | Unix timestamp / time zone | Unix timestamp / time zone | epoch (alone), timezone (one word) |
+| alpha / hue / gamut | alpha / hue / gamut | transparency (alone), opacity |
 
 ## Tool 与 Category 名称
 
@@ -45,4 +46,5 @@
 | hash-generator | Hash Generator |
 | jwt-decoder | JWT Decoder |
 | timestamp-converter | Timestamp Converter |
+| color-converter | Color Converter |
 | developer / image / pdf / media | Developer & Text / Image / PDF / Video & Audio |

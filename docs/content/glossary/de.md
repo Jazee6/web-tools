@@ -30,6 +30,7 @@
 | percent-encoding / hash (digest) | Prozentkodierung / Hash | Streuwert, Prüfsumme (nur für Checksum) |
 | JWT / header / payload / claim / signature | JWT / Header / Payload / Claim / Signatur | Kopfzeile, Nutzlast, Anspruch |
 | Unix timestamp / time zone | Unix-Zeitstempel / Zeitzone | Timestamp, Zeitgürtel |
+| alpha / hue / gamut | Alpha (Transparenz) / Farbton / Farbumfang | Deckkraft, Tönung, Gamut |
 
 ## Namen von Tools und Kategorien
 
@@ -47,4 +48,5 @@
 | hash-generator | Hash-Generator |
 | jwt-decoder | JWT-Decoder |
 | timestamp-converter | Zeitstempel-Konverter |
+| color-converter | Farbkonverter |
 | developer / image / pdf / media | Entwickler & Text / Bild / PDF / Video & Audio |

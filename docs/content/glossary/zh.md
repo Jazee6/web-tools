@@ -30,6 +30,7 @@
 | percent-encoding / hash (digest) | 百分号编码 / 哈希 | URL 转义、散列、摘要 |
 | JWT / header / payload / claim / signature | JWT / 头部 / 载荷 / 声明 / 签名 | 头信息、负载、有效载荷 |
 | Unix timestamp / time zone | Unix 时间戳 / 时区 | 纪元时间、时间区 |
+| alpha / hue / gamut | 透明度（alpha）/ 色相 / 色域 | 不透明度、色调、色彩范围 |
 
 ## Tool 与 Category 名称
 
@@ -47,4 +48,5 @@
 | hash-generator | 哈希生成器 |
 | jwt-decoder | JWT 解码器 |
 | timestamp-converter | 时间戳转换器 |
+| color-converter | 颜色转换器 |
 | developer / image / pdf / media | 开发者与文本 / 图片 / PDF / 音视频 |
