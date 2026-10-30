@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-29
+review: reviewed
+updated: 2026-10-30
 title: URL kodieren und dekodieren – URLs online prozentkodieren
 description: Text für eine URL oder einen Query-String prozentkodieren oder %20-Sequenzen dekodieren. Kostenlos und privat – läuft in Ihrem Browser, nichts wird hochgeladen.
 name: URL kodieren/dekodieren

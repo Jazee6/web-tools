@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-29
+review: reviewed
+updated: 2026-10-30
 title: Bildkonverter – HEIC, JPEG, PNG, WebP und AVIF online umwandeln
 description: "Wandeln Sie HEIC-Fotos vom iPhone oder JPEG-, PNG-, WebP- und AVIF-Bilder um. Kostenlos und privat – läuft in Ihrem Browser, nichts wird hochgeladen."
 name: Bildkonverter

@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-29
+review: reviewed
+updated: 2026-10-30
 title: 哈希生成器 – 在线生成 MD5、SHA-1、SHA-256 和 SHA-512 哈希
 description: 为任意文本生成 MD5、SHA-1、SHA-256、SHA-384 或 SHA-512 哈希，可输出十六进制或 Base64。免费、私密——在你的浏览器中处理，不会上传到服务器。
 name: 哈希生成器

@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-29
+review: reviewed
+updated: 2026-10-30
 title: JWT Decoder – Decode JSON Web Token Header & Claims Online
 description: Decode a JWT to read its header, claims and signature, with exp, nbf and iat as UTC times. Free and private — it runs in your browser and nothing is uploaded.
 name: JWT Decoder

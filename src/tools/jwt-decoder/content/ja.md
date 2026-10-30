@@ -1,5 +1,5 @@
 ---
-review: draft
+review: reviewed
 updated: 2026-10-29
 title: JWT デコーダー – JSON Web Token のヘッダーとクレームをオンラインで解読
 description: JWT を解読してヘッダー、ペイロードのクレーム、署名を表示し、exp・nbf・iat を UTC の日時に変換します。無料・プライベートで、データはブラウザ内で処理され、アップロードされません。

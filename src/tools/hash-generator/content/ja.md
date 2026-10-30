@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-29
+review: reviewed
+updated: 2026-10-30
 title: ハッシュ生成 – MD5・SHA-1・SHA-256・SHA-512 をオンラインで生成
 description: 任意のテキストから MD5、SHA-1、SHA-256、SHA-384、SHA-512 のハッシュ値を 16 進数または Base64 で生成。無料・プライベートで、ブラウザ内で処理され、アップロードされません。
 name: ハッシュ生成
@@ -48,7 +48,7 @@ faq:
 
 ## このハッシュツールでできること
 
-テキストを UTF-8 のバイト列に変換し、そのバイト列のダイジェストを計算します。SHA-1、SHA-256、SHA-384、SHA-512 は、[FIPS 180-4](https://csrc.nist.gov/pubs/fips/180-4/upd1/final) を実装したブラウザ組み込みの Web Crypto API を使います。MD5 は Web Crypto に含まれないため、ページ内に [RFC 1321](https://www.rfc-editor.org/rfc/rfc1321) に基づく独自実装を持ち、公式のテストベクターで検証しています。
+テキストを UTF-8 のバイト列に変換し、そのバイト列のハッシュ値を計算します。SHA-1、SHA-256、SHA-384、SHA-512 は、[FIPS 180-4](https://csrc.nist.gov/pubs/fips/180-4/upd1/final) を実装したブラウザ組み込みの Web Crypto API を使います。MD5 は Web Crypto に含まれないため、ページ内に [RFC 1321](https://www.rfc-editor.org/rfc/rfc1321) に基づく独自実装を持ち、公式のテストベクターで検証しています。
 
 ## オプションと制限
 

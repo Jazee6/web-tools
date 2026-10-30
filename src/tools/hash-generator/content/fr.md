@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-29
+review: reviewed
+updated: 2026-10-30
 title: Générateur de hachage – Générer des hachages MD5, SHA-1 et SHA-256
 description: "Générez l'empreinte MD5, SHA-1, SHA-256, SHA-384 ou SHA-512 de n'importe quel texte en hexadécimal ou Base64. Gratuit et privé : tout est traité dans votre navigateur."
 name: Générateur de hachage

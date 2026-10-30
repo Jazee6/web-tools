@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-29
+review: reviewed
+updated: 2026-10-30
 title: 画像変換 – HEIC・JPEG・PNG・WebP・AVIF をオンラインで変換
 description: iPhone の HEIC 写真や、JPEG・PNG・WebP・AVIF の画像を JPEG・PNG・WebP・AVIF に変換。無料・プライベートで、データはブラウザ内で処理され、アップロードされません。
 name: 画像変換

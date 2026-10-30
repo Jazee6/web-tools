@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-29
+review: reviewed
+updated: 2026-10-30
 title: Conversor de imágenes – HEIC, JPEG, PNG, WebP y AVIF en línea
 description: "Convierte fotos HEIC del iPhone, o imágenes JPEG, PNG, WebP y AVIF, a JPEG, PNG, WebP o AVIF. Gratis y privado: se procesa en tu navegador y no se sube nada."
 name: Conversor de imágenes

@@ -1,8 +1,8 @@
 ---
-review: draft
-updated: 2026-10-29
+review: reviewed
+updated: 2026-10-30
 title: Hash-Generator – MD5, SHA-1, SHA-256 und SHA-512 online erzeugen
-description: Erzeugen Sie den MD5-, SHA-1-, SHA-256-, SHA-384- oder SHA-512-Hash eines beliebigen Textes als Hex oder Base64. Kostenlos und privat – läuft in Ihrem Browser.
+description: Erzeugen Sie MD5-, SHA-1-, SHA-256-, SHA-384- oder SHA-512-Hashes aus Text als Hex oder Base64. Kostenlos und privat – läuft in Ihrem Browser, nichts wird hochgeladen.
 name: Hash-Generator
 answer: Geben Sie Ihren Text ein oder fügen Sie ihn ein, wählen Sie einen Algorithmus wie SHA-256 und ein Ausgabeformat und klicken Sie auf Hash erzeugen – der Hash erscheint direkt in Ihrem Browser.
 action: Hash erzeugen
@@ -48,7 +48,7 @@ faq:
 
 ## Was dieses Hash-Tool macht
 
-Es wandelt Ihren Text in UTF-8-Bytes um und berechnet die Prüfsumme dieser Bytes. SHA-1, SHA-256, SHA-384 und SHA-512 nutzen die im Browser eingebaute Web-Crypto-API, die [FIPS 180-4](https://csrc.nist.gov/pubs/fips/180-4/upd1/final) umsetzt. MD5 gehört nicht zu Web Crypto, deshalb enthält die Seite eine eigene Implementierung von [RFC 1321](https://www.rfc-editor.org/rfc/rfc1321), die anhand der offiziellen Testvektoren geprüft wurde.
+Es wandelt Ihren Text in UTF-8-Bytes um und berechnet den Hash dieser Bytes. SHA-1, SHA-256, SHA-384 und SHA-512 nutzen die im Browser eingebaute Web-Crypto-API, die [FIPS 180-4](https://csrc.nist.gov/pubs/fips/180-4/upd1/final) umsetzt. MD5 gehört nicht zu Web Crypto, deshalb enthält die Seite eine eigene Implementierung von [RFC 1321](https://www.rfc-editor.org/rfc/rfc1321), die anhand der offiziellen Testvektoren geprüft wurde.
 
 ## Optionen und Grenzen
 

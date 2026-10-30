@@ -1,6 +1,6 @@
 ---
-review: draft
-updated: 2026-10-29
+review: reviewed
+updated: 2026-10-30
 title: 图片格式转换 – 在线转换 HEIC、JPEG、PNG、WebP 和 AVIF
 description: 把 iPhone 的 HEIC 照片，或 JPEG、PNG、WebP、AVIF 图片转换为 JPEG、PNG、WebP 或 AVIF。免费、私密——在你的浏览器中处理，不会上传到服务器。
 name: 图片格式转换

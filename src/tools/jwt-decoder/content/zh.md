@@ -1,5 +1,5 @@
 ---
-review: draft
+review: reviewed
 updated: 2026-10-29
 title: JWT 解码器 – 在线解码 JSON Web Token 的头部和声明
 description: 解码 JWT，查看头部、载荷声明和签名，并把 exp、nbf、iat 转成 UTC 时间。免费、私密——在你的浏览器中处理，不会上传到服务器。

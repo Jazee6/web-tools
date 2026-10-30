@@ -1,5 +1,5 @@
 ---
-review: draft
+review: reviewed
 updated: 2026-10-29
 title: JWT-Decoder – Header und Claims eines Tokens online dekodieren
 description: "Dekodieren Sie ein JWT: Header, Claims und Signatur, mit exp, nbf und iat als UTC-Zeit. Kostenlos und privat – läuft in Ihrem Browser, nichts wird hochgeladen."

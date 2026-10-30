@@ -1,5 +1,5 @@
 ---
-review: draft
+review: reviewed
 updated: 2026-10-29
 title: Decodificador de JWT – Decodifica el encabezado y los claims
 description: "Decodifica un JWT y lee su encabezado, claims y firma, con exp, nbf e iat en hora UTC. Gratis y privado: se procesa en tu navegador y no se sube nada."
