@@ -27,13 +27,17 @@ export const expectOutput = async (page: Page, tool: AnyTool, output: Record<str
   for (const spec of describeFields(tool.output)) {
     const field = page.locator(`[data-output="${spec.name}"]`);
     const value = output[spec.name];
-    if (spec.kind === "file") {
-      // 文件输出只比较 MIME 类型和体积上限
-      const { type, maxSize } = value as ExampleFile;
-      const link = field.locator("a[download]");
-      await expect(link).toHaveAttribute("data-type", type);
-      if (maxSize !== undefined) {
-        expect(Number(await link.getAttribute("data-size"))).toBeLessThanOrEqual(maxSize);
+    if (spec.kind === "file" || spec.kind === "files") {
+      // 文件输出（多文件逐个）只比较 MIME 类型和体积上限
+      const expected = [value].flat() as ExampleFile[];
+      const links = field.locator("a[download]");
+      await expect(links).toHaveCount(expected.length);
+      for (const [index, { type, maxSize }] of expected.entries()) {
+        const link = links.nth(index);
+        await expect(link).toHaveAttribute("data-type", type);
+        if (maxSize !== undefined) {
+          expect(Number(await link.getAttribute("data-size"))).toBeLessThanOrEqual(maxSize);
+        }
       }
       continue;
     }

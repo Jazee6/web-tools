@@ -6,11 +6,11 @@ const compress = async (page: Page, quality: number) => {
   await page.goto("/image-compressor");
   await page.waitForSelector("[data-hydrated]");
   await page
-    .locator('[data-field="file"] input[type="file"]')
+    .locator('[data-field="files"] input[type="file"]')
     .setInputFiles("src/tools/image-compressor/examples/photo.jpg");
   await page.locator('[data-field="quality"] input').fill(String(quality));
   await page.locator('button[type="submit"]').click();
-  await expect(page.locator('[data-output="file"] a[download]')).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[data-output="files"] a[download]')).toBeVisible({ timeout: 30_000 });
 };
 
 const openSearch = async (page: Page) => {

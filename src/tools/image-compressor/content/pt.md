@@ -1,26 +1,27 @@
 ---
-review: reviewed
-updated: 2026-10-29
+review: draft
+updated: 2026-10-30
 title: Compressor de imagens – Comprima JPEG, PNG, WebP e AVIF online
 description: Comprima imagens JPEG, PNG, WebP e AVIF sem enviá-las. Grátis e privado — a compressão é processada no seu navegador com os mesmos codecs do Squoosh.
 name: Compressor de imagens
-answer: Escolha uma imagem, ajuste a qualidade se quiser e clique em Comprimir imagem — o arquivo é recodificado no seu dispositivo no mesmo formato e depois você baixa a cópia menor.
-action: Comprimir imagem
+answer: Escolha uma ou mais imagens, ajuste a qualidade se quiser e clique em Comprimir imagens — cada arquivo é recodificado no seu dispositivo no mesmo formato e depois você baixa as cópias menores.
+action: Comprimir imagens
 fields:
-  file:
-    label: Imagem (JPEG, PNG, WebP ou AVIF)
+  files:
+    label: Imagens (JPEG, PNG, WebP ou AVIF)
   quality:
     label: Qualidade (1–100)
 output:
-  file:
-    label: Imagem comprimida
+  files:
+    label: Imagens comprimidas
 errors:
   decode_failed: Não foi possível ler esta imagem. Ela pode estar corrompida ou usar um formato que seu navegador não consegue decodificar. Tente outra cópia da imagem ou abra a página na versão mais recente do Chrome, Firefox ou Safari.
 steps:
-  - Escolha uma imagem JPEG, PNG, WebP ou AVIF de até 50 MB.
+  - Escolha até 20 imagens JPEG, PNG, WebP ou AVIF, de até 50 MB cada. Você pode adicionar arquivos em várias etapas e clicar em uma miniatura para ampliá-la.
   - Mantenha a qualidade padrão de 75 ou defina a sua — valores menores geram arquivos menores, com mais artefatos visíveis. O PNG ignora essa opção porque é sempre comprimido sem perdas.
-  - Clique em Comprimir imagem e aguarde um pouco; arquivos AVIF grandes podem levar alguns segundos.
-  - Confira o novo tamanho e baixe a imagem comprimida.
+  - Confira o tamanho estimado exibido abaixo de cada arquivo; ele é atualizado quando você muda a qualidade.
+  - Clique em Comprimir imagens e aguarde um pouco; arquivos AVIF grandes podem levar alguns segundos.
+  - Compare cada original com a cópia comprimida e baixe os arquivos um a um ou todos juntos em um ZIP.
 faq:
   - q: Minhas imagens são enviadas para um servidor?
     a: Não. A imagem é decodificada e recodificada dentro do seu navegador com codecs WebAssembly, então nunca sai do seu dispositivo.
@@ -32,6 +33,8 @@ faq:
     a: Não. O resultado mantém o formato e as dimensões em pixels originais. Se a recodificação deixar o arquivo maior, você recebe o original sem alterações.
   - q: Os metadados da foto são mantidos?
     a: Em JPEG, WebP e AVIF, metadados como os dados EXIF da câmera e a localização GPS são removidos, o que também protege sua privacidade. A imagem é girada antes conforme a orientação EXIF, então continua aparecendo na posição certa.
+  - q: Qual a precisão do tamanho estimado?
+    a: Imagens de até cerca de 1 megapixel são realmente codificadas uma vez para a estimativa, então o valor coincide com o resultado. As maiores são estimadas codificando alguns trechos na resolução original e ampliando o resultado para a imagem inteira — costuma ficar próximo, mas uma foto com detalhes muito desiguais pode diferir mais. A estimativa nunca passa do tamanho original, porque, se a recodificação aumentaria o arquivo, o original é devolvido sem alterações.
 ---
 
 ## Como a compressão funciona
@@ -42,11 +45,11 @@ Arquivos JPEG são recodificados com MozJPEG, WebP com libwebp e AVIF com libaom
 
 - **Formatos:** entrada JPEG, PNG, WebP e AVIF; saída no mesmo formato. Outros formatos, como GIF, SVG ou BMP, não são aceitos.
 - **Tamanho:** até 50 MB por imagem. Imagens muito grandes exigem bastante memória e podem falhar no celular.
-- **Quantidade:** uma imagem por vez.
+- **Quantidade:** até 20 imagens por vez, processadas uma após a outra. Baixe os resultados um a um ou em um único ZIP.
 - **Animação:** WebP e AVIF animados ficam só com o primeiro quadro.
 - **Velocidade:** a codificação AVIF é a mais lenta. Em navegadores que permitem várias threads, ela usa vários núcleos da CPU.
 - **Navegadores:** seu navegador decodifica a imagem primeiro, então um formato que ele não consegue exibir, como AVIF em um navegador antigo, é recusado.
 
 ## Privacidade
 
-Sua imagem é processada só no seu dispositivo. A página não a envia, não a armazena e não usa cookies.
+Suas imagens são processadas só no seu dispositivo. A página não as envia, não as armazena e não usa cookies.

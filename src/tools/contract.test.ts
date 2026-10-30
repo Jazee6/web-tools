@@ -43,6 +43,13 @@ describe.each(tools.map((tool) => [tool.id, tool] as const))("%s", (_id, tool) =
     }
   });
 
+  it("estimates sizes only for a multi-file input of a Worker Tool", () => {
+    if (!tool.estimate) return;
+    const field = describeFields(tool.input).find((spec) => spec.name === tool.estimate!.field);
+    expect(field?.kind).toBe("files");
+    expect(tool.runtime.worker).toBe(true);
+  });
+
   it.skipIf(!tool.agent.webmcp && !tool.agent.remote)("derives JSON Schemas", () => {
     const schemas = toolJsonSchemas(tool);
     expect(schemas.input).toMatchObject({ type: "object" });

@@ -1,5 +1,5 @@
 import { exposeRun } from "@/lib/runtime/rpc";
 
-import { compressImage } from "./core";
+import { compressImages, estimateSizes } from "./core";
 
-exposeRun(compressImage);
+exposeRun(compressImages, estimateSizes);

@@ -98,17 +98,27 @@ for (const tool of tools) {
     if (filesField) {
       // 多文件字段：分次添加会追加到列表末尾，可上移、移除，数量不足时行内报错
       test("orders and validates multi-file inputs", async ({ page }) => {
-        const names = [tool.examples[0].files![filesField.name]].flat();
+        const names = tool.examples
+          .map((example) => [example.files![filesField.name]].flat())
+          .find((list) => list.length >= 2)!;
         const paths = names.map((name) => `src/tools/${tool.id}/examples/${name}`);
+        const minLength = (
+          tool.input.entries[filesField.name] as { pipe: { type: string; requirement?: number }[] }
+        ).pipe.find((item) => item.type === "min_length")?.requirement;
         await page.goto(`/${tool.id}`);
         await page.waitForSelector("[data-hydrated]");
         const field = page.locator(`[data-field="${filesField.name}"]`);
         const items = field.locator("li");
-        await field.locator('input[type="file"]').setInputFiles(paths[0]!);
-        await page.locator('button[type="submit"]').click();
-        await expect(field.locator(`[data-slot="field-error"]`)).toHaveText(
-          "Choose at least 2 files.",
-        );
+        const error = field.locator(`[data-slot="field-error"]`);
+        if (minLength && minLength > 1) {
+          await field.locator('input[type="file"]').setInputFiles(paths[0]!);
+          await page.locator('button[type="submit"]').click();
+          await expect(error).toHaveText(`Choose at least ${minLength} files.`);
+        } else {
+          await page.locator('button[type="submit"]').click();
+          await expect(error).toHaveText("This field is required.");
+          await field.locator('input[type="file"]').setInputFiles(paths[0]!);
+        }
         await field.locator('input[type="file"]').setInputFiles(paths[1]!);
         await expect(items).toHaveCount(2);
         await expect(items.nth(1)).toContainText(names[1]!);

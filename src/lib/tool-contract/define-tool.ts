@@ -54,7 +54,13 @@ export interface ExampleFile {
   maxSize?: number;
 }
 
-export type ExampleOutput<T> = { [K in keyof T]: T[K] extends Blob ? ExampleFile : T[K] };
+export type ExampleOutput<T> = {
+  [K in keyof T]: T[K] extends Blob
+    ? ExampleFile
+    : T[K] extends readonly Blob[]
+      ? readonly ExampleFile[]
+      : T[K];
+};
 
 export interface ToolExample<TIn extends ToolSchema, TOut extends ToolSchema> {
   // 省略的字段取 schema 默认值；文件字段不写在这里，改用 files
@@ -90,6 +96,9 @@ export interface ToolDefinition<
     // 页面文案在内容 frontmatter，按 Locale 翻译。说明 Tool 做什么、返回什么、有哪些错误码。
     description: string;
   };
+  // 提交前的体积预估（Worker Tool）：engine.worker.ts 除 run 外还把 estimate 交给 exposeRun，
+  // 对 field（输入里的多文件字段）的每个文件返回预估输出字节数，无法预估时为 null
+  estimate?: { field: string };
   // 按需加载 core。Worker Tool 不写 run：它的 core 只由 engine.worker.ts 引用，
   // 不进主线程和服务端的模块图（编码器、WASM 不会被重复打包）
   run?: () => Promise<ToolRun<TIn, TOut>>;

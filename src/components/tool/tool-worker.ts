@@ -52,3 +52,10 @@ export const runInWorker = async (
     throw error;
   }
 };
+
+// 体积预估：与 run 共用同一个 Worker。预估失败不影响 Worker（取消和 core 抛错都是常态），所以不丢弃
+export const estimateInWorker = async (
+  tool: AnyTool,
+  input: unknown,
+  ctx?: ToolContext,
+): Promise<(number | null)[]> => callWorker(await getWorker(tool.id), input, ctx, "estimate");

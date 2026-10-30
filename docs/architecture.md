@@ -213,7 +213,7 @@ export default defineTool({
 - `agent.remote: true` 要求输入输出都可以 JSON 序列化、不含文件，并且能在 Workers CPU 预算内跑完（Free 计划下每个请求只有 10ms）。
 - `runtime.worker` 与 `run` 二选一（注册表校验）：Worker Tool 的 core 只由 `engine.worker.ts` 引用，经 `lib/runtime/rpc.ts` 的类型化 RPC 调用，编码器和 WASM 不进主线程和服务端的模块图。它的 examples 在 Vitest Browser Mode（Chromium / Firefox / WebKit）里经 Worker 跑。
 - 有文件字段的 Tool 不能注册 WebMCP 或远程 MCP：两者的输入输出都只有 JSON（ADR-0016）。
-- 文件字段：`v.file()` 派生单文件输入和下载输出；可接受的类型用 `fileType({ MIME 类型: [扩展名] })` 声明（不用 `v.mimeType()`）：浏览器给的 `File.type` 可能为空或不标准，MIME 类型不在表里时按扩展名判断，通过后把 type 规范成表里的 MIME 类型，表单的 accept 同时列出两者；`v.array(v.file())` 派生有序的多文件输入（可分次添加、上移下移、移除，只用于输入，控件按需加载），数量用数组的 `v.minLength` / `v.maxLength` 限制，examples 的 `files` 按顺序写文件名数组。
+- 文件字段：`v.file()` 派生单文件输入和下载输出；可接受的类型用 `fileType({ MIME 类型: [扩展名] })` 声明（不用 `v.mimeType()`）：浏览器给的 `File.type` 可能为空或不标准，MIME 类型不在表里时按扩展名判断，通过后把 type 规范成表里的 MIME 类型，表单的 accept 同时列出两者；`v.array(v.file())` 派生有序的多文件输入（可分次添加、上移下移、移除，控件按需加载；输出同样可以是文件数组，逐个下载，多于一个时可打包 ZIP），数量用数组的 `v.minLength` / `v.maxLength` 限制，examples 的 `files` 按顺序写文件名数组。图片 / 视频文件在输入和输出处都有预览（缩略图点击放大，桌面 Dialog、移动端 Drawer；浏览器解码不了的格式如 Chrome 里的 HEIC 不显示）。Worker Tool 可声明 `estimate: { field }`，由 engine.worker.ts 把 estimate 交给 `exposeRun`，表单在提交前防抖预估该多文件字段每个文件的输出体积。
 - 契约里没有 `ui` 字段：页面表单从 `input` 派生，island 通过 `tool-loader` 按 id 懒加载 `tool.ts`（每个 Tool 一个分块）；服务端渲染前先加载好，客户端水合时挂起并保留服务端 HTML。
 - `core` 的可预期错误抛 `ToolError(code, { field, detail })`：`code` 对应内容 frontmatter 的 `errors` 文案，`field` 指明在哪个字段下行内显示。
 

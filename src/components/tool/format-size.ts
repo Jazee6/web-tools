@@ -8,3 +8,11 @@ export const formatSize = (bytes: number) =>
     unit: bytes < 1024 * 1024 ? "kilobyte" : "megabyte",
     maximumFractionDigits: 1,
   }).format(bytes / (bytes < 1024 * 1024 ? 1024 : 1024 * 1024));
+
+// 体积变化率，如 -72% / +8%
+export const formatChange = (before: number, after: number) =>
+  new Intl.NumberFormat(hreflang[getLocale()], {
+    style: "percent",
+    maximumFractionDigits: 0,
+    signDisplay: "exceptZero",
+  }).format(before > 0 ? (after - before) / before : 0);

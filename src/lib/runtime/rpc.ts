@@ -4,7 +4,9 @@ import { type ProgressStage, type ToolContext, ToolError } from "@/lib/tool-cont
 // Worker 回传进度和结果；结果中的 ArrayBuffer / 类型化数组以 Transferable 零拷贝传回（File / Blob 本身克隆成本很低）。
 // ToolError 跨线程会丢失类型，按字段序列化后在主线程还原。
 
-type Request<TIn> = { id: number; type: "run"; input: TIn } | { id: number; type: "abort" };
+type Method = "run" | "estimate";
+
+type Request<TIn> = { id: number; type: Method; input: TIn } | { id: number; type: "abort" };
 
 interface SerializedError {
   name: string;
@@ -52,12 +54,17 @@ const serializeError = (error: unknown): SerializedError =>
 const deserializeError = (error: SerializedError): Error =>
   error.code ? new ToolError(error.code, error) : new Error(error.message);
 
-// Worker 入口（engine.worker.ts）调用：把 core 暴露给主线程
-export const exposeRun = <TIn, TOut>(run: Run<TIn, TOut>) => {
+// 预估：与输入的多文件字段一一对应的预估输出字节数，无法预估为 null（Tool 契约的 estimate）
+export type Estimate<TIn> = Run<TIn, readonly (number | null)[]>;
+
+// Worker 入口（engine.worker.ts）调用：把 core（和可选的 estimate）暴露给主线程
+export const exposeRun = <TIn, TOut>(run: Run<TIn, TOut>, estimate?: Estimate<TIn>) => {
   const scope = self as unknown as WorkerScope;
   const controllers = new Map<number, AbortController>();
-  const post = (message: Response<TOut>, transfer: Transferable[] = []) =>
-    scope.postMessage(message, transfer);
+  const post = (
+    message: Response<TOut | readonly (number | null)[]>,
+    transfer: Transferable[] = [],
+  ) => scope.postMessage(message, transfer);
   scope.addEventListener("message", async (event: MessageEvent<Request<TIn>>) => {
     const request = event.data;
     if (request.type === "abort") {
@@ -67,7 +74,7 @@ export const exposeRun = <TIn, TOut>(run: Run<TIn, TOut>) => {
     const controller = new AbortController();
     controllers.set(request.id, controller);
     try {
-      const output = await run(request.input, {
+      const output = await (request.type === "estimate" ? estimate! : run)(request.input, {
         signal: controller.signal,
         onProgress: (ratio, stage) => post({ id: request.id, type: "progress", ratio, stage }),
       });
@@ -87,6 +94,7 @@ export const callWorker = <TIn, TOut>(
   worker: Worker,
   input: TIn,
   ctx: ToolContext = {},
+  method: Method = "run",
 ): Promise<TOut> =>
   new Promise<TOut>((resolve, reject) => {
     const id = nextId++;
@@ -124,5 +132,5 @@ export const callWorker = <TIn, TOut>(
     worker.addEventListener("error", onError);
     ctx.signal?.addEventListener("abort", onAbort, { once: true });
     // oxlint-disable-next-line unicorn/require-post-message-target-origin -- 同上
-    worker.postMessage({ id, type: "run", input } satisfies Request<TIn>);
+    worker.postMessage({ id, type: method, input } satisfies Request<TIn>);
   });

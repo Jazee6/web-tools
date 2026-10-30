@@ -1,4 +1,4 @@
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import {
   lazy,
   Suspense,
@@ -48,6 +48,7 @@ import {
 } from "@/lib/tool-contract/fields";
 import { m } from "@/paraglide/messages";
 
+import type { Estimates } from "./FilesInput";
 import { invokeTool } from "./invoke";
 import { selectItems } from "./select-items";
 import { type OutputLabel, ToolOutput } from "./ToolOutput";
@@ -91,15 +92,27 @@ interface RunError {
   message: string;
 }
 
+// 多文件输出对应的输入：第一个多文件输入字段，且文件数与输出一致
+const sourcesOf = (inputFields: FieldSpec[], input: Values | undefined, output: unknown) => {
+  const name = inputFields.find((spec) => spec.kind === "files")?.name;
+  const files = name && input?.[name];
+  return Array.isArray(files) && Array.isArray(output) && files.length === output.length
+    ? (files as File[])
+    : undefined;
+};
+
+const noEstimates: Estimates = new Map();
+
 const noopSubscribe = () => () => {};
 
 const Unsupported = lazy(() => import("./Unsupported"));
 const FilesInput = lazy(() => import("./FilesInput"));
+const FilePreview = lazy(() => import("./FilePreview"));
 const RunProgress = lazy(() => import("./RunProgress"));
 
 const issueMessage = (issue: v.BaseIssue<unknown>) => {
   // 多文件字段的数量限制
-  if (Array.isArray(issue.input) && issue.type === "min_length") {
+  if (Array.isArray(issue.input) && issue.type === "min_length" && Number(issue.requirement) > 1) {
     return m.form_files_min({ count: String(issue.requirement) });
   }
   if (Array.isArray(issue.input) && issue.type === "max_length") {
@@ -155,6 +168,8 @@ export function ToolForm({
     [tool, variant],
   );
   const [output, setOutput] = useState<Values>();
+  // 产生 output 的那次输入，多文件输出用它对照体积
+  const [submitted, setSubmitted] = useState<Values>();
   const [runError, setRunError] = useState<RunError>();
   // Worker Tool 运行中回报的进度（0–1）与取消用的 controller
   const [progress, setProgress] = useState<{ ratio: number; stage?: ProgressStage }>();
@@ -242,12 +257,14 @@ export function ToolForm({
       const controller = new AbortController();
       running.current = controller;
       try {
+        const input = v.parse(tool.input, value) as Values;
         setOutput(
-          await invokeTool(tool, v.parse(tool.input, value), getToken, {
+          await invokeTool(tool, input, getToken, {
             signal: controller.signal,
             onProgress: (ratio, stage) => setProgress({ ratio, stage }),
           }),
         );
+        setSubmitted(input);
         // 记入最近使用并保存选项；IndexedDB 不可用时忽略
         void import("./preferences")
           .then(({ rememberRun }) => rememberRun(tool.id, preferenceNames, value))
@@ -268,6 +285,53 @@ export function ToolForm({
       }
     },
   });
+
+  // 提交前的体积预估（Tool 契约的 estimate）：文件或选项变化后防抖，在 Worker 里采样编码；
+  // 过期的预估随输入变化中止，提交期间暂停。非预估 Tool 订阅的是常量，不会引起重渲染
+  const estimateField = tool.estimate?.field;
+  const formValues = useStore(form.store, (state) => (estimateField ? state.values : undefined));
+  const formSubmitting = useStore(form.store, (state) => state.isSubmitting);
+  // 输入有效且选了文件才预估
+  const estimateRequest = useMemo(() => {
+    if (!estimateField || !formValues) return undefined;
+    const parsed = v.safeParse(tool.input, formValues);
+    return parsed.success ? (parsed.output as Values) : undefined;
+  }, [tool, estimateField, formValues]);
+  const [estimated, setEstimated] = useState<{ request: Values; sizes: Estimates }>();
+  useEffect(() => {
+    if (!estimateRequest || !estimateField || formSubmitting) return;
+    const files = estimateRequest[estimateField] as File[];
+    if (files.length === 0) return;
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      void import("./tool-worker")
+        .then(({ estimateInWorker }) =>
+          estimateInWorker(tool, estimateRequest, { signal: controller.signal }),
+        )
+        .then((sizes) =>
+          setEstimated({
+            request: estimateRequest,
+            sizes: new Map(files.map((file, index) => [file, sizes[index]!])),
+          }),
+        )
+        .catch(() => {
+          // 预估只是参考：中止是常态，其他错误（如不支持的文件）提交时会有明确提示
+          if (!controller.signal.aborted)
+            setEstimated({ request: estimateRequest, sizes: new Map() });
+        });
+    }, 400);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [tool, estimateField, estimateRequest, formSubmitting]);
+  // 输入变了、新预估还没回来时，旧结果不再显示
+  const estimateCurrent = estimated !== undefined && estimated.request === estimateRequest;
+  const estimateSizes = estimateCurrent ? estimated.sizes : noEstimates;
+  const estimatePending =
+    estimateRequest !== undefined &&
+    (estimateRequest[estimateField!] as File[]).length > 0 &&
+    !estimateCurrent;
 
   // 水合后恢复上次用过的选项（服务端与首次渲染都用 schema 默认值）
   useEffect(() => {
@@ -441,17 +505,24 @@ export function ToolForm({
         );
       }
       case "file":
-        // 文件输入不能受控，只把选中的 File 交给表单
+        // 文件输入不能受控，只把选中的 File 交给表单；图片 / 视频在下方预览
         return (
-          <Input
-            id={id}
-            name={field.name}
-            type="file"
-            accept={(variant?.accept[spec.name] ?? spec.accept).join(",")}
-            aria-invalid={invalid}
-            onBlur={field.handleBlur}
-            onChange={(event) => onChange(event.target.files?.[0])}
-          />
+          <>
+            <Input
+              id={id}
+              name={field.name}
+              type="file"
+              accept={(variant?.accept[spec.name] ?? spec.accept).join(",")}
+              aria-invalid={invalid}
+              onBlur={field.handleBlur}
+              onChange={(event) => onChange(event.target.files?.[0])}
+            />
+            {field.state.value instanceof File && (
+              <Suspense>
+                <FilePreview file={field.state.value} size="lg" />
+              </Suspense>
+            )}
+          </>
         );
       case "files":
         return (
@@ -462,6 +533,8 @@ export function ToolForm({
               accept={variant?.accept[spec.name] ?? spec.accept}
               files={field.state.value as File[]}
               invalid={invalid}
+              estimates={spec.name === estimateField ? estimateSizes : undefined}
+              estimating={spec.name === estimateField && estimatePending}
               onBlur={field.handleBlur}
               onChange={onChange}
             />
@@ -565,6 +638,8 @@ export function ToolForm({
             spec={spec}
             value={output[spec.name]}
             label={strings.output[spec.name]}
+            sources={sourcesOf(fields, submitted, output[spec.name])}
+            toolId={tool.id}
           />
         ))}
     </div>
