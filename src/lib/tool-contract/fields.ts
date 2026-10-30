@@ -7,7 +7,7 @@ import { acceptOf as acceptOfTypes, type FileTypes } from "./file-type";
 // table 是对象数组（每列是字符串或数字），只用于输出；file 是 v.file()，accept 取自 fileType()（MIME 类型和扩展名）；
 // files 是 v.array(v.file())，有顺序，只用于输入。
 export type FieldSpec =
-  | { name: string; kind: "text" | "code" | "url" }
+  | { name: string; kind: "text" | "code" | "url" | "line" }
   | { name: string; kind: "number" }
   | { name: string; kind: "boolean" }
   | { name: string; kind: "select"; options: string[]; languageNames?: boolean }

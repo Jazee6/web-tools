@@ -8,6 +8,7 @@ const schema = v.object({
   text: v.pipe(v.string(), v.nonEmpty()),
   code: v.pipe(v.string(), v.metadata({ widget: "code" })),
   url: v.pipe(v.string(), v.metadata({ widget: "url" })),
+  line: v.pipe(v.string(), v.metadata({ widget: "line" })),
   count: v.optional(v.number(), 3),
   flag: v.optional(v.boolean(), true),
   mode: v.optional(v.picklist(["a", "b"]), "b"),
@@ -19,6 +20,7 @@ describe("describeFields", () => {
       { name: "text", kind: "text" },
       { name: "code", kind: "code" },
       { name: "url", kind: "url" },
+      { name: "line", kind: "line" },
       { name: "count", kind: "number" },
       { name: "flag", kind: "boolean" },
       { name: "mode", kind: "select", options: ["a", "b"] },
@@ -64,6 +66,7 @@ describe("describeFields", () => {
     expect(initialValues(schema)).toEqual({
       text: "",
       code: "",
+      line: "",
       url: "",
       count: 3,
       flag: true,

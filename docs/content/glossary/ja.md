@@ -28,6 +28,7 @@
 | encode / decode / URL-safe / padding | エンコード / デコード / URL セーフ / パディング | 暗号化 |
 | percent-encoding / hash (digest) | パーセントエンコーディング / ハッシュ | ダイジェスト（「ハッシュ値」で統一） |
 | JWT / header / payload / claim / signature | JWT / ヘッダー / ペイロード / クレーム / 署名 | 請求、シグネチャ |
+| Unix timestamp / time zone | Unix タイムスタンプ / タイムゾーン | エポック秒、時間帯 |
 
 ## ツールとカテゴリの名称
 
@@ -44,4 +45,5 @@
 | url-encode-decode | URL エンコード/デコード |
 | hash-generator | ハッシュ生成 |
 | jwt-decoder | JWT デコーダー |
+| timestamp-converter | タイムスタンプ変換 |
 | developer / image / pdf / media | 開発者・テキスト／画像／PDF／動画・音声 |

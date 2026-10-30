@@ -27,6 +27,7 @@
 | encode / decode / URL-safe / padding | encode / decode / URL-safe / padding | — |
 | percent-encoding / hash (digest) | percent-encoding / hash | — |
 | JWT / header / payload / claim / signature | JWT / header / payload / claim / signature | — |
+| Unix timestamp / time zone | Unix timestamp / time zone | epoch (alone), timezone (one word) |
 
 ## Tool 与 Category 名称
 
@@ -43,4 +44,5 @@
 | url-encode-decode | URL Encode/Decode |
 | hash-generator | Hash Generator |
 | jwt-decoder | JWT Decoder |
+| timestamp-converter | Timestamp Converter |
 | developer / image / pdf / media | Developer & Text / Image / PDF / Video & Audio |

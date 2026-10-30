@@ -367,6 +367,19 @@ export function ToolForm({
             onChange={(event) => onChange(event.target.value)}
           />
         );
+      case "line":
+        return (
+          <Input
+            id={id}
+            name={field.name}
+            value={String(field.state.value)}
+            placeholder={label?.placeholder}
+            aria-invalid={invalid}
+            spellCheck={false}
+            onBlur={field.handleBlur}
+            onChange={(event) => onChange(event.target.value)}
+          />
+        );
       case "code":
       case "text":
         return (

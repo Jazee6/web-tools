@@ -9,8 +9,8 @@ export type Capability = "wasm" | "webgpu" | "webcodecs" | "opfs";
 
 // 表单派生用的字段提示，写在 schema 的 v.metadata() 中；派生 JSON Schema 时会被忽略。
 export type FieldMetadata = {
-  // code：等宽多行；url：单行网址输入；默认是普通多行文本
-  widget?: "code" | "url";
+  // code：等宽多行；url：单行网址输入；line：单行文本（时区名、时间戳之类的短值）；默认是普通多行文本
+  widget?: "code" | "url" | "line";
   // 下拉选项是语言代码（BCP 47）：选项名由 Intl.DisplayNames 按当前 Locale 生成并按名称排序，
   // 内容 frontmatter 只需给不是语言代码的选项（如 auto）写标签
   languageNames?: boolean;

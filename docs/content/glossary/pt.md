@@ -28,6 +28,7 @@
 | encode / decode / URL-safe / padding | codificar / decodificar / seguro para URL / preenchimento (padding) | criptografar, cifrar |
 | percent-encoding / hash (digest) | codificação por porcentagem / hash | resumo, impressão digital |
 | JWT / header / payload / claim / signature | JWT / cabeçalho / carga útil / claim / assinatura | reivindicação, payload |
+| Unix timestamp / time zone | timestamp Unix / fuso horário | carimbo de data/hora, zona horária |
 
 ## Nomes de ferramentas e categorias
 
@@ -44,4 +45,5 @@
 | url-encode-decode | Codificar e decodificar URL |
 | hash-generator | Gerador de hash |
 | jwt-decoder | Decodificador de JWT |
+| timestamp-converter | Conversor de timestamp |
 | developer / image / pdf / media | Desenvolvedores e texto / Imagem / PDF / Vídeo e áudio |
