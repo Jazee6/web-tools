@@ -31,6 +31,7 @@
 | Unix timestamp / time zone | timestamp Unix / fuso horário | carimbo de data/hora, zona horária |
 | alpha / hue / gamut | alfa (transparência) / matiz / gamut | opacidade, tom, gama de cores |
 | word / character / sentence / paragraph / line / byte | palavra / caractere / frase / parágrafo / linha / byte | letra (para caractere), sentença |
+| uppercase / lowercase / title case / sentence case | maiúsculas / minúsculas / inicial maiúscula em cada palavra / só a primeira letra da frase | caixa alta, caixa baixa |
 
 ## Nomes de ferramentas e categorias
 
@@ -50,4 +51,5 @@
 | timestamp-converter | Conversor de timestamp |
 | color-converter | Conversor de cores |
 | word-counter | Contador de palavras |
+| case-converter | Conversor de maiúsculas e minúsculas |
 | developer / image / pdf / media | Desenvolvedores e texto / Imagem / PDF / Vídeo e áudio |

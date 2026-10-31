@@ -31,6 +31,7 @@
 | Unix timestamp / time zone | Unix タイムスタンプ / タイムゾーン | エポック秒、時間帯 |
 | alpha / hue / gamut | アルファ（透明度）/ 色相 / 色域 | 不透明度、色合い、ガマット |
 | word / character / sentence / paragraph / line / byte | 単語 / 文字 / 文 / 段落 / 行 / バイト | ワード、キャラクター |
+| uppercase / lowercase / title case / sentence case | 大文字 / 小文字 / 各単語の先頭を大文字 / 文頭のみ大文字 | 大文字化、キャピタライズ |
 
 ## ツールとカテゴリの名称
 
@@ -50,4 +51,5 @@
 | timestamp-converter | タイムスタンプ変換 |
 | color-converter | カラー変換 |
 | word-counter | 文字数カウンター |
+| case-converter | 大文字小文字変換 |
 | developer / image / pdf / media | 開発者・テキスト／画像／PDF／動画・音声 |
