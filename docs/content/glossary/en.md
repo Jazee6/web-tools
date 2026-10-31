@@ -29,6 +29,7 @@
 | JWT / header / payload / claim / signature | JWT / header / payload / claim / signature | — |
 | Unix timestamp / time zone | Unix timestamp / time zone | epoch (alone), timezone (one word) |
 | alpha / hue / gamut | alpha / hue / gamut | transparency (alone), opacity |
+| word / character / sentence / paragraph / line / byte | word / character / sentence / paragraph / line / byte | symbol, letter (for character) |
 
 ## Tool 与 Category 名称
 
@@ -47,4 +48,5 @@
 | jwt-decoder | JWT Decoder |
 | timestamp-converter | Timestamp Converter |
 | color-converter | Color Converter |
+| word-counter | Word Counter |
 | developer / image / pdf / media | Developer & Text / Image / PDF / Video & Audio |

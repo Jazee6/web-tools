@@ -30,6 +30,7 @@
 | JWT / header / payload / claim / signature | JWT / cabeçalho / carga útil / claim / assinatura | reivindicação, payload |
 | Unix timestamp / time zone | timestamp Unix / fuso horário | carimbo de data/hora, zona horária |
 | alpha / hue / gamut | alfa (transparência) / matiz / gamut | opacidade, tom, gama de cores |
+| word / character / sentence / paragraph / line / byte | palavra / caractere / frase / parágrafo / linha / byte | letra (para caractere), sentença |
 
 ## Nomes de ferramentas e categorias
 
@@ -48,4 +49,5 @@
 | jwt-decoder | Decodificador de JWT |
 | timestamp-converter | Conversor de timestamp |
 | color-converter | Conversor de cores |
+| word-counter | Contador de palavras |
 | developer / image / pdf / media | Desenvolvedores e texto / Imagem / PDF / Vídeo e áudio |

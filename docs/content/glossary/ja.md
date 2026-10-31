@@ -30,6 +30,7 @@
 | JWT / header / payload / claim / signature | JWT / ヘッダー / ペイロード / クレーム / 署名 | 請求、シグネチャ |
 | Unix timestamp / time zone | Unix タイムスタンプ / タイムゾーン | エポック秒、時間帯 |
 | alpha / hue / gamut | アルファ（透明度）/ 色相 / 色域 | 不透明度、色合い、ガマット |
+| word / character / sentence / paragraph / line / byte | 単語 / 文字 / 文 / 段落 / 行 / バイト | ワード、キャラクター |
 
 ## ツールとカテゴリの名称
 
@@ -48,4 +49,5 @@
 | jwt-decoder | JWT デコーダー |
 | timestamp-converter | タイムスタンプ変換 |
 | color-converter | カラー変換 |
+| word-counter | 文字数カウンター |
 | developer / image / pdf / media | 開発者・テキスト／画像／PDF／動画・音声 |
