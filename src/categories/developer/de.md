@@ -1,8 +1,8 @@
 ---
-review: reviewed
-updated: 2026-10-29
-title: "Entwickler-Tools – JSON formatieren, HTTP-Header online prüfen"
-description: "Kostenlose Online-Tools für Entwickler: JSON im Browser formatieren und prüfen sowie HTTP-Status, Response-Header und Weiterleitungen einer öffentlichen URL abfragen."
+review: draft
+updated: 2026-10-31
+title: "Entwickler-Tools – JSON, Base64, Regex, Hash, DNS und mehr online"
+description: "Kostenlose Online-Tools für Entwickler und Text: JSON formatieren, Base64 kodieren, JWT dekodieren, Regex testen, Einheiten umrechnen, Wörter zählen, DNS abfragen."
 name: "Entwickler & Text"
-intro: "Alltägliche Tools zur Fehlersuche. Beim JSON-Formatierer werden Ihre Eingaben vollständig in Ihrem Browser verarbeitet; der HTTP-Header-Checker schickt die eingegebene URL zum Abruf an unseren Server und speichert nichts."
+intro: "Alltägliche Tools für Entwickler und Schreibende. Fast alles läuft in Ihrem Browser, ohne dass etwas hochgeladen wird. Zwei Tools nutzen das Netz: Der HTTP-Header-Checker schickt die URL an unseren Server, der nichts speichert, die DNS-Abfrage sendet die Domain an Cloudflare oder Google."
 ---

@@ -35,6 +35,7 @@
 | uppercase / lowercase / title case / sentence case | Großbuchstaben / Kleinbuchstaben / jedes Wort groß beginnen / nur Satzanfang groß | Versalien (allein), Gemeine |
 | regular expression / pattern / flag / match / capture group | regulärer Ausdruck / Muster / Flag / Treffer / Erfassungsgruppe | Regex (nur im Fließtext), Schalter, Fund |
 | unit / metric / imperial / absolute zero | Einheit / metrisch / imperial / absoluter Nullpunkt | Maßeinheit (allein), Absolutnull |
+| domain / record / resolver / TTL / name server | Domain / Eintrag / Resolver / TTL / Nameserver | Record, DNS-Server (für Resolver) |
 
 ## Namen von Tools und Kategorien
 
@@ -57,4 +58,5 @@
 | case-converter | Groß-/Kleinschreibung-Konverter |
 | regex-tester | Regex-Tester |
 | unit-converter | Einheitenumrechner |
+| dns-lookup | DNS-Abfrage |
 | developer / image / pdf / media | Entwickler & Text / Bild / PDF / Video & Audio |

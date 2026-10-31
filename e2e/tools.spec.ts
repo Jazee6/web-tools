@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { expect, type Page, test } from "@playwright/test";
 
 import { hreflang, localizePath, locales } from "../src/lib/i18n/locales";
@@ -14,6 +17,25 @@ const tools = await loadTools();
 // Server-assisted Tool：Turnstile 换成立即回调测试 token 的桩，/api/tools/{id} 返回示例输出，
 // CI 不依赖外网和第三方站点
 const stubServer = async (page: Page, tool: AnyTool, output: unknown) => {
+  // 在浏览器里联网的客户端 Tool（DNS Lookup）：fixtures.ts 的 hosts 是它请求的第三方主机，
+  // 用同一份假 fetch 应答，测试不依赖外网
+  const fixturePath = resolve(`src/tools/${tool.id}/fixtures.ts`);
+  if (tool.runtime.where === "client" && existsSync(fixturePath)) {
+    const fixtures = (await import(fixturePath)) as {
+      hosts: string[];
+      fetch: (url: URL) => Promise<Response>;
+    };
+    for (const host of fixtures.hosts) {
+      await page.route(`https://${host}/**`, async (route) => {
+        const response = await fixtures.fetch(new URL(route.request().url()));
+        await route.fulfill({
+          status: response.status,
+          headers: Object.fromEntries(response.headers),
+          body: await response.text(),
+        });
+      });
+    }
+  }
   if (tool.runtime.where !== "server") return;
   await page.route("https://challenges.cloudflare.com/turnstile/**", (route) =>
     route.fulfill({

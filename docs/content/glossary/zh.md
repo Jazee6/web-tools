@@ -35,6 +35,7 @@
 | uppercase / lowercase / title case / sentence case | 大写 / 小写 / 每个单词首字母大写 / 句首字母大写 | 大小写转换（作 Tool 名以外）、首字母大写（有歧义） |
 | regular expression / pattern / flag / match / capture group | 正则表达式 / 模式 / 标志 / 匹配 / 捕获组 | 正则式、规则、标记、命中 |
 | unit / metric / imperial / absolute zero | 单位 / 公制 / 英制 / 绝对零度 | 度量衡、计量单位 |
+| domain / record / resolver / TTL / name server | 域名 / 记录 / 解析器 / TTL / 名称服务器 | 主机、DNS 服务器（指解析器时）、生存时间 |
 
 ## Tool 与 Category 名称
 
@@ -57,4 +58,5 @@
 | case-converter | 大小写转换器 |
 | regex-tester | 正则表达式测试器 |
 | unit-converter | 单位换算器 |
+| dns-lookup | DNS 查询 |
 | developer / image / pdf / media | 开发者与文本 / 图片 / PDF / 音视频 |

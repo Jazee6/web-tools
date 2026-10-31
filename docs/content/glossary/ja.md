@@ -34,6 +34,7 @@
 | uppercase / lowercase / title case / sentence case | 大文字 / 小文字 / 各単語の先頭を大文字 / 文頭のみ大文字 | 大文字化、キャピタライズ |
 | regular expression / pattern / flag / match / capture group | 正規表現 / パターン / フラグ / マッチ / キャプチャグループ | 正則表現、ヒット、取得グループ |
 | unit / metric / imperial / absolute zero | 単位 / メートル法 / ヤード・ポンド法 / 絶対零度 | ユニット、英国式 |
+| domain / record / resolver / TTL / name server | ドメイン / レコード / リゾルバー / TTL / ネームサーバー | 名前解決サーバー、DNS サーバー（リゾルバーの意味で） |
 
 ## ツールとカテゴリの名称
 
@@ -56,4 +57,5 @@
 | case-converter | 大文字小文字変換 |
 | regex-tester | 正規表現テスター |
 | unit-converter | 単位変換 |
+| dns-lookup | DNS ルックアップ |
 | developer / image / pdf / media | 開発者・テキスト／画像／PDF／動画・音声 |

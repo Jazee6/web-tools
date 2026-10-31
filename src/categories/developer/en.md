@@ -1,8 +1,8 @@
 ---
-review: reviewed
-updated: 2026-10-29
-title: "Developer Tools – Format JSON, Check HTTP Headers Online"
-description: "Free online developer tools: format and validate JSON in your browser, and check the HTTP status, response headers and redirects of any public URL."
+review: draft
+updated: 2026-10-31
+title: "Developer Tools – JSON, Base64, Regex, Hash, DNS and More Online"
+description: "Free online developer and text tools: format JSON, encode Base64 and URLs, decode JWTs, test regex, convert timestamps, colors and units, count words, look up DNS."
 name: "Developer & Text"
-intro: "Everyday tools for debugging. The JSON Formatter runs entirely in your browser; the HTTP Header Checker sends the URL you enter to our server to fetch it and stores nothing."
+intro: "Everyday tools for developers and writers. Almost everything runs in your browser and nothing you type is uploaded. Two tools reach the network: the HTTP Header Checker sends the URL to our server to fetch it and stores nothing, and the DNS Lookup sends the domain to Cloudflare or Google."
 ---

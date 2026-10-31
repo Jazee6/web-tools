@@ -35,6 +35,7 @@
 | uppercase / lowercase / title case / sentence case | mayúsculas / minúsculas / mayúscula inicial en cada palabra / mayúscula solo al inicio de la oración | capitales, versales |
 | regular expression / pattern / flag / match / capture group | expresión regular / patrón / indicador / coincidencia / grupo de captura | regex (solo en el cuerpo), bandera, resultado |
 | unit / metric / imperial / absolute zero | unidad / métrico / imperial / cero absoluto | medida (sola) |
+| domain / record / resolver / TTL / name server | dominio / registro / resolvedor / TTL / servidor de nombres | resolutor, servidor DNS (para resolvedor) |
 
 ## Nombres de herramientas y categorías
 
@@ -57,4 +58,5 @@
 | case-converter | Conversor de mayúsculas y minúsculas |
 | regex-tester | Probador de expresiones regulares |
 | unit-converter | Conversor de unidades |
+| dns-lookup | Consulta DNS |
 | developer / image / pdf / media | Desarrolladores y texto / Imagen / PDF / Vídeo y audio |

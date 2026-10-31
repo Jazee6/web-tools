@@ -1,8 +1,8 @@
 ---
-review: reviewed
-updated: 2026-10-29
-title: "Outils pour développeurs – JSON et en-têtes HTTP en ligne"
-description: "Outils gratuits pour développeurs : formatez et validez du JSON dans votre navigateur, consultez le statut HTTP, les en-têtes et les redirections d'une URL publique."
+review: draft
+updated: 2026-10-31
+title: "Outils pour développeurs – JSON, Base64, regex, hash et DNS en ligne"
+description: "Outils gratuits pour développeurs et texte : formatez du JSON, encodez en Base64, décodez des JWT, testez des regex, convertissez dates et unités, interrogez le DNS."
 name: "Développeurs et texte"
-intro: "Des outils de débogage du quotidien. Le Formateur JSON fonctionne entièrement dans votre navigateur ; le Vérificateur d'en-têtes HTTP envoie l'URL saisie à notre serveur pour la consulter, sans rien conserver."
+intro: "Des outils du quotidien pour développeurs et rédacteurs. Presque tout fonctionne dans votre navigateur sans rien envoyer. Deux outils utilisent le réseau : le Vérificateur d'en-têtes HTTP envoie l'URL à notre serveur, sans rien conserver, et la Recherche DNS envoie le domaine à Cloudflare ou Google."
 ---
