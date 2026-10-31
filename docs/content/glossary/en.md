@@ -31,6 +31,7 @@
 | alpha / hue / gamut | alpha / hue / gamut | transparency (alone), opacity |
 | word / character / sentence / paragraph / line / byte | word / character / sentence / paragraph / line / byte | symbol, letter (for character) |
 | uppercase / lowercase / title case / sentence case | uppercase / lowercase / title case / sentence case | capital letters (alone), small letters |
+| regular expression / pattern / flag / match / capture group | regular expression / pattern / flag / match / capture group | regex (in body text only), regexp, search term |
 
 ## Tool 与 Category 名称
 
@@ -51,4 +52,5 @@
 | color-converter | Color Converter |
 | word-counter | Word Counter |
 | case-converter | Case Converter |
+| regex-tester | Regex Tester |
 | developer / image / pdf / media | Developer & Text / Image / PDF / Video & Audio |

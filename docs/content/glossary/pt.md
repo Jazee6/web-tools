@@ -32,6 +32,7 @@
 | alpha / hue / gamut | alfa (transparência) / matiz / gamut | opacidade, tom, gama de cores |
 | word / character / sentence / paragraph / line / byte | palavra / caractere / frase / parágrafo / linha / byte | letra (para caractere), sentença |
 | uppercase / lowercase / title case / sentence case | maiúsculas / minúsculas / inicial maiúscula em cada palavra / só a primeira letra da frase | caixa alta, caixa baixa |
+| regular expression / pattern / flag / match / capture group | expressão regular / padrão / flag / correspondência / grupo de captura | regex (só no corpo), bandeira, resultado |
 
 ## Nomes de ferramentas e categorias
 
@@ -52,4 +53,5 @@
 | color-converter | Conversor de cores |
 | word-counter | Contador de palavras |
 | case-converter | Conversor de maiúsculas e minúsculas |
+| regex-tester | Testador de expressões regulares |
 | developer / image / pdf / media | Desenvolvedores e texto / Imagem / PDF / Vídeo e áudio |

@@ -33,6 +33,7 @@
 | alpha / hue / gamut | Alpha (Transparenz) / Farbton / Farbumfang | Deckkraft, Tönung, Gamut |
 | word / character / sentence / paragraph / line / byte | Wort / Zeichen / Satz / Absatz / Zeile / Byte | Buchstabe (für Zeichen), Abschnitt |
 | uppercase / lowercase / title case / sentence case | Großbuchstaben / Kleinbuchstaben / jedes Wort groß beginnen / nur Satzanfang groß | Versalien (allein), Gemeine |
+| regular expression / pattern / flag / match / capture group | regulärer Ausdruck / Muster / Flag / Treffer / Erfassungsgruppe | Regex (nur im Fließtext), Schalter, Fund |
 
 ## Namen von Tools und Kategorien
 
@@ -53,4 +54,5 @@
 | color-converter | Farbkonverter |
 | word-counter | Wortzähler |
 | case-converter | Groß-/Kleinschreibung-Konverter |
+| regex-tester | Regex-Tester |
 | developer / image / pdf / media | Entwickler & Text / Bild / PDF / Video & Audio |
