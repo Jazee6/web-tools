@@ -34,6 +34,7 @@
 | word / character / sentence / paragraph / line / byte | palabra / carácter / oración / párrafo / línea / byte | letra (para carácter), frase |
 | uppercase / lowercase / title case / sentence case | mayúsculas / minúsculas / mayúscula inicial en cada palabra / mayúscula solo al inicio de la oración | capitales, versales |
 | regular expression / pattern / flag / match / capture group | expresión regular / patrón / indicador / coincidencia / grupo de captura | regex (solo en el cuerpo), bandera, resultado |
+| unit / metric / imperial / absolute zero | unidad / métrico / imperial / cero absoluto | medida (sola) |
 
 ## Nombres de herramientas y categorías
 
@@ -55,4 +56,5 @@
 | word-counter | Contador de palabras |
 | case-converter | Conversor de mayúsculas y minúsculas |
 | regex-tester | Probador de expresiones regulares |
+| unit-converter | Conversor de unidades |
 | developer / image / pdf / media | Desarrolladores y texto / Imagen / PDF / Vídeo y audio |

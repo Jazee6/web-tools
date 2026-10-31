@@ -16,7 +16,8 @@ const fill = async (page: Page, name: string, kind: string, value: unknown) => {
     }
     case "select":
       await field.locator('[data-slot="select-trigger"]').click();
-      await page.locator(`[data-option="${String(value)}"]`).click();
+      // 关闭的下拉仍留在 DOM 里，两个下拉有同名选项时（单位换算的 From / To）只点打开的那个
+      await page.locator(`[data-option="${String(value)}"]:visible`).click();
       return;
     default:
       await field.locator("textarea, input").fill(String(value));

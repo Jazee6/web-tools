@@ -33,6 +33,7 @@
 | word / character / sentence / paragraph / line / byte | 単語 / 文字 / 文 / 段落 / 行 / バイト | ワード、キャラクター |
 | uppercase / lowercase / title case / sentence case | 大文字 / 小文字 / 各単語の先頭を大文字 / 文頭のみ大文字 | 大文字化、キャピタライズ |
 | regular expression / pattern / flag / match / capture group | 正規表現 / パターン / フラグ / マッチ / キャプチャグループ | 正則表現、ヒット、取得グループ |
+| unit / metric / imperial / absolute zero | 単位 / メートル法 / ヤード・ポンド法 / 絶対零度 | ユニット、英国式 |
 
 ## ツールとカテゴリの名称
 
@@ -54,4 +55,5 @@
 | word-counter | 文字数カウンター |
 | case-converter | 大文字小文字変換 |
 | regex-tester | 正規表現テスター |
+| unit-converter | 単位変換 |
 | developer / image / pdf / media | 開発者・テキスト／画像／PDF／動画・音声 |

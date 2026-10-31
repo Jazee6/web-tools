@@ -33,6 +33,7 @@
 | word / character / sentence / paragraph / line / byte | mot / caractère / phrase / paragraphe / ligne / octet | lettre (pour caractère), byte |
 | uppercase / lowercase / title case / sentence case | majuscules / minuscules / majuscule à chaque mot / majuscule en début de phrase | capitales, bas de casse |
 | regular expression / pattern / flag / match / capture group | expression régulière / motif / drapeau / correspondance / groupe de capture | regex (dans le texte seulement), option, résultat |
+| unit / metric / imperial / absolute zero | unité / métrique / impérial / zéro absolu | mesure (seule) |
 
 ## Noms des outils et des catégories
 
@@ -54,4 +55,5 @@
 | word-counter | Compteur de mots |
 | case-converter | Convertisseur de casse |
 | regex-tester | Testeur d'expressions régulières |
+| unit-converter | Convertisseur d'unités |
 | developer / image / pdf / media | Développeurs et texte / Image / PDF / Vidéo et audio |
