@@ -62,6 +62,7 @@ export default defineConfig({
                 TOOL_RATE_LIMITER: { namespace_id: "1001", simple: { limit: 3, period: 60 } },
                 TARGET_RATE_LIMITER: { namespace_id: "1002", simple: { limit: 30, period: 60 } },
                 MCP_RATE_LIMITER: { namespace_id: "1003", simple: { limit: 3, period: 60 } },
+                EVENT_RATE_LIMITER: { namespace_id: "1004", simple: { limit: 3, period: 60 } },
               },
             },
           }),

@@ -374,18 +374,20 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 
 ## 15. 性能预算（CI 强制）
 
-- 首屏 JS（gzip，不含按需加载的引擎，2026-10-22 调整）：
-  - Tool / Variant 页 ≤ 160 KB。React island 是底线：React 运行时本身约 67 KB，原定的 50 KB 无法满足，M1 实测约 150 KB。
+- 首屏 JS（gzip，2026-10-22 调整）：
+  - Tool / Variant 页 ≤ 160 KB。React island 是底线：React 运行时本身约 67 KB，原定的 50 KB 无法满足。
   - 没有 Tool island 的页面（首页、Category 页等）≤ 10 KB。⌘K 对话框在第一次打开时才加载 React。
+  - 口径（2026-11-01 确认，`e2e/budget.spec.ts`）：Tool 页在水合完成的那一刻、其他页在 load 事件时，已加载的同源脚本逐个 gzip 后求和（Node zlib 默认级别，1 KB = 1000 字节）。不算第三方和边缘注入的脚本（Web Analytics beacon 约 10.3 KB），也不算水合之后才加载的分块（idle 预取的 core 和输出区域、引擎、本地状态）。
   - 加新依赖或新组件时优先控制 island 体积，用户体验以 LCP、TBT、CLS 等指标为准。
-- Lab 指标：LCP ≤ 2.0s、CLS ≤ 0.05、TBT ≤ 150ms（`@lhci/cli`，移动端配置）。
+- Lab 指标：LCP ≤ 2.0s、CLS ≤ 0.05、TBT ≤ 150ms（`@lhci/cli`，移动端配置，`lighthouserc.json`）。在 lhci 自带的静态服务器上跑：它会 gzip，`astro preview` 不压缩，Lighthouse 会高估下载时间；但它不应用 `_headers`，所以页面没有跨源隔离。
 - Field 指标目标（Web Analytics 的 CWV）：p75 LCP ≤ 2.0s、INP ≤ 150ms、CLS ≤ 0.05。
 
 ## 16. 隐私、统计与监控
 
-- **流量与 CWV**：Cloudflare Web Analytics，不用 Cookie，不需要同意弹窗。它的 beacon 不经过我们的 Worker，不占用请求配额。
-- **Tool 使用事件**：通过 `sendBeacon` 发到 `/api/e`，写入 Analytics Engine，只包含 Tool id、Locale、结果类别和耗时区间。Free 计划下按比例抽样（初始 10%），节省请求配额。每次上报占一次 Worker 请求、写一个数据点，所以瓶颈是每天 10 万次的 Worker 请求，而不是 Analytics Engine 每天 10 万个数据点的额度。
-- **客户端错误**：全局 `error` / `unhandledrejection` 加上 Tool 内部的捕获，走同一个通道全量上报（同一会话内相同的错误只报一次）：错误类型、Tool id、浏览器能力指纹，不带用户数据。
+- **流量与 CWV**：Cloudflare Web Analytics，用后台的自动注入（2026-11-01 确认），代码里没有 snippet 和 token，本地和 CI 不会加载。不用 Cookie，不需要同意弹窗。上报走同源的 `/cdn-cgi/rum`，不经过我们的 Worker，不占用请求配额。
+- **Tool 使用事件**：通过 `sendBeacon` 发到 `/api/e`，写入 Analytics Engine（数据集 `web_tools_events`），只包含 Tool id、Locale、结果类别（`ok`、`cancelled`、`unexpected` 或 ToolError 的错误码）和耗时区间。统计点在 `invokeTool`，表单和 WebMCP 的调用都算；表单校验没通过的提交没有运行，不算。Free 计划下在客户端按比例抽样（初始 10%），节省请求配额，抽样权重写在 `double1`，`SUM(double1)` 就是估算的真实次数。每次上报占一次 Worker 请求、写一个数据点，所以瓶颈是每天 10 万次的 Worker 请求，而不是 Analytics Engine 每天 10 万个数据点的额度。
+- **客户端错误**：全局 `error` / `unhandledrejection` 加上 `invokeTool` 里的捕获，走同一个通道全量上报（同一会话内相同的错误只报一次，最多 20 种）：错误类型名、Tool id、Locale、错误来源、浏览器能力指纹。不上报 message 和 stack，它们可能包含用户输入。ToolError 是预期结果，只算结果类别。不是本站脚本抛出的错误（跨源脚本、浏览器扩展）不上报。
+- **`/api/e` 防滥用**：匿名端点，只接受同源 POST，请求体 ≤ 1 KB，每个字段按白名单或固定格式校验（`src/lib/server/events.ts`），按 IP 限流（`EVENT_RATE_LIMITER`）。
 - **服务端**：Workers Observability 日志。
 - **搜索表现**：Google Search Console + Bing Webmaster Tools。
 
@@ -403,7 +405,7 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 | 浏览器相关核心 | Vitest Browser Mode（Playwright provider，Chromium / Firefox / WebKit） | WASM / WebCodecs / WebGPU 路径；Worker Tool 的 examples 经 Worker RPC 跑（`*.browser.test.ts`） |
 | Worker 路由 | Vitest + `@cloudflare/vitest-plugin` | `/api/*`、`/mcp`；on-demand 模式下的 Variant SSR 与缓存键 |
 | 端到端 | Playwright | 由注册表和 `examples` 自动生成每个 Tool 的冒烟测试 |
-| 性能 | `@lhci/cli` | §15 预算 |
+| 性能 | `@lhci/cli`（LCP、CLS、TBT）、Playwright（`e2e/budget.spec.ts`，首屏 JS） | §15 预算 |
 | SEO | `bun run check:seo` | JSON-LD 校验、hreflang 互指、canonical、sitemap URL 全部返回 200、noindex 与 sitemap 一致、Tool id 与 Category id 不冲突 |
 | 内容 | `bun run check:content` | §12 |
 | 平台限额 | `bun run check:limits` | 静态文件数（Free 上限 2 万，80% 时告警）、单文件 ≤ 25 MiB |
@@ -411,7 +413,7 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
 
 **GitHub Actions**：
 
-- PR：跑全部门禁，用 `wrangler versions upload` 部署预览版本，在预览 URL 上跑 Playwright 和 Lighthouse。
+- PR：跑全部门禁，用 `wrangler versions upload` 部署预览版本，在预览 URL 上跑 Playwright。Lighthouse 在 `browser` job 里对本次构建的产物跑。
 - 合并到 main：`wrangler deploy` 到生产，推送 IndexNow；on-demand 模式下，部署版本号自动作为 Variant 缓存键的一部分。
 
 ## 19. 分期路线

@@ -183,7 +183,7 @@ function FilesOutput({
   );
 }
 
-export function ToolOutput({
+export default function ToolOutput({
   spec,
   value,
   label,

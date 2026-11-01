@@ -138,9 +138,10 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 ### M6 遥测、门禁收口与上线
 
-- Cloudflare Web Analytics。
-- `/api/e`：事件抽样 10%，错误全量上报并在同一会话内去重，写入 Analytics Engine。
-- `@lhci/cli` 预算门禁全量开启（首屏 JS 按 architecture §15：Tool 页 ≤ 160 KB、其他页 ≤ 10 KB gzip，LCP ≤ 2.0s，CLS ≤ 0.05，TBT ≤ 150ms）。
+- ⏳ Cloudflare Web Analytics：用后台自动注入，不改代码（2026-11-01 确认）。需要在后台开启，然后核对生产 HTML 里有没有 `cloudflareinsights`；文档没写自动注入是否支持 Workers 自定义域，不行就改用手动 snippet。
+- ✅ `/api/e`：事件在客户端抽样 10%，错误全量上报并在同一会话内去重，写入 Analytics Engine（数据集 `web_tools_events`，第一次写入时自动创建）。字段、隐私和防滥用见 architecture §16；Worker 路由有 workerd 测试（用桩代替 Analytics Engine），`e2e/telemetry.spec.ts` 在三个引擎上走真实的 sendBeacon 和本地 Worker。⏳ 部署后在生产确认数据点能写入并查询到。
+- ✅ 预算门禁：`@lhci/cli` 断言 LCP ≤ 2.0s、CLS ≤ 0.05、TBT ≤ 150ms（6 个代表性页面各跑 3 次取中位数，加入 CI 的 browser job）；首屏 JS 由 `e2e/budget.spec.ts` 断言（所有 Tool 和 Variant 页 ≤ 160 KB，首页和 Category 页 ≤ 10 KB），口径见 architecture §15。本机：LCP 1.66–1.82 s，CLS ≤ 0.022，TBT 0 ms；把 LCP 阈值临时改成 1 s 时 `lhci assert` 会失败。
+  - 按新口径第一次量出来 Tool 页是 165–167 KB，瘦身后 157–158.2 KB，首页和 Category 页 2.7 KB。输出区域、错误提示、Turnstile、WebMCP 适配层、开关控件改为按需加载（输出区域和错误提示空闲时预取，离线时也能用）；`ui/input.tsx` 改用原生 input（省约 3 KB）；TanStack Form 的 Devtools 事件客户端和 FormGroup 用不到，经 `astro.config.ts` 的别名换成桩（`src/lib/stubs/`）。
 - 补齐首发 Tool（见下方候选清单，2026-10-29 确认按清单推进；每个 Tool 走「core + 测试 → en 内容 → 审核 → 翻译 → 审核」）：
   - ✅ Base64 Encode/Decode（`base64-encode-decode`）：7 个 Locale 全部 Reviewed。只处理文本（加文件输入会失去 Agent Interface，ADR-0016）；解码接受标准和 URL 安全两种字母表、忽略空白、容忍缺失的 padding；非 UTF-8 字节单独报 `invalid_utf8`。
   - ✅ URL Encode/Decode（`url-encode-decode`）：7 个 Locale 全部 Reviewed。三种范围：URL 组成部分（`encodeURIComponent`）、完整 URL（`encodeURI`）、表单数据（空格转 +，在 `encodeURIComponent` 上改写，孤立代理项同样报错）。
@@ -214,7 +215,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 - ~~Rate Limiting binding 在 Free 计划上是否可用~~：可用，但计数近似（见 M2）。
 - `/mcp` 冷启动 CPU 尖峰（16–42ms）在 Free 计划上是否会触发 CPU 超限，需要持续观察。
 - ~~takumi 的 CSS 支持是否满足 OG 模板（M1 验证）~~：已验证。zh/ja 能正确排版，CJK 字体用 fontsource 的 unicode-range 子集，按图上用到的字符按需加载。
-- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身（architecture §15）。⌘K 改为按需加载后，首页和 Category 页约 1 KB，Tool 页约 150 KB（M2 加入 WebMCP 与 Turnstile 后约 154 KB，M3 加入文件字段后约 156 KB，离 160 KB 上限只剩约 4 KB）。多文件控件按需加载，其他 Tool 页不受影响；Merge PDF 页约 158.5 KB，离上限只剩约 1.5 KB。M3 加入进度条和取消按钮后，用同一口径对比前后两次构建：在 Playwright 中加载页面直到网络空闲，把所有脚本逐个 gzip 后求和。JSON Formatter 页从 157.9 KB 增加到 158.3 KB，Merge PDF 页从 159.8 KB 增加到 160.2 KB。这个口径比上面的旧数字高约 1.3 KB（包含空闲时预取的 core），按它算 Merge PDF 页已经略超 160 KB。M6 接入 `@lhci/cli` 时要统一口径，继续往首屏加代码之前先瘦身。M3 加入 Speech to Text（语言名下拉选项、进度阶段）后用同一方法（Node zlib 默认级别 gzip）再测：JSON Formatter 157.6 KB，Merge PDF 159.5 KB，Speech to Text 157.8 KB；和前面的数字压缩级别可能不同，不能直接相减。另外试过把取消按钮也放进按需加载的分块，结果 Base UI 的公共模块被拆成单独的分块，首屏反而多了约 0.6 KB，所以没有采用。M3 加入本地状态后用同一方法（Playwright 加载到网络空闲、Node zlib 逐个 gzip 求和）前后对比：JSON Formatter 158.9 → 161.2 KB，Merge PDF 160.8 → 162.2 KB，Speech to Text 159.1 → 161.5 KB，首页 1.3 → 1.7 KB。增量主要是水合后按需加载的 local-store（0.76 KB）和偏好分块（0.28 KB），以及页脚脚本（0.4 KB）；它们不阻塞首次渲染，但这个口径会计入。M6 统一口径时要决定水合后的按需分块算不算首屏。
+- ~~首屏 JS 预算（≤ 50 KB gzip）与 React island 冲突~~：已决定调高预算并做瘦身；统计口径 2026-11-01 确认（architecture §15），由 `e2e/budget.spec.ts` 强制。最大的 Tool 页是 158.2 KB，继续往首屏加代码之前先瘦身。
 - ~~内容近似度阈值（M4 根据样本确定）~~：0.3，依据见 M4。
 - 第三方许可证声明：站点会分发 libheif（LGPL-3.0，经 `libheif-js`，声明页要写明库名、版本、许可证全文和源码链接；现在 WASM 内联在 libheif-bundle 的 JS 里，是否满足 LGPL 对用户可替换的要求待确认，保守做法是改用独立的 `libheif.wasm` 文件）、PDFium（Apache-2.0，含它捆绑的第三方库）和 jSquash 编解码器的 WASM、Mediabunny（MPL-2.0）、Transformers.js（Apache-2.0）、ONNX Runtime Web（MIT）以及 Whisper base 的权重（MIT），上线前（M6）要补一个许可证声明页。
 - Service Worker 的 `assets` 缓存不随部署清理（已打开的旧页面还可能按需加载旧分块），每次部署后用过的旧分块会一直留着，直到"清除本地数据"。需要时再加按时间或数量的清理。

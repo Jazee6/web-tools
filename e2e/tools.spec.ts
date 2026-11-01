@@ -173,6 +173,10 @@ for (const tool of tools) {
         });
         await page.goto(`/${tool.id}`);
         await page.waitForSelector("[data-hydrated]");
+        // 适配层在探测到 modelContext 后才动态加载，注册略晚于水合
+        await page.waitForFunction(
+          () => (window as unknown as { webmcpTools: unknown[] }).webmcpTools.length > 0,
+        );
         const result = await page.evaluate(async (input) => {
           const [descriptor] = (window as unknown as { webmcpTools: any[] }).webmcpTools;
           return {

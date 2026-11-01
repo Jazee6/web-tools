@@ -93,5 +93,10 @@ const registerServiceWorker = `if ("serviceWorker" in navigator) {
       <slot />
     </div>
     <SiteFooter />
+    <script>
+      import { installErrorReporting } from "@/lib/telemetry/client";
+
+      installErrorReporting();
+    </script>
   </body>
 </html>

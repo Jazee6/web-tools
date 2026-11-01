@@ -31,6 +31,12 @@ const variantRoutesIntegration: AstroIntegration = {
 const ortWebGpu = fileURLToPath(
   new URL("node_modules/onnxruntime-web/dist/ort.webgpu.min.mjs", import.meta.url),
 );
+const tanstackDevtoolsStub = fileURLToPath(
+  new URL("src/lib/stubs/tanstack-devtools-event-client.ts", import.meta.url),
+);
+const tanstackFormGroupStub = fileURLToPath(
+  new URL("src/lib/stubs/tanstack-form-group.ts", import.meta.url),
+);
 
 export default defineConfig({
   site: site.url,
@@ -55,7 +61,11 @@ export default defineConfig({
     // Transformers.js 引入的 onnxruntime-web/webgpu 默认是内嵌 WASM 路径的 bundle 版，构建时会把 26.9 MB 的
     // .wasm 复制进产物（超过静态资源单文件上限）。改用 extern-wasm 版，.wasm 由 Speech to Text 的 core 从分片加载（ADR-0018）
     resolve: {
-      alias: [{ find: /^onnxruntime-web\/webgpu$/, replacement: ortWebGpu }],
+      alias: [
+        { find: /^onnxruntime-web\/webgpu$/, replacement: ortWebGpu },
+        { find: /^@tanstack\/devtools-event-client$/, replacement: tanstackDevtoolsStub },
+        { find: /^\.\/useFormGroup\.js$/, replacement: tanstackFormGroupStub },
+      ],
     },
     // jSquash 和 PDFium 的 Emscripten 胶水代码用 import.meta.url 定位 .wasm，经依赖预构建后路径会失效
     optimizeDeps: {

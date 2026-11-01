@@ -56,6 +56,8 @@ jobs:
       # 另建一份 on-demand 模式的产物，与 static 模式逐字节对比（ADR-0004）
       - run: bun run check:variant-modes
       - run: bun run test:e2e
+      # LCP、CLS、TBT（architecture §15）。首屏 JS 体积在 e2e/budget.spec.ts 里断言
+      - run: bun run check:lighthouse
 
   preview:
     if: github.event_name == 'pull_request'

@@ -11,7 +11,6 @@ import {
 } from "react";
 import * as v from "valibot";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -30,9 +29,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { registerWebMcpTool } from "@/lib/agent/webmcp";
+import { getModelContext } from "@/lib/agent/model-context";
+import { setActiveTool } from "@/lib/telemetry/client";
 import {
   type AnyTool,
   type Capability,
@@ -51,8 +50,7 @@ import { m } from "@/paraglide/messages";
 import type { Estimates } from "./FilesInput";
 import { invokeTool } from "./invoke";
 import { selectItems } from "./select-items";
-import { type OutputLabel, ToolOutput } from "./ToolOutput";
-import { getTurnstileToken, loadTurnstile } from "./turnstile";
+import type { OutputLabel } from "./ToolOutput";
 
 interface Label {
   label: string;
@@ -109,6 +107,17 @@ const Unsupported = lazy(() => import("./Unsupported"));
 const FilesInput = lazy(() => import("./FilesInput"));
 const FilePreview = lazy(() => import("./FilePreview"));
 const RunProgress = lazy(() => import("./RunProgress"));
+// 只有少数 Tool 有开关字段，只有 Server-assisted Tool 用 Turnstile，都不进其他 Tool 页的首屏（architecture §15）
+const Switch = lazy(() =>
+  import("@/components/ui/switch").then((module) => ({ default: module.Switch })),
+);
+const loadTurnstileModule = () => import("./turnstile");
+// 运行出错和页面内有 agent 时才需要，不进首屏；错误提示空闲时预取，离线时也能显示
+const loadRunErrorAlert = () => import("./RunErrorAlert");
+const RunErrorAlert = lazy(loadRunErrorAlert);
+// 输出区域在第一次运行后才显示，不进首屏（architecture §15），空闲时预取
+const loadToolOutput = () => import("./ToolOutput");
+const ToolOutput = lazy(loadToolOutput);
 
 const issueMessage = (issue: v.BaseIssue<unknown>) => {
   // 多文件字段的数量限制
@@ -178,7 +187,10 @@ export function ToolForm({
   // Server-assisted Tool 的 Turnstile widget 渲染在这里（需要交互时才可见）
   const challenge = useRef<HTMLDivElement>(null);
   const siteKey = serverProps?.turnstileSiteKey ?? "";
-  const getToken = useCallback(() => getTurnstileToken(challenge.current!, siteKey), [siteKey]);
+  const getToken = useCallback(
+    async () => (await loadTurnstileModule()).getTurnstileToken(challenge.current!, siteKey),
+    [siteKey],
+  );
   const formRef = useRef<HTMLFormElement>(null);
   // 水合后探测到的缺失能力；有缺失时用 Empty 代替表单
   const [missing, setMissing] = useState<Capability[]>([]);
@@ -194,7 +206,10 @@ export function ToolForm({
   useEffect(() => {
     const element = formRef.current;
     if (!server || !element) return;
-    const preload = () => void loadTurnstile().catch(() => {});
+    const preload = () =>
+      void loadTurnstileModule()
+        .then(({ loadTurnstile }) => loadTurnstile())
+        .catch(() => {});
     element.addEventListener("focusin", preload, { once: true });
     return () => element.removeEventListener("focusin", preload);
   }, [server]);
@@ -221,11 +236,16 @@ export function ToolForm({
     return () => element.removeEventListener("focusin", warm);
   }, [tool]);
 
-  // 空闲时预取轻量 Tool 的 core，首次提交不用再等网络；requestIdleCallback 不可用时（Safari）退回 setTimeout。
+  useEffect(() => setActiveTool(tool.id), [tool.id]);
+
+  // 空闲时预取输出区域和轻量 Tool 的 core，首次提交不用再等网络；requestIdleCallback 不可用时（Safari）退回 setTimeout。
   // Server-assisted Tool 的 core 只在服务端运行，重型 Tool 的 core 在 Worker 里加载，都不预取。
   useEffect(() => {
-    if (server || tool.runtime.worker) return;
-    const prefetch = () => void loadRun(tool);
+    const prefetch = () => {
+      void loadToolOutput();
+      void loadRunErrorAlert();
+      if (!server && !tool.runtime.worker) void loadRun(tool);
+    };
     if ("requestIdleCallback" in window) {
       const id = requestIdleCallback(prefetch);
       return () => cancelIdleCallback(id);
@@ -359,41 +379,43 @@ export function ToolForm({
 
   // WebMCP：把当前 Tool 注册给页面内的 agent，执行结果同步显示在表单上；卸载时注销
   useEffect(() => {
-    if (!agent || !tool.agent.webmcp) return;
+    if (!agent || !tool.agent.webmcp || !getModelContext()) return;
     const controller = new AbortController();
-    void registerWebMcpTool(
-      {
-        name: tool.id,
-        description: tool.agent.description,
-        inputSchema: agent.inputSchema,
-        annotations: { readOnlyHint: true, untrustedContentHint: server },
-        execute: async (args) => {
-          const parsed = v.safeParse(tool.input, args);
-          if (!parsed.success) {
-            const issues = parsed.issues.map((issue) => ({
-              path: v.getDotPath(issue),
-              message: issue.message,
-            }));
-            return JSON.stringify({ error: { code: "invalid_input", issues } });
-          }
-          for (const [name, value] of Object.entries(parsed.output)) {
-            form.setFieldValue(name, value as never);
-          }
-          try {
-            const result = await invokeTool(tool, parsed.output, getToken);
-            setRunError(undefined);
-            setOutput(result);
-            return JSON.stringify(result);
-          } catch (error) {
-            if (!(error instanceof ToolError)) throw error;
-            const { code, field, detail } = error;
-            return JSON.stringify({
-              error: { code, field, detail, message: errorMessage(error, strings) },
-            });
-          }
+    void import("@/lib/agent/webmcp").then(({ registerWebMcpTool }) =>
+      registerWebMcpTool(
+        {
+          name: tool.id,
+          description: tool.agent.description,
+          inputSchema: agent.inputSchema,
+          annotations: { readOnlyHint: true, untrustedContentHint: server },
+          execute: async (args) => {
+            const parsed = v.safeParse(tool.input, args);
+            if (!parsed.success) {
+              const issues = parsed.issues.map((issue) => ({
+                path: v.getDotPath(issue),
+                message: issue.message,
+              }));
+              return JSON.stringify({ error: { code: "invalid_input", issues } });
+            }
+            for (const [name, value] of Object.entries(parsed.output)) {
+              form.setFieldValue(name, value as never);
+            }
+            try {
+              const result = await invokeTool(tool, parsed.output, getToken);
+              setRunError(undefined);
+              setOutput(result);
+              return JSON.stringify(result);
+            } catch (error) {
+              if (!(error instanceof ToolError)) throw error;
+              const { code, field, detail } = error;
+              return JSON.stringify({
+                error: { code, field, detail, message: errorMessage(error, strings) },
+              });
+            }
+          },
         },
-      },
-      controller.signal,
+        controller.signal,
+      ),
     );
     return () => controller.abort();
   }, [agent, tool, server, form, getToken, strings]);
@@ -473,13 +495,15 @@ export function ToolForm({
         );
       case "boolean":
         return (
-          <Switch
-            id={id}
-            name={field.name}
-            checked={Boolean(field.state.value)}
-            aria-invalid={invalid}
-            onCheckedChange={(checked) => onChange(checked)}
-          />
+          <Suspense>
+            <Switch
+              id={id}
+              name={field.name}
+              checked={Boolean(field.state.value)}
+              aria-invalid={invalid}
+              onCheckedChange={(checked) => onChange(checked)}
+            />
+          </Suspense>
         );
       case "select": {
         const items = selectItems(spec, label?.options);
@@ -626,22 +650,25 @@ export function ToolForm({
       </form>
 
       {runError && !runError.field && (
-        <Alert variant="destructive">
-          <AlertDescription>{runError.message}</AlertDescription>
-        </Alert>
+        <Suspense>
+          <RunErrorAlert message={runError.message} />
+        </Suspense>
       )}
 
-      {output &&
-        outputFields.map((spec) => (
-          <ToolOutput
-            key={spec.name}
-            spec={spec}
-            value={output[spec.name]}
-            label={strings.output[spec.name]}
-            sources={sourcesOf(fields, submitted, output[spec.name])}
-            toolId={tool.id}
-          />
-        ))}
+      {output && (
+        <Suspense>
+          {outputFields.map((spec) => (
+            <ToolOutput
+              key={spec.name}
+              spec={spec}
+              value={output[spec.name]}
+              label={strings.output[spec.name]}
+              sources={sourcesOf(fields, submitted, output[spec.name])}
+              toolId={tool.id}
+            />
+          ))}
+        </Suspense>
+      )}
     </div>
   );
 }
