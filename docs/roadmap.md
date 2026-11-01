@@ -140,8 +140,9 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
 
 - ⏳ Cloudflare Web Analytics：用后台自动注入，不改代码（2026-11-01 确认）。需要在后台开启，然后核对生产 HTML 里有没有 `cloudflareinsights`；文档没写自动注入是否支持 Workers 自定义域，不行就改用手动 snippet。
 - ✅ `/api/e`：事件在客户端抽样 10%，错误全量上报并在同一会话内去重，写入 Analytics Engine（数据集 `web_tools_events`，第一次写入时自动创建）。字段、隐私和防滥用见 architecture §16；Worker 路由有 workerd 测试（用桩代替 Analytics Engine），`e2e/telemetry.spec.ts` 在三个引擎上走真实的 sendBeacon 和本地 Worker。⏳ 部署后在生产确认数据点能写入并查询到。
-- ✅ 预算门禁：`@lhci/cli` 断言 LCP ≤ 2.0s、CLS ≤ 0.05、TBT ≤ 150ms（6 个代表性页面各跑 3 次取中位数，加入 CI 的 browser job）；首屏 JS 由 `e2e/budget.spec.ts` 断言（所有 Tool 和 Variant 页 ≤ 160 KB，首页和 Category 页 ≤ 10 KB），口径见 architecture §15。本机：LCP 1.66–1.82 s，CLS ≤ 0.022，TBT 0 ms；把 LCP 阈值临时改成 1 s 时 `lhci assert` 会失败。
+- ✅ 预算门禁：`@lhci/cli` 断言 LCP ≤ 2.0s、CLS ≤ 0.05、TBT ≤ 150ms（首页、JSON Formatter、Merge PDF、一个 Variant 页各跑 3 次取中位数，加入 CI 的 browser job）；首屏 JS 由 `e2e/budget.spec.ts` 断言（所有 Tool 和 Variant 页 ≤ 160 KB，首页和 Category 页 ≤ 10 KB），口径见 architecture §15。用真实节流，因为 Lantern 模拟的 LCP 在同一页面上不稳定（对照实验见 architecture §15）。本机：LCP 1.31–1.36 s，CLS 0，TBT 0 ms；把 LCP 阈值临时改成 1 s 时 `lhci assert` 会失败。
   - 按新口径第一次量出来 Tool 页是 165–167 KB，瘦身后 157–158.2 KB，首页和 Category 页 2.7 KB。输出区域、错误提示、Turnstile、WebMCP 适配层、开关控件改为按需加载（输出区域和错误提示空闲时预取，离线时也能用）；`ui/input.tsx` 改用原生 input（省约 3 KB）；TanStack Form 的 Devtools 事件客户端和 FormGroup 用不到，经 `astro.config.ts` 的别名换成桩（`src/lib/stubs/`）。
+  - CI 比本机慢，第一次在 CI 上跑就查出 Merge PDF 页 CLS 0.066（本机是 0），用 12 倍 CPU 降速加慢网在本地复现。两个来源：Inter 替换系统字体时折行变了（32 px），改用度量对齐的回退字体 `Inter Fallback`；`hydrated` 的状态更新打断还没水合完的懒加载边界，React 先渲染空 fallback，字段折叠又恢复（上下各 48 px），改成同尺寸的 fallback。修复后同样的降速条件下，12 个抽样页面的 CLS 都不超过 0.021。
 - 补齐首发 Tool（见下方候选清单，2026-10-29 确认按清单推进；每个 Tool 走「core + 测试 → en 内容 → 审核 → 翻译 → 审核」）：
   - ✅ Base64 Encode/Decode（`base64-encode-decode`）：7 个 Locale 全部 Reviewed。只处理文本（加文件输入会失去 Agent Interface，ADR-0016）；解码接受标准和 URL 安全两种字母表、忽略空白、容忍缺失的 padding；非 UTF-8 字节单独报 `invalid_utf8`。
   - ✅ URL Encode/Decode（`url-encode-decode`）：7 个 Locale 全部 Reviewed。三种范围：URL 组成部分（`encodeURIComponent`）、完整 URL（`encodeURI`）、表单数据（空格转 +，在 `encodeURIComponent` 上改写，孤立代理项同样报错）。

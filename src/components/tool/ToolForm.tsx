@@ -495,7 +495,8 @@ export function ToolForm({
         );
       case "boolean":
         return (
-          <Suspense>
+          // 水合时 React 可能先渲染 fallback（见下面 FilesInput 的说明），占位与开关同尺寸
+          <Suspense fallback={<span className="h-5 w-11 shrink-0" />}>
             <Switch
               id={id}
               name={field.name}
@@ -550,7 +551,9 @@ export function ToolForm({
         );
       case "files":
         return (
-          <Suspense>
+          // hydrated 状态更新会打断还没水合完的 Suspense 边界，React 先渲染 fallback 再等分块加载；
+          // fallback 与空的文件输入框同尺寸同外观，字段不会折叠（否则页面上下跳动，CLS 超标）
+          <Suspense fallback={<div className="h-9 w-full rounded-3xl bg-input/50" />}>
             <FilesInput
               id={id}
               name={field.name}

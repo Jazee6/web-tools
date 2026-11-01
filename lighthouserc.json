@@ -4,15 +4,14 @@
       "staticDistDir": "dist/client",
       "url": [
         "http://localhost/index.html",
-        "http://localhost/developer.html",
         "http://localhost/json-formatter.html",
         "http://localhost/merge-pdf.html",
-        "http://localhost/speech-to-text.html",
         "http://localhost/video-converter/mov-to-mp4.html"
       ],
       "numberOfRuns": 3,
       "settings": {
         "onlyCategories": ["performance"],
+        "throttlingMethod": "devtools",
         "chromeFlags": "--no-sandbox --headless=new"
       }
     },

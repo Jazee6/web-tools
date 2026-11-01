@@ -379,7 +379,7 @@ Variant 页打开就是已经按预设配置好的 Tool，可以直接用。
   - 没有 Tool island 的页面（首页、Category 页等）≤ 10 KB。⌘K 对话框在第一次打开时才加载 React。
   - 口径（2026-11-01 确认，`e2e/budget.spec.ts`）：Tool 页在水合完成的那一刻、其他页在 load 事件时，已加载的同源脚本逐个 gzip 后求和（Node zlib 默认级别，1 KB = 1000 字节）。不算第三方和边缘注入的脚本（Web Analytics beacon 约 10.3 KB），也不算水合之后才加载的分块（idle 预取的 core 和输出区域、引擎、本地状态）。
   - 加新依赖或新组件时优先控制 island 体积，用户体验以 LCP、TBT、CLS 等指标为准。
-- Lab 指标：LCP ≤ 2.0s、CLS ≤ 0.05、TBT ≤ 150ms（`@lhci/cli`，移动端配置，`lighthouserc.json`）。在 lhci 自带的静态服务器上跑：它会 gzip，`astro preview` 不压缩，Lighthouse 会高估下载时间；但它不应用 `_headers`，所以页面没有跨源隔离。
+- Lab 指标：LCP ≤ 2.0s、CLS ≤ 0.05、TBT ≤ 150ms（`@lhci/cli`，移动端配置，`lighthouserc.json`）。在 lhci 自带的静态服务器上跑：它会 gzip，`astro preview` 不压缩，Lighthouse 会高估下载时间；但它不应用 `_headers`，所以页面没有跨源隔离。用真实节流（`throttlingMethod: devtools`）：默认的 Lantern 模拟在同一页面上会在 1.65 s 和 2.7 s 之间跳，不能做门禁，真实节流的波动不到 50 ms。
 - Field 指标目标（Web Analytics 的 CWV）：p75 LCP ≤ 2.0s、INP ≤ 150ms、CLS ≤ 0.05。
 
 ## 16. 隐私、统计与监控
