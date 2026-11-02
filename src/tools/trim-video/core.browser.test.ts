@@ -1,5 +1,6 @@
 import { ALL_FORMATS, BlobSource, EncodedPacketSink, Input, VideoSampleSink } from "mediabunny";
 import { describe, expect, it } from "vitest";
+import { server } from "vitest/browser";
 
 import { loadExampleFile } from "../example-files";
 import { trimVideo } from "./core";
@@ -57,8 +58,8 @@ const keyPacketAt = async (file: File, timestamp: number) => {
 
 // CI 的 Linux 版 WebKit 上，负时间戳文件的 getSample(0) 返回 null（Mediabunny 在 WebKit 上直接用解码器给的时间戳）。
 // 只影响读回：文件本身由上面按容器断言的测试覆盖，macOS 版 WebKit 能正常解。
-// Chromium 的 UA 也含 Linux 和 Safari，但没有 Version/
-const isLinuxWebKit = /Linux.*Version\/.*Safari/.test(navigator.userAgent);
+// 不靠 UA 判断：CI 的 WebKit 的 UA 没能被 Linux 匹配到
+const isLinuxWebKit = server.browser === "webkit" && server.platform === "linux";
 
 const mimeTypes: Record<string, string> = {
   "clip.mp4": "video/mp4",
