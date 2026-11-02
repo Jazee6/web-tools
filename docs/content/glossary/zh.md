@@ -36,6 +36,9 @@
 | regular expression / pattern / flag / match / capture group | 正则表达式 / 模式 / 标志 / 匹配 / 捕获组 | 正则式、规则、标记、命中 |
 | unit / metric / imperial / absolute zero | 单位 / 公制 / 英制 / 绝对零度 | 度量衡、计量单位 |
 | domain / record / resolver / TTL / name server | 域名 / 记录 / 解析器 / TTL / 名称服务器 | 主机、DNS 服务器（指解析器时）、生存时间 |
+| resize / proportions / crop / stretch | 调整尺寸 / 比例 / 裁剪 / 拉伸 | 缩放（单独使用）、宽高比（正文中）、剪裁 |
+| page range / extract (pages) / split | 页码范围 / 提取 / 拆分 | 切割、分割 |
+| trim / key frame / re-encode / edit list | 剪切 / 关键帧 / 重新编码 / 编辑列表（edit list） | 裁剪（指视频时）、截取、关键桢、转码（正文中） |
 
 ## Tool 与 Category 名称
 
@@ -45,8 +48,11 @@
 | http-header-checker | HTTP 响应头检查 |
 | image-compressor | 图片压缩 |
 | image-converter | 图片格式转换 |
+| image-resizer | 图片尺寸调整 |
 | merge-pdf | PDF 合并 |
+| split-pdf | PDF 拆分 |
 | video-converter | 视频格式转换 |
+| trim-video | 视频剪切 |
 | speech-to-text | 语音转文字 |
 | base64-encode-decode | Base64 编码/解码 |
 | url-encode-decode | URL 编码/解码 |

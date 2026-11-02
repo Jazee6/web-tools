@@ -35,6 +35,9 @@
 | regular expression / pattern / flag / match / capture group | expressão regular / padrão / flag / correspondência / grupo de captura | regex (só no corpo), bandeira, resultado |
 | unit / metric / imperial / absolute zero | unidade / métrico / imperial / zero absoluto | medida (sozinha) |
 | domain / record / resolver / TTL / name server | domínio / registro / resolvedor / TTL / servidor de nomes | resolutor, servidor DNS (para resolvedor) |
+| resize / proportions / crop / stretch | redimensionar / proporções / recortar / esticar | escalar, aspecto (sozinho) |
+| page range / extract (pages) / split | intervalo de páginas / extrair / dividir | cortar (em PDF) |
+| trim / key frame / re-encode / edit list | cortar (vídeo) / quadro-chave / recodificar / lista de edição | trimar, keyframe, transcodificar |
 
 ## Nomes de ferramentas e categorias
 
@@ -44,8 +47,11 @@
 | http-header-checker | Verificador de cabeçalhos HTTP |
 | image-compressor | Compressor de imagens |
 | image-converter | Conversor de imagens |
+| image-resizer | Redimensionador de imagens |
 | merge-pdf | Juntar PDF |
+| split-pdf | Dividir PDF |
 | video-converter | Conversor de vídeo |
+| trim-video | Cortar vídeo |
 | speech-to-text | Voz para texto |
 | base64-encode-decode | Codificar e decodificar Base64 |
 | url-encode-decode | Codificar e decodificar URL |

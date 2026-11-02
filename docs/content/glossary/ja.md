@@ -35,6 +35,9 @@
 | regular expression / pattern / flag / match / capture group | 正規表現 / パターン / フラグ / マッチ / キャプチャグループ | 正則表現、ヒット、取得グループ |
 | unit / metric / imperial / absolute zero | 単位 / メートル法 / ヤード・ポンド法 / 絶対零度 | ユニット、英国式 |
 | domain / record / resolver / TTL / name server | ドメイン / レコード / リゾルバー / TTL / ネームサーバー | 名前解決サーバー、DNS サーバー（リゾルバーの意味で） |
+| resize / proportions / crop / stretch | リサイズ / 縦横比 / 切り抜く / 引き伸ばす | 拡大縮小（単独）、アスペクト比、トリミング（画像の crop の意味で） |
+| page range / extract (pages) / split | ページ範囲 / 抽出 / 分割 | 切り出し、カット（PDF） |
+| trim / key frame / re-encode / edit list | トリミング / キーフレーム / 再エンコード / エディットリスト | キー フレーム、トランスコード（本文中） |
 
 ## ツールとカテゴリの名称
 
@@ -44,8 +47,11 @@
 | http-header-checker | HTTP ヘッダーチェッカー |
 | image-compressor | 画像圧縮 |
 | image-converter | 画像変換 |
+| image-resizer | 画像リサイズ |
 | merge-pdf | PDF 結合 |
+| split-pdf | PDF 分割 |
 | video-converter | 動画変換 |
+| trim-video | 動画トリミング |
 | speech-to-text | 音声文字起こし |
 | base64-encode-decode | Base64 エンコード/デコード |
 | url-encode-decode | URL エンコード/デコード |

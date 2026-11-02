@@ -34,6 +34,9 @@
 | regular expression / pattern / flag / match / capture group | regular expression / pattern / flag / match / capture group | regex (in body text only), regexp, search term |
 | unit / metric / imperial / absolute zero | unit / metric / imperial / absolute zero | measurement (alone), standard |
 | domain / record / resolver / TTL / name server | domain / record / resolver / TTL / name server | host (alone), DNS server (for resolver) |
+| resize / proportions / crop / stretch | resize / proportions / crop / stretch | scale (alone), aspect (alone) |
+| page range / extract (pages) / split | page range / extract / split | cut (for PDF) |
+| trim / key frame / re-encode / edit list | trim / key frame / re-encode / edit list | keyframe (one word), transcode (in body text) |
 
 ## Tool 与 Category 名称
 
@@ -43,8 +46,11 @@
 | http-header-checker | HTTP Header Checker |
 | image-compressor | Image Compressor |
 | image-converter | Image Converter |
+| image-resizer | Image Resizer |
 | merge-pdf | Merge PDF |
+| split-pdf | Split PDF |
 | video-converter | Video Converter |
+| trim-video | Trim Video |
 | speech-to-text | Speech to Text |
 | base64-encode-decode | Base64 Encode/Decode |
 | url-encode-decode | URL Encode/Decode |
