@@ -1,3 +1,4 @@
+import { encodeImage } from "@/lib/image/encode";
 import { ToolError } from "@/lib/tool-contract/define-tool";
 
 export interface ConvertImageInput {
@@ -54,45 +55,6 @@ const decodeNative = async (file: File): Promise<ImageData> => {
 const decode = (file: File) =>
   file.type === "image/heic" || file.type === "image/heif" ? decodeHeic(file) : decodeNative(file);
 
-// JPEG 没有透明通道，编码器会把透明像素当成黑色，所以先铺上白底
-const flattenOnWhite = (image: ImageData) => {
-  const { data } = image;
-  for (let i = 0; i < data.length; i += 4) {
-    const alpha = data[i + 3]! / 255;
-    if (alpha === 1) continue;
-    data[i] = Math.round(data[i]! * alpha + 255 * (1 - alpha));
-    data[i + 1] = Math.round(data[i + 1]! * alpha + 255 * (1 - alpha));
-    data[i + 2] = Math.round(data[i + 2]! * alpha + 255 * (1 - alpha));
-    data[i + 3] = 255;
-  }
-};
-
-const encode = async (image: ImageData, format: ConvertImageInput["format"], quality: number) => {
-  switch (format) {
-    case "jpeg": {
-      const { default: encodeJpeg } = await import("@jsquash/jpeg/encode");
-      flattenOnWhite(image);
-      return encodeJpeg(image, { quality });
-    }
-    case "webp": {
-      const { default: encodeWebp } = await import("@jsquash/webp/encode");
-      return encodeWebp(image, { quality });
-    }
-    case "avif": {
-      const { default: encodeAvif } = await import("@jsquash/avif/encode");
-      return encodeAvif(image, { quality });
-    }
-    case "png": {
-      // 浏览器原生编码出 PNG，再用 OxiPNG 无损优化
-      const canvas = new OffscreenCanvas(image.width, image.height);
-      canvas.getContext("2d")!.putImageData(image, 0, 0);
-      const blob = await canvas.convertToBlob({ type: "image/png" });
-      const { default: optimise } = await import("@jsquash/oxipng/optimise");
-      return optimise(await blob.arrayBuffer(), { level: 2 });
-    }
-  }
-};
-
 const convertedName = (name: string, extension: string) => {
   const dot = name.lastIndexOf(".");
   return `${dot > 0 ? name.slice(0, dot) : name}${extension}`;
@@ -100,7 +62,7 @@ const convertedName = (name: string, extension: string) => {
 
 export const convertImage = async ({ file, format, quality }: ConvertImageInput) => {
   const output = OUTPUT[format];
-  const bytes = await encode(await decode(file), format, quality);
+  const bytes = await encodeImage(await decode(file), output.type, quality);
   return {
     file: new File([bytes], convertedName(file.name, output.extension), { type: output.type }),
   };

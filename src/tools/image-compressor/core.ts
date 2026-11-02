@@ -1,3 +1,4 @@
+import { encodeImage, type ImageMimeType, optimisePng } from "@/lib/image/encode";
 import type { ToolContext } from "@/lib/tool-contract/define-tool";
 import { ToolError } from "@/lib/tool-contract/define-tool";
 
@@ -6,7 +7,7 @@ export interface CompressImagesInput {
   quality: number;
 }
 
-// 原生 API 解码（createImageBitmap 会按 EXIF 方向摆正），jSquash 按格式编码；编码器按需加载，各自初始化一次 WASM。
+// 原生 API 解码（createImageBitmap 会按 EXIF 方向摆正），再按格式编码（lib/image/encode）。
 // PNG 直接对原始字节做 oxipng 无损优化，不经过解码。
 const decodeBitmap = async (file: File): Promise<ImageBitmap> => {
   try {
@@ -36,43 +37,12 @@ const decode = async (file: File): Promise<ImageData> => {
   return pixels;
 };
 
-const optimisePng = async (bytes: ArrayBuffer) => {
-  const { default: optimise } = await import("@jsquash/oxipng/optimise");
-  return optimise(bytes, { level: 2 });
-};
-
-const encodePixels = async (type: string, pixels: ImageData, quality: number) => {
-  switch (type) {
-    case "image/png": {
-      // 采样预估用：先用原生 PNG 编码器得到字节，再交给 oxipng
-      const canvas = new OffscreenCanvas(pixels.width, pixels.height);
-      canvas.getContext("2d")!.putImageData(pixels, 0, 0);
-      const blob = await canvas.convertToBlob({ type: "image/png" });
-      return optimisePng(await blob.arrayBuffer());
-    }
-    case "image/jpeg": {
-      const { default: encodeJpeg } = await import("@jsquash/jpeg/encode");
-      return encodeJpeg(pixels, { quality });
-    }
-    case "image/webp": {
-      const { default: encodeWebp } = await import("@jsquash/webp/encode");
-      return encodeWebp(pixels, { quality });
-    }
-    case "image/avif": {
-      const { default: encodeAvif } = await import("@jsquash/avif/encode");
-      return encodeAvif(pixels, { quality });
-    }
-    default:
-      throw new Error(`不支持的图片类型 ${type}`);
-  }
-};
-
 const encode = async (file: File, quality: number): Promise<ArrayBuffer> => {
   if (file.type === "image/png") return optimisePng(await file.arrayBuffer());
   if (!["image/jpeg", "image/webp", "image/avif"].includes(file.type)) {
     throw new ToolError("decode_failed", { field: "files", detail: file.name });
   }
-  return encodePixels(file.type, await decode(file), quality);
+  return encodeImage(await decode(file), file.type as ImageMimeType, quality);
 };
 
 const compressedName = (name: string) => {
@@ -147,7 +117,7 @@ const estimateFile = async (file: File, quality: number, ctx: ToolContext) => {
   let pixels = 0;
   for (const tile of sample.tiles) {
     ctx.signal?.throwIfAborted();
-    encoded += (await encodePixels(file.type, tile, quality)).byteLength;
+    encoded += (await encodeImage(tile, file.type as ImageMimeType, quality)).byteLength;
     pixels += tile.width * tile.height;
   }
   return Math.round((encoded * sample.width * sample.height) / pixels);
