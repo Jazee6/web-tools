@@ -43,15 +43,22 @@ const probe = async (file: File) => {
   }
 };
 
-const firstPacketBytes = async (file: File, timestamp: number) => {
+// 不解码，只读容器：最接近 timestamp 的关键帧的字节和时间戳
+const keyPacketAt = async (file: File, timestamp: number) => {
   const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
   try {
     const packets = new EncodedPacketSink((await input.getPrimaryVideoTrack())!);
-    return Array.from((await packets.getKeyPacket(timestamp))!.data);
+    const packet = (await packets.getKeyPacket(timestamp))!;
+    return { bytes: Array.from(packet.data), timestamp: packet.timestamp };
   } finally {
     input.dispose();
   }
 };
+
+// CI 的 Linux 版 WebKit 上，负时间戳文件的 getSample(0) 返回 null（Mediabunny 在 WebKit 上直接用解码器给的时间戳）。
+// 只影响读回：文件本身由上面按容器断言的测试覆盖，macOS 版 WebKit 能正常解。
+// Chromium 的 UA 也含 Linux 和 Safari，但没有 Version/
+const isLinuxWebKit = /Linux.*Version\/.*Safari/.test(navigator.userAgent);
 
 const mimeTypes: Record<string, string> = {
   "clip.mp4": "video/mp4",
@@ -96,30 +103,56 @@ describe("trimVideo", () => {
     expect(file.name).toBe(name.replace(".", "-trimmed."));
   });
 
-  // MP4 / MOV 用编辑列表隐藏起点之前的帧；WebM / MKV 从 2 秒的关键帧（蓝色）开始，比要求的多 1 秒
+  // 都从 2 秒的关键帧开始复制。MP4 / MOV 用编辑列表把它放到 -1 秒，播放从要求的 3 秒开始；
+  // WebM / MKV 把它平移到 0，比要求的多 1 秒。
   it.each([
-    ["clip.mp4", "yellow", 2],
-    ["clip.mov", "yellow", 2],
-    ["clip.webm", "blue", 3],
-    ["clip.mkv", "blue", 3],
-  ])("fast mode copies %s without re-encoding", async (name, startColor, duration) => {
+    ["clip.mp4", -1, 2],
+    ["clip.mov", -1, 2],
+    ["clip.webm", 0, 3],
+    ["clip.mkv", 0, 3],
+  ])("fast mode copies %s without re-encoding", async (name, keyTimestamp, duration) => {
     const source = await load(name);
     const { file } = await trimVideo({ file: source, start: "3", end: "5", mode: "fast" }, {});
-    const original = await probe(source);
-    const result = await probe(file);
+    const key = await keyPacketAt(file, 0);
+    expect(key.bytes).toEqual((await keyPacketAt(source, 3)).bytes);
+    expect(key.timestamp).toBeCloseTo(keyTimestamp, 1);
+
+    const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
+    const measured = await input.computeDuration();
+    input.dispose();
+    expect(measured).toBeGreaterThanOrEqual(duration - 0.05);
+    expect(measured).toBeLessThan(duration + 0.5);
+  });
+
+  it.each([
+    ["clip.webm", "blue"],
+    ["clip.mkv", "blue"],
+  ])("fast mode plays %s from the earlier key frame", async (name, startColor) => {
+    const source = await load(name);
+    const { file } = await trimVideo({ file: source, start: "3", end: "5", mode: "fast" }, {});
+    const [original, result] = [await probe(source), await probe(file)];
     expect(result.startColor).toBe(startColor);
-    expect(result.duration).toBeGreaterThanOrEqual(duration - 0.05);
-    expect(result.duration).toBeLessThan(duration + 0.5);
     expect(result.video).toBe(original.video);
     expect(result.audio).toBe(original.audio);
-    expect(await firstPacketBytes(file, 0)).toEqual(await firstPacketBytes(source, 3));
   });
+
+  it.skipIf(isLinuxWebKit).each(["clip.mp4", "clip.mov"])(
+    "fast mode hides the frames before the start of %s",
+    async (name) => {
+      const source = await load(name);
+      const { file } = await trimVideo({ file: source, start: "3", end: "5", mode: "fast" }, {});
+      const [original, result] = [await probe(source), await probe(file)];
+      expect(result.startColor).toBe("yellow");
+      expect(result.video).toBe(original.video);
+      expect(result.audio).toBe(original.audio);
+    },
+  );
 
   it("copies in precise mode when the start is on a key frame and the end is not cut", async () => {
     const source = await load("clip.mp4");
     const { file } = await trimVideo({ file: source, start: "2", end: "", mode: "precise" }, {});
     expect(await probe(file)).toMatchObject({ startColor: "blue", video: "avc" });
-    expect(await firstPacketBytes(file, 0)).toEqual(await firstPacketBytes(source, 2));
+    expect((await keyPacketAt(file, 0)).bytes).toEqual((await keyPacketAt(source, 2)).bytes);
   });
 
   it.each(Object.keys(mimeTypes))("precise mode leaves no cut footage in %s", async (name) => {
