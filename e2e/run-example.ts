@@ -74,7 +74,8 @@ export const runExample = async (
         .setInputFiles(names.map((name) => `src/tools/${tool.id}/examples/${name}`));
       continue;
     }
-    await fill(page, spec.name, spec.kind, input[spec.name]);
+    // 可选字段没有默认值时留空
+    if (input[spec.name] !== undefined) await fill(page, spec.name, spec.kind, input[spec.name]);
   }
   await page.locator('button[type="submit"]').click();
   // Worker Tool 可能要先下载 WASM 或模型，等输出出现再逐项比较

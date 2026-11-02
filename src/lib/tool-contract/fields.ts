@@ -98,6 +98,24 @@ export const initialValues = (schema: ToolSchema): Record<string, unknown> => {
   );
 };
 
+// 表单里没填的可选数字字段是空字符串（清空后是 NaN），校验前换成 undefined。
+// 有默认值的数字字段不换：用户清空后应该提示，而不是悄悄用回默认值
+export const withBlankNumbersOmitted = (
+  schema: ToolSchema,
+  values: Record<string, unknown>,
+): Record<string, unknown> => {
+  const defaults = v.getDefaults(schema) as Record<string, unknown>;
+  const blank = describeFields(schema).filter(
+    ({ name, kind }) =>
+      kind === "number" &&
+      (values[name] === "" || Number.isNaN(values[name])) &&
+      defaults[name] === undefined &&
+      (schema.entries[name] as AnySchema).type === "optional",
+  );
+  if (blank.length === 0) return values;
+  return { ...values, ...Object.fromEntries(blank.map(({ name }) => [name, undefined])) };
+};
+
 // 记作本地偏好的字段（architecture §13）：选项类字段，不含文件和自由文本
 export const isPreferenceField = (spec: FieldSpec): boolean =>
   spec.kind === "number" || spec.kind === "boolean" || spec.kind === "select";

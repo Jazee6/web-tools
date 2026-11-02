@@ -43,6 +43,7 @@ import {
   describeFields,
   type FieldSpec,
   initialValues,
+  withBlankNumbersOmitted,
   isPreferenceField,
 } from "@/lib/tool-contract/fields";
 import { m } from "@/paraglide/messages";
@@ -258,7 +259,7 @@ export function ToolForm({
     defaultValues,
     validators: {
       onSubmit: ({ value }) => {
-        const result = v.safeParse(tool.input, value);
+        const result = v.safeParse(tool.input, withBlankNumbersOmitted(tool.input, value));
         if (result.success) return undefined;
         const errors: Record<string, string> = {};
         // 错误挂在顶层字段上；多文件字段里某个文件不合格时，在文案前加上文件名
@@ -277,7 +278,7 @@ export function ToolForm({
       const controller = new AbortController();
       running.current = controller;
       try {
-        const input = v.parse(tool.input, value) as Values;
+        const input = v.parse(tool.input, withBlankNumbersOmitted(tool.input, value)) as Values;
         setOutput(
           await invokeTool(tool, input, getToken, {
             signal: controller.signal,
@@ -488,6 +489,7 @@ export function ToolForm({
             name={field.name}
             type="number"
             value={String(field.state.value)}
+            placeholder={label?.placeholder}
             aria-invalid={invalid}
             onBlur={field.handleBlur}
             onChange={(event) => onChange(event.target.valueAsNumber)}

@@ -1,7 +1,7 @@
 import * as v from "valibot";
 import { describe, expect, it } from "vitest";
 
-import { describeFields, initialValues } from "./fields";
+import { describeFields, initialValues, withBlankNumbersOmitted } from "./fields";
 import { fileType } from "./file-type";
 
 const schema = v.object({
@@ -72,5 +72,30 @@ describe("describeFields", () => {
       flag: true,
       mode: "b",
     });
+  });
+});
+
+describe("withBlankNumbersOmitted", () => {
+  const blankable = v.object({
+    width: v.optional(v.number()),
+    quality: v.optional(v.number(), 80),
+    value: v.number(),
+    note: v.optional(v.string()),
+  });
+
+  it.each(["", Number.NaN])("drops a blank optional number without a default (%s)", (blank) => {
+    const result = withBlankNumbersOmitted(blankable, {
+      width: blank,
+      quality: 5,
+      value: 1,
+      note: "",
+    });
+    expect(result).toEqual({ width: undefined, quality: 5, value: 1, note: "" });
+    expect(v.safeParse(blankable, result).success).toBe(true);
+  });
+
+  it("keeps a blank number that has a default or is required, so validation reports it", () => {
+    const values = { width: 1, quality: Number.NaN, value: "" };
+    expect(withBlankNumbersOmitted(blankable, values)).toBe(values);
   });
 });
