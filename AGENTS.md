@@ -8,6 +8,7 @@ Single-context: root `GLOSSARY.md` and `docs/adr/`. See `docs/agents/domain.md`.
 
 - 功能尽量满足Cloudflare Free Tier使用
 - 1.0版本之前为开发阶段，无需考虑线上和向后兼容
+
 ## 开发
 
 - 包管理与脚本用 Bun：`bun run dev | build | check | lint | fmt | test | test:e2e | check:limits`
