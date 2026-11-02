@@ -1,3 +1,5 @@
+import { ToolError } from "@/lib/tool-contract/define-tool";
+
 // 页面范围（从 1 开始，含两端）。end 为 undefined 表示到最后一页
 export interface PageRange {
   start: number;
@@ -34,3 +36,29 @@ export class InvalidPagesError extends Error {
 // 转成 PDFium 的页面范围写法（FPDF_ImportPages）：从 1 开始，单页写一个数字
 export const toRangeString = ({ start, end }: Required<PageRange>): string =>
   start === end ? String(start) : `${start}-${end}`;
+
+// 解析表单字段里的页面范围，写错时报 invalid_pages，detail 是读不懂的那一段
+export const readPages = (text: string, field = "pages"): PageRange[] => {
+  try {
+    return parsePages(text);
+  } catch (error) {
+    if (error instanceof InvalidPagesError) {
+      throw new ToolError("invalid_pages", { field, detail: error.part });
+    }
+    throw error;
+  }
+};
+
+// 把开放的范围补全到最后一页，并确认每一页都存在；不存在时报 page_out_of_range，detail 是总页数
+export const resolvePages = (
+  ranges: PageRange[],
+  total: number,
+  field = "pages",
+): Required<PageRange>[] =>
+  ranges.map(({ start, end }) => {
+    const last = end ?? total;
+    if (start > total || last > total) {
+      throw new ToolError("page_out_of_range", { field, detail: String(total) });
+    }
+    return { start, end: last };
+  });
