@@ -38,6 +38,7 @@
 | domain / record / resolver / TTL / name server | 域名 / 记录 / 解析器 / TTL / 名称服务器 | 主机、DNS 服务器（指解析器时）、生存时间 |
 | resize / proportions / crop / stretch | 调整尺寸 / 比例 / 裁剪 / 拉伸 | 缩放（单独使用）、宽高比（正文中）、剪裁 |
 | page range / extract (pages) / split | 页码范围 / 提取 / 拆分 | 切割、分割 |
+| resolution / DPI / render (a page) | 分辨率 / DPI / 渲染（页面） | 像素化、栅格化 |
 | trim / key frame / re-encode / edit list | 剪切 / 关键帧 / 重新编码 / 编辑列表（edit list） | 裁剪（指视频时）、截取、关键桢、转码（正文中） |
 
 ## Tool 与 Category 名称
@@ -51,6 +52,7 @@
 | image-resizer | 图片尺寸调整 |
 | merge-pdf | PDF 合并 |
 | split-pdf | PDF 拆分 |
+| pdf-to-image | PDF 转图片 |
 | video-converter | 视频格式转换 |
 | trim-video | 视频剪切 |
 | speech-to-text | 语音转文字 |

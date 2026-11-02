@@ -38,6 +38,7 @@
 | domain / record / resolver / TTL / name server | dominio / registro / resolvedor / TTL / servidor de nombres | resolutor, servidor DNS (para resolvedor) |
 | resize / proportions / crop / stretch | redimensionar / proporciones / recortar / estirar | escalar (solo), aspecto (solo), cambiar de tamaño (en nombres y botones) |
 | page range / extract (pages) / split | intervalo de páginas / extraer / dividir | rango de páginas, cortar (para PDF) |
+| resolution / DPI / render (a page) | resolución / DPI / renderizar (una página) | rasterizar |
 | trim / key frame / re-encode / edit list | cortar (vídeo) / fotograma clave / recodificar / lista de edición (edit list) | recortar (para vídeo), keyframe, transcodificar (en el cuerpo) |
 
 ## Nombres de herramientas y categorías
@@ -51,6 +52,7 @@
 | image-resizer | Redimensionar imágenes |
 | merge-pdf | Unir PDF |
 | split-pdf | Dividir PDF |
+| pdf-to-image | PDF a imagen |
 | video-converter | Conversor de vídeo |
 | trim-video | Cortar vídeo |
 | speech-to-text | Voz a texto |

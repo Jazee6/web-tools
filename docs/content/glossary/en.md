@@ -36,6 +36,7 @@
 | domain / record / resolver / TTL / name server | domain / record / resolver / TTL / name server | host (alone), DNS server (for resolver) |
 | resize / proportions / crop / stretch | resize / proportions / crop / stretch | scale (alone), aspect (alone) |
 | page range / extract (pages) / split | page range / extract / split | cut (for PDF) |
+| resolution / DPI / render (a page) | resolution / DPI / render (a page) | dpi (lowercase), rasterize |
 | trim / key frame / re-encode / edit list | trim / key frame / re-encode / edit list | keyframe (one word), transcode (in body text) |
 
 ## Tool 与 Category 名称
@@ -49,6 +50,7 @@
 | image-resizer | Image Resizer |
 | merge-pdf | Merge PDF |
 | split-pdf | Split PDF |
+| pdf-to-image | PDF to Image |
 | video-converter | Video Converter |
 | trim-video | Trim Video |
 | speech-to-text | Speech to Text |

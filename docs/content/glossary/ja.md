@@ -37,6 +37,7 @@
 | domain / record / resolver / TTL / name server | ドメイン / レコード / リゾルバー / TTL / ネームサーバー | 名前解決サーバー、DNS サーバー（リゾルバーの意味で） |
 | resize / proportions / crop / stretch | リサイズ / 縦横比 / 切り抜く / 引き伸ばす | 拡大縮小（単独）、アスペクト比、トリミング（画像の crop の意味で） |
 | page range / extract (pages) / split | ページ範囲 / 抽出 / 分割 | 切り出し、カット（PDF） |
+| resolution / DPI / render (a page) | 解像度 / DPI / レンダリング（ページ） | ラスタライズ |
 | trim / key frame / re-encode / edit list | トリミング / キーフレーム / 再エンコード / エディットリスト | キー フレーム、トランスコード（本文中） |
 
 ## ツールとカテゴリの名称
@@ -50,6 +51,7 @@
 | image-resizer | 画像リサイズ |
 | merge-pdf | PDF 結合 |
 | split-pdf | PDF 分割 |
+| pdf-to-image | PDF 画像変換 |
 | video-converter | 動画変換 |
 | trim-video | 動画トリミング |
 | speech-to-text | 音声文字起こし |

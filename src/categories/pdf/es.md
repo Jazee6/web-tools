@@ -1,8 +1,8 @@
 ---
 review: draft
 updated: 2026-11-02
-title: "Herramientas PDF – Une y divide archivos PDF en línea"
-description: "Herramientas PDF gratuitas: une varios archivos PDF en uno, divide un PDF o extrae sus páginas. Todo se procesa en tu navegador y tus documentos nunca se suben."
+title: "Herramientas PDF – Une, divide y convierte PDF a imagen en línea"
+description: "Herramientas PDF gratuitas: une varios PDF en uno, divide un PDF o extrae sus páginas y conviértelas en imágenes JPG, PNG o WebP. Todo se procesa en tu navegador."
 name: "PDF"
-intro: "Une y divide archivos PDF sin subirlos. Cada herramienta funciona en tu dispositivo, así que contratos, facturas y otros documentos privados siguen siendo privados."
+intro: "Une, divide y convierte archivos PDF a imágenes sin subirlos. Cada herramienta funciona en tu dispositivo, así que contratos, facturas y otros documentos privados siguen siendo privados."
 ---
