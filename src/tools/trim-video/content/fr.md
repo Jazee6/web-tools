@@ -19,7 +19,7 @@ fields:
     label: Méthode de coupe
     options:
       precise: Précise (réencode si nécessaire)
-      fast: Rapide (sans réencodage)
+      fast: Rapide (coupe parfois incomplète)
 output:
   file:
     label: Vidéo coupée
@@ -45,7 +45,7 @@ faq:
   - q: Pourquoi mon extrait Rapide commence-t-il plus tôt que prévu ?
     a: Une vidéo ne peut être copiée qu'à partir d'une image clé ; un extrait WebM ou MKV commence donc à la dernière image clé avant votre heure de début. En MP4 et MOV, ces images en trop restent dans le fichier mais sont masquées par une liste d'édition, si bien qu'un lecteur qui la prend en charge démarre à votre heure. Un extrait Rapide peut aussi dépasser l'heure de fin de quelques images.
   - q: Les images que j'ai coupées sont-elles vraiment supprimées ?
-    a: "Avec Précise, oui — rien en dehors de vos heures ne reste dans le fichier. Avec Rapide, pas toujours. Les images situées entre la dernière image clé et votre heure de début restent dans le fichier, ainsi que quelques images après l'heure de fin. En MP4 et MOV, elles sont seulement masquées à la lecture, donc toute personne disposant d'un outil de montage vidéo pourrait les récupérer. Pour retirer des images sensibles avant de partager une vidéo, utilisez Précise."
+    a: "Avec Précise, oui — rien en dehors de vos heures ne reste dans le fichier. Avec Rapide, pas toujours. Les images situées entre la dernière image clé et votre heure de début restent dans le fichier, ainsi que quelques images après l'heure de fin. En MP4 et MOV, elles sont seulement masquées à la lecture. Certains navigateurs en affichent une comme image d'aperçu avant le lancement de la lecture, et toute personne disposant d'un outil de montage vidéo pourrait les récupérer. Pour retirer des images sensibles avant de partager une vidéo, utilisez Précise."
   - q: La coupe réduit-elle la qualité ?
     a: Pas avec Rapide, car rien n'est réencodé. Précise réencode avec un réglage de haute qualité, la différence est donc généralement difficile à voir, mais un réencodage n'est jamais parfaitement sans perte. Précise copie aussi sans réencoder lorsque votre heure de début tombe sur une image clé et que vous ne coupez pas la fin.
   - q: Que se passe-t-il si l'heure de fin dépasse la fin de la vidéo ?

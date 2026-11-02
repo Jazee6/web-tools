@@ -19,7 +19,7 @@ fields:
     label: Método de corte
     options:
       precise: Preciso (recodifica quando necessário)
-      fast: Rápido (sem recodificar)
+      fast: Rápido (pode reter partes cortadas)
 output:
   file:
     label: Vídeo cortado
@@ -45,7 +45,7 @@ faq:
   - q: Por que meu trecho Rápido começa antes do que pedi?
     a: Um vídeo só pode ser copiado a partir de um quadro-chave, então um trecho WebM ou MKV começa no último quadro-chave antes do seu tempo de início. Em MP4 e MOV, esses quadros extras ficam no arquivo, mas são ocultados por uma lista de edição, então um player que suporta listas de edição começa no seu tempo. Um trecho Rápido também pode passar alguns quadros do tempo de fim.
   - q: O conteúdo que cortei foi mesmo removido?
-    a: Com Preciso, sim — nada fora dos seus tempos fica no arquivo. Com Rápido, nem sempre. Os quadros entre o último quadro-chave e seu tempo de início ficam no arquivo, assim como alguns quadros depois do tempo de fim. Em MP4 e MOV eles ficam ocultos apenas durante a reprodução, então qualquer pessoa com um editor de vídeo poderia recuperá-los. Para remover conteúdo sensível antes de compartilhar um vídeo, use Preciso.
+    a: Com Preciso, sim — nada fora dos seus tempos fica no arquivo. Com Rápido, nem sempre. Os quadros entre o último quadro-chave e seu tempo de início ficam no arquivo, assim como alguns quadros depois do tempo de fim. Em MP4 e MOV eles ficam ocultos apenas durante a reprodução. Alguns navegadores mostram um deles como imagem de pré-visualização antes de você dar o play, e qualquer pessoa com um editor de vídeo poderia recuperá-los. Para remover conteúdo sensível antes de compartilhar um vídeo, use Preciso.
   - q: Cortar reduz a qualidade?
     a: Não com Rápido, porque nada é recodificado. Preciso recodifica com uma configuração de qualidade alta, então a diferença costuma ser difícil de notar, mas recodificar nunca é totalmente sem perdas. Preciso também copia sem recodificar quando seu tempo de início está em um quadro-chave e você não corta o fim.
   - q: O que acontece se o tempo de fim passar do fim do vídeo?

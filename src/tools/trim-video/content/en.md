@@ -19,7 +19,7 @@ fields:
     label: Trimming method
     options:
       precise: Precise (re-encodes when needed)
-      fast: Fast (no re-encoding)
+      fast: Fast (may keep cut frames)
 output:
   file:
     label: Trimmed video
@@ -45,7 +45,7 @@ faq:
   - q: Why does my Fast clip start earlier than I asked?
     a: A video can only be copied from a key frame, so a WebM or MKV clip starts at the last key frame before your start time. In MP4 and MOV those extra frames stay in the file but are hidden by an edit list, so a player that supports edit lists starts at your time. A Fast clip can also run a few frames past the end time.
   - q: Is the footage I cut out really gone?
-    a: With Precise, yes — nothing outside your times is left in the file. With Fast, not always. Frames between the last key frame and your start time stay in the file, along with a few frames past the end time. In MP4 and MOV they are only hidden during playback, so anyone with a video editing tool could recover them. To remove sensitive footage before you share a video, use Precise.
+    a: With Precise, yes — nothing outside your times is left in the file. With Fast, not always. Frames between the last key frame and your start time stay in the file, along with a few frames past the end time. In MP4 and MOV they are only hidden during playback. Some browsers show one as the preview image before you press play, and anyone with a video editing tool could recover them. To remove sensitive footage before you share a video, use Precise.
   - q: Does trimming reduce the quality?
     a: Not with Fast, because nothing is re-encoded. Precise re-encodes at a high quality setting, so the difference is usually hard to see, but re-encoding is never perfectly lossless. Precise also copies without re-encoding when your start time is on a key frame and you don't cut the end.
   - q: What happens if the end time is past the end of the video?

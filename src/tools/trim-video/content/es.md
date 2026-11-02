@@ -19,7 +19,7 @@ fields:
     label: Método de corte
     options:
       precise: Preciso (recodifica si hace falta)
-      fast: Rápido (sin recodificar)
+      fast: Rápido (puede conservar lo cortado)
 output:
   file:
     label: Vídeo cortado
@@ -45,7 +45,7 @@ faq:
   - q: ¿Por qué mi clip Rápido empieza antes de lo que pedí?
     a: Un vídeo solo se puede copiar desde un fotograma clave, así que un clip WebM o MKV empieza en el último fotograma clave anterior a tu tiempo de inicio. En MP4 y MOV esos fotogramas extra se quedan en el archivo pero una lista de edición (edit list) los oculta, así que un reproductor compatible con listas de edición empieza en tu tiempo. Un clip Rápido también puede pasarse unos fotogramas del tiempo de fin.
   - q: ¿Se elimina de verdad el material que corté?
-    a: Con Preciso, sí — no queda nada fuera de tus tiempos en el archivo. Con Rápido, no siempre. Los fotogramas entre el último fotograma clave y tu tiempo de inicio se quedan en el archivo, junto con unos pocos fotogramas después del tiempo de fin. En MP4 y MOV solo se ocultan durante la reproducción, así que cualquiera con una herramienta de edición de vídeo podría recuperarlos. Para quitar material sensible antes de compartir un vídeo, usa Preciso.
+    a: Con Preciso, sí — no queda nada fuera de tus tiempos en el archivo. Con Rápido, no siempre. Los fotogramas entre el último fotograma clave y tu tiempo de inicio se quedan en el archivo, junto con unos pocos fotogramas después del tiempo de fin. En MP4 y MOV solo se ocultan durante la reproducción. Algunos navegadores muestran uno como imagen de vista previa antes de pulsar reproducir, y cualquiera con una herramienta de edición de vídeo podría recuperarlos. Para quitar material sensible antes de compartir un vídeo, usa Preciso.
   - q: ¿Cortar reduce la calidad?
     a: No con Rápido, porque no se recodifica nada. Preciso recodifica con un ajuste de calidad alta, así que la diferencia suele ser difícil de notar, pero recodificar nunca es totalmente sin pérdidas. Preciso también copia sin recodificar cuando tu tiempo de inicio cae en un fotograma clave y no cortas el final.
   - q: ¿Qué pasa si el tiempo de fin es posterior al final del vídeo?

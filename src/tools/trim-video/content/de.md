@@ -19,7 +19,7 @@ fields:
     label: Schneidemethode
     options:
       precise: Präzise (kodiert bei Bedarf neu)
-      fast: Schnell (ohne Neukodierung)
+      fast: Schnell (kann Reste behalten)
 output:
   file:
     label: Geschnittenes Video
@@ -45,7 +45,7 @@ faq:
   - q: Warum beginnt mein Clip mit Schnell früher als gewünscht?
     a: Kopiert wird nur ab einem Keyframe, daher startet ein WebM- oder MKV-Clip beim letzten Keyframe vor Ihrer Zeit. Bei MP4 und MOV bleiben die zusätzlichen Frames in der Datei, werden aber durch eine Bearbeitungsliste ausgeblendet, sodass Player, die Bearbeitungslisten unterstützen, bei Ihrer Zeit starten. Am Ende kann der Clip einige Frames zu lang sein.
   - q: Ist das herausgeschnittene Material wirklich weg?
-    a: Mit Präzise ja – außerhalb Ihrer Zeiten bleibt nichts in der Datei. Mit Schnell nicht immer, denn Frames zwischen dem letzten Keyframe und Ihrer Startzeit bleiben in der Datei, ebenso einige Frames nach der Endzeit. Bei MP4 und MOV sind sie nur bei der Wiedergabe ausgeblendet und mit einem Videoeditor wiederherstellbar. Nutzen Sie Präzise, bevor Sie ein Video mit sensiblem Material teilen.
+    a: Mit Präzise ja – außerhalb Ihrer Zeiten bleibt nichts in der Datei. Mit Schnell nicht immer, denn Frames zwischen dem letzten Keyframe und Ihrer Startzeit bleiben in der Datei, ebenso einige Frames nach der Endzeit. Bei MP4 und MOV sind sie nur bei der Wiedergabe ausgeblendet. Manche Browser zeigen vor dem Abspielen einen davon als Vorschaubild, und mit einem Videoeditor sind sie wiederherstellbar. Nutzen Sie Präzise, bevor Sie ein Video mit sensiblem Material teilen.
   - q: Verringert das Schneiden die Qualität?
     a: Nicht mit Schnell, weil nichts neu kodiert wird. Präzise kodiert mit hoher Qualität neu, der Unterschied ist meist kaum zu sehen, ganz verlustfrei ist eine Neukodierung aber nie. Präzise kopiert auch ohne Neukodierung, wenn Ihre Startzeit auf einem Keyframe liegt und Sie das Ende nicht abschneiden.
   - q: Was passiert, wenn die Endzeit nach dem Ende des Videos liegt?
