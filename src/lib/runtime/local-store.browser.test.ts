@@ -57,7 +57,8 @@ describe("local store", () => {
     const root = await navigator.storage.getDirectory().catch(() => undefined);
     await root?.getFileHandle("scratch.bin", { create: true });
 
-    await clearOwnData();
+    // clearOwnData 会删掉所有缓存，包括 model-files 测试正在用的 models 缓存
+    await navigator.locks.request("models-cache-test", () => clearOwnData());
 
     expect(await listFavorites()).toEqual([]);
     expect(await caches.has(TEST_CACHE)).toBe(false);

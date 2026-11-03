@@ -11,12 +11,8 @@ const ortWebGpu = fileURLToPath(
 
 // 各自启动浏览器的测试文件：
 // - 契约测试（每个 Worker Tool 的 examples）：WebKit 不会在同一个页面进程里释放已终止 Worker 的 WASM 内存，
-//   和其他重引擎的测试放在一起会 Out of memory；
-// - model-files 测试读写 models 缓存，Speech to Text 的恢复测试会删掉这个缓存，二者不能并发
-const isolatedTests = [
-  "src/tools/contract.browser.test.ts",
-  "src/lib/runtime/model-files.browser.test.ts",
-];
+//   和其他重引擎的测试放在一起会 Out of memory
+const isolatedTests = ["src/tools/contract.browser.test.ts"];
 
 const browserProject = (
   name: string,

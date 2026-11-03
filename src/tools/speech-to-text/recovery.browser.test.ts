@@ -12,18 +12,21 @@ const expected = "Hello, every tool on this website runs in your browser.";
 
 describe("transcribe recovery", () => {
   it("works again after cancelling the model download", async () => {
-    await caches.delete("models");
-    const controller = new AbortController();
-    const cancelled = transcribe(
-      await input(),
-      {
-        signal: controller.signal,
-        onProgress: (_, stage) => stage === "download" && controller.abort(),
-      },
-      "wasm",
-    );
-    await expect(cancelled).rejects.toMatchObject({ name: "AbortError" });
-    expect((await transcribe(await input(), {}, "wasm")).text).toBe(expected);
+    // model-files 的测试也读写 models 缓存，删除和重新下载期间持有同一把锁
+    await navigator.locks.request("models-cache-test", async () => {
+      await caches.delete("models");
+      const controller = new AbortController();
+      const cancelled = transcribe(
+        await input(),
+        {
+          signal: controller.signal,
+          onProgress: (_, stage) => stage === "download" && controller.abort(),
+        },
+        "wasm",
+      );
+      await expect(cancelled).rejects.toMatchObject({ name: "AbortError" });
+      expect((await transcribe(await input(), {}, "wasm")).text).toBe(expected);
+    });
   }, 120_000);
 
   it("works again after cancelling during generation", async () => {

@@ -20,14 +20,17 @@ describe("model files", () => {
   });
 
   it("serves manifest files from the cache and passes other requests through", async () => {
-    const modelFetch = createModelFetch([ortWasmFile], () => ({}));
-    const response = await modelFetch(`/models/${ortWasmFile.path}`);
-    expect(response.headers.get("Content-Length")).toBe(String(ortWasmFile.size));
-    expect(
-      await (
-        await caches.open("models")
-      ).match(response.url || location.origin + `/models/${ortWasmFile.path}`),
-    ).toBeDefined();
-    expect((await modelFetch("/models/missing.json")).status).toBe(404);
+    // Speech to Text 的恢复测试会删掉 models 缓存，同时运行时持有同一把锁
+    await navigator.locks.request("models-cache-test", async () => {
+      const modelFetch = createModelFetch([ortWasmFile], () => ({}));
+      const response = await modelFetch(`/models/${ortWasmFile.path}`);
+      expect(response.headers.get("Content-Length")).toBe(String(ortWasmFile.size));
+      expect(
+        await (
+          await caches.open("models")
+        ).match(response.url || location.origin + `/models/${ortWasmFile.path}`),
+      ).toBeDefined();
+      expect((await modelFetch("/models/missing.json")).status).toBe(404);
+    });
   });
 });
