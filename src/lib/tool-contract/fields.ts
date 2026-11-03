@@ -8,10 +8,10 @@ import { acceptOf as acceptOfTypes, type FileTypes } from "./file-type";
 // files 是 v.array(v.file())，有顺序，只用于输入。
 export type FieldSpec =
   | { name: string; kind: "text" | "code" | "url" | "line" }
-  | { name: string; kind: "pages"; source: string }
-  | { name: string; kind: "number" }
-  | { name: string; kind: "boolean" }
-  | { name: string; kind: "select"; options: string[]; languageNames?: boolean }
+  | { name: string; kind: "pages" | "crop"; source: string }
+  | { name: string; kind: "number"; remember?: false }
+  | { name: string; kind: "boolean"; remember?: false }
+  | { name: string; kind: "select"; options: string[]; languageNames?: boolean; remember?: false }
   | { name: string; kind: "table"; columns: string[] }
   | { name: string; kind: "file" | "files"; accept: string[] };
 
@@ -46,31 +46,39 @@ export const fileTypesOf = (schema: ToolSchema, name: string): FileTypes | undef
   return undefined;
 };
 
+const rememberOf = (schema: AnySchema) =>
+  (v.getMetadata(schema) as FieldMetadata).remember === false ? { remember: false as const } : {};
+
 export const describeFields = (schema: ToolSchema): FieldSpec[] =>
   Object.entries(schema.entries).map(([name, entry]) => {
     const base = unwrap(entry as AnySchema);
     switch (base.type) {
       case "string": {
         const metadata = v.getMetadata(base) as FieldMetadata;
-        if (metadata.widget === "pages") {
-          const source = metadata.pagesOf ?? "";
+        if (metadata.widget === "pages" || metadata.widget === "crop") {
+          const source = (metadata.widget === "pages" ? metadata.pagesOf : metadata.cropOf) ?? "";
           const target = schema.entries[source] as AnySchema | undefined;
           if (!target || unwrap(target).type !== "file") {
-            throw new Error(`页面排列字段 ${name} 的 pagesOf 必须指向单文件字段`);
+            throw new Error(`${metadata.widget} 字段 ${name} 必须关联一个单文件字段`);
           }
-          return { name, kind: "pages", source };
+          return { name, kind: metadata.widget, source };
         }
         return { name, kind: metadata.widget ?? "text" };
       }
       case "number":
-        return { name, kind: "number" };
+        return { name, kind: "number", ...rememberOf(base) };
       case "boolean":
-        return { name, kind: "boolean" };
+        return { name, kind: "boolean", ...rememberOf(base) };
       case "file":
         return { name, kind: "file", accept: acceptOf(base) };
       case "picklist": {
         const metadata = v.getMetadata(base) as FieldMetadata;
-        const spec: FieldSpec = { name, kind: "select", options: [...base.options!] };
+        const spec: FieldSpec = {
+          name,
+          kind: "select",
+          options: [...base.options!],
+          ...rememberOf(base),
+        };
         return metadata.languageNames ? { ...spec, languageNames: true } : spec;
       }
       case "array": {
@@ -127,4 +135,5 @@ export const withBlankNumbersOmitted = (
 
 // 记作本地偏好的字段（architecture §13）：选项类字段，不含文件和自由文本
 export const isPreferenceField = (spec: FieldSpec): boolean =>
-  spec.kind === "number" || spec.kind === "boolean" || spec.kind === "select";
+  (spec.kind === "number" || spec.kind === "boolean" || spec.kind === "select") &&
+  spec.remember !== false;

@@ -31,6 +31,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { getModelContext } from "@/lib/agent/model-context";
+import type { Aspect, Rotation } from "@/lib/image/crop";
 import { setActiveTool } from "@/lib/telemetry/client";
 import {
   type AnyTool,
@@ -109,6 +110,10 @@ const FilesInput = lazy(() => import("./FilesInput"));
 const FilePreview = lazy(() => import("./FilePreview"));
 // 只有页面排列字段用，选了 PDF 后才加载
 const PageEditor = lazy(() => import("./PageEditor"));
+// 只有裁剪区域字段用，选了图片后才加载
+const CropEditor = lazy(() => import("./CropEditor"));
+// 裁剪编辑器按这几个同名字段显示预览；它们变了，原来的裁剪区域不再适用
+const cropContextFields = ["rotate", "flipHorizontal", "flipVertical", "aspect"];
 const RunProgress = lazy(() => import("./RunProgress"));
 // 只有少数 Tool 有开关字段，只有 Server-assisted Tool 用 Turnstile，都不进其他 Tool 页的首屏（architecture §15）
 const Switch = lazy(() =>
@@ -166,6 +171,10 @@ export function ToolForm({
   variant?: ToolPresetProps;
 }) {
   const fields = useMemo(() => describeFields(tool.input), [tool]);
+  const croppedFiles = useMemo(
+    () => new Set(fields.flatMap((spec) => (spec.kind === "crop" ? [spec.source] : []))),
+    [fields],
+  );
   const outputFields = useMemo(() => describeFields(tool.output), [tool]);
   // 预设的字段不恢复也不保存本地偏好：Variant 页总是按预设打开，也不改变 Tool 页记住的选项
   const preferenceNames = useMemo(
@@ -438,6 +447,11 @@ export function ToolForm({
     const onChange = (value: unknown) => {
       if (runError?.field === spec.name) setRunError(undefined);
       field.handleChange(value as never);
+      if (cropContextFields.includes(spec.name)) {
+        for (const linked of fields) {
+          if (linked.kind === "crop") form.setFieldValue(linked.name, "" as never);
+        }
+      }
     };
     switch (spec.kind) {
       case "url":
@@ -478,6 +492,52 @@ export function ToolForm({
                       file={source}
                       value={String(field.state.value)}
                       onChange={onChange}
+                    />
+                  </Suspense>
+                )
+              }
+            </form.Subscribe>
+          </>
+        );
+      case "crop":
+        return (
+          <>
+            <Input
+              id={id}
+              name={field.name}
+              value={String(field.state.value)}
+              placeholder={label?.placeholder}
+              aria-invalid={invalid}
+              spellCheck={false}
+              onBlur={field.handleBlur}
+              onChange={(event) => onChange(event.target.value)}
+            />
+            <form.Subscribe
+              selector={(state) => [
+                state.values[spec.source],
+                state.values.rotate ?? "0",
+                Boolean(state.values.flipHorizontal),
+                Boolean(state.values.flipVertical),
+                state.values.aspect ?? "free",
+              ]}
+            >
+              {([source, rotate, flipHorizontal, flipVertical, aspect]) =>
+                source instanceof File && (
+                  <Suspense>
+                    <CropEditor
+                      file={source}
+                      value={String(field.state.value)}
+                      onChange={onChange}
+                      orientation={{
+                        rotate: rotate as Rotation,
+                        flipHorizontal: flipHorizontal as boolean,
+                        flipVertical: flipVertical as boolean,
+                      }}
+                      aspect={aspect as Aspect}
+                      onAspectChange={(next) => {
+                        form.setFieldValue("aspect", next as never);
+                        onChange("");
+                      }}
                     />
                   </Suspense>
                 )
@@ -575,15 +635,19 @@ export function ToolForm({
               onBlur={field.handleBlur}
               onChange={(event) => {
                 onChange(event.target.files?.[0]);
-                // 换了 PDF，原来的页面排列不再适用
+                // 换了文件，原来的页面排列、裁剪区域不再适用
                 for (const linked of fields) {
-                  if (linked.kind === "pages" && linked.source === spec.name) {
+                  if (
+                    (linked.kind === "pages" || linked.kind === "crop") &&
+                    linked.source === spec.name
+                  ) {
                     form.setFieldValue(linked.name, "" as never);
                   }
                 }
               }}
             />
-            {field.state.value instanceof File && (
+            {/* 有裁剪编辑器时图片显示在编辑器里，不再重复预览 */}
+            {field.state.value instanceof File && !croppedFiles.has(spec.name) && (
               <Suspense>
                 <FilePreview file={field.state.value} size="lg" />
               </Suspense>

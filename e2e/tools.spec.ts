@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 
 import { hreflang, localizePath, locales } from "../src/lib/i18n/locales";
 import { site } from "../src/lib/site";
@@ -190,6 +190,81 @@ for (const tool of tools) {
         await field.getByRole("button", { name: "Reset pages" }).click();
         await expect(text).toHaveValue("");
         await expect(tiles).toHaveCount(total);
+      });
+    }
+
+    const cropField = describeFields(tool.input).find((spec) => spec.kind === "crop");
+    if (cropField?.kind === "crop") {
+      // 裁剪区域字段：拖动框和角改的是同一个 "x, y, width, height"，旋转、比例变化后回到居中区域
+      test("edits the crop area by dragging", async ({ page }) => {
+        const name = tool.examples.map((example) => example.files?.[cropField.source])[0];
+        await page.goto(`/${tool.id}`);
+        await page.waitForSelector("[data-hydrated]");
+        await page
+          .locator(`[data-field="${cropField.source}"] input[type="file"]`)
+          .setInputFiles(`src/tools/${tool.id}/examples/${String(name)}`);
+        const field = page.locator(`[data-field="${cropField.name}"]`);
+        const text = field.locator("input");
+        const editor = field.locator("[data-crop-editor]");
+        const box = field.locator("[data-crop-box]");
+        await expect(editor).toBeVisible({ timeout: 30_000 });
+        // 样例是 320 × 240：没有区域时框是整张图
+        await expect(field).toContainText("320 × 240 px");
+
+        // page.mouse 用视口坐标，每次拖动前把编辑器滚进视口（点上面的下拉时页面会滚走）
+        const drag = async (handle: Locator, dx: number, dy: number) => {
+          await editor.scrollIntoViewIfNeeded();
+          const bounds = (await handle.boundingBox())!;
+          const x = bounds.x + bounds.width / 2;
+          const y = bounds.y + bounds.height / 2;
+          await page.mouse.move(x, y);
+          await page.mouse.down();
+          await page.mouse.move(x + dx / 2, y + dy / 2);
+          await page.mouse.move(x + dx, y + dy);
+          await page.mouse.up();
+        };
+        const frame = (await editor.boundingBox())!;
+        const scale = frame.width / 320;
+        await drag(field.locator('[data-crop-corner="right-bottom"]'), -160 * scale, -120 * scale);
+        await expect(text).toHaveValue(/^0, 0, 1[56]\d, 1[12]\d$/);
+        await drag(box, 80 * scale, 60 * scale);
+        const [x, y] = (await text.inputValue()).split(", ").map(Number);
+        expect(x).toBeGreaterThan(70);
+        expect(y).toBeGreaterThan(50);
+
+        // 方向键每次移动 1 像素
+        await box.focus();
+        await page.keyboard.press("ArrowLeft");
+        expect((await text.inputValue()).split(", ").map(Number)[0]).toBe(x! - 1);
+
+        // 直接输入时框跟着变
+        await text.fill("10, 20, 100, 50");
+        await expect(field).toContainText("100 × 50 px");
+
+        // 选比例后回到居中区域，横竖切换按钮换成另一个方向
+        await page.locator('[data-field="aspect"] [data-slot="select-trigger"]').click();
+        await page.locator('[data-option="16:9"]:visible').click();
+        await expect(text).toHaveValue("");
+        await expect(field).toContainText("320 × 180 px");
+        await field.getByRole("button", { name: "Switch to 9:16" }).click();
+        await expect(field).toContainText("135 × 240 px");
+        await drag(field.locator('[data-crop-corner="left-top"]'), 40 * scale, 0);
+        // 锁定比例：宽高一起变
+        const [, , width, height] = (await text.inputValue()).split(", ").map(Number);
+        expect(Math.abs(width! / height! - 9 / 16)).toBeLessThan(0.02);
+
+        // 旋转后尺寸互换、区域重置
+        await page.locator('[data-field="rotate"] [data-slot="select-trigger"]').click();
+        await page.locator('[data-option="90"]:visible').click();
+        await expect(text).toHaveValue("");
+        await expect(field).toContainText("180 × 320 px");
+        await page.locator('[data-field="aspect"] [data-slot="select-trigger"]').click();
+        await page.locator('[data-option="free"]:visible').click();
+        await expect(field).toContainText("240 × 320 px");
+
+        await text.fill("0, 0, 10, 10");
+        await field.getByRole("button", { name: "Reset crop" }).click();
+        await expect(text).toHaveValue("");
       });
     }
 

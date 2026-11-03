@@ -1,7 +1,12 @@
 import * as v from "valibot";
 import { describe, expect, it } from "vitest";
 
-import { describeFields, initialValues, withBlankNumbersOmitted } from "./fields";
+import {
+  describeFields,
+  initialValues,
+  isPreferenceField,
+  withBlankNumbersOmitted,
+} from "./fields";
 import { fileType } from "./file-type";
 
 const schema = v.object({
@@ -35,7 +40,30 @@ describe("describeFields", () => {
       kind: "pages",
       source: "file",
     });
-    expect(() => describeFields(v.object({ pages }))).toThrow(/pagesOf/);
+    expect(() => describeFields(v.object({ pages }))).toThrow(/单文件字段/);
+  });
+
+  it("links a crop area to its image field", () => {
+    const file = v.pipe(v.file(), fileType({ "image/png": [".png"] }));
+    const crop = v.pipe(v.string(), v.metadata({ widget: "crop", cropOf: "file" }));
+    expect(describeFields(v.object({ file, crop }))[1]).toEqual({
+      name: "crop",
+      kind: "crop",
+      source: "file",
+    });
+    expect(() => describeFields(v.object({ crop }))).toThrow(/单文件字段/);
+  });
+
+  it("leaves fields marked remember: false out of the preferences", () => {
+    const keep = { remember: false } as const;
+    const fields = describeFields(
+      v.object({
+        turn: v.pipe(v.picklist(["0", "90"]), v.metadata(keep)),
+        mirror: v.pipe(v.boolean(), v.metadata(keep)),
+        quality: v.number(),
+      }),
+    );
+    expect(fields.map(isPreferenceField)).toEqual([false, false, true]);
   });
 
   it("derives tables from arrays of flat objects", () => {

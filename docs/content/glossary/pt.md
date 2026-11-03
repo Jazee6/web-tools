@@ -36,6 +36,7 @@
 | unit / metric / imperial / absolute zero | unidade / métrico / imperial / zero absoluto | medida (sozinha) |
 | domain / record / resolver / TTL / name server | domínio / registro / resolvedor / TTL / servidor de nomes | resolutor, servidor DNS (para resolvedor) |
 | resize / proportions / crop / stretch | redimensionar / proporções / recortar / esticar | escalar, aspecto (sozinho) |
+| aspect ratio / crop area / crop box / flip (horizontally, vertically) | proporção / área de recorte / moldura de recorte / espelhar (na horizontal, na vertical) | aspecto (sozinho), virar, inverter |
 | page range / extract (pages) / split | intervalo de páginas / extrair / dividir | cortar (em PDF) |
 | resolution / DPI / render (a page) | resolução / DPI / renderizar (uma página) | rasterizar |
 | page size / orientation (portrait, landscape) / margin | tamanho da página / orientação (retrato, paisagem) / margem | tamanho do papel, borda |
@@ -52,6 +53,7 @@
 | image-compressor | Compressor de imagens |
 | image-converter | Conversor de imagens |
 | image-resizer | Redimensionador de imagens |
+| image-cropper | Recortador de imagens |
 | merge-pdf | Juntar PDF |
 | split-pdf | Dividir PDF |
 | pdf-to-image | PDF para imagem |

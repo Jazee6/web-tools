@@ -24,6 +24,11 @@ const fill = async (page: Page, name: string, kind: string, value: unknown) => {
       // 缩略图编辑器出现时会把提交按钮往下推，先等它出现，否则点击可能落空
       await expect(field.locator("[data-page-editor]")).toBeVisible({ timeout: 30_000 });
       return;
+    case "crop":
+      // 裁剪编辑器在图片加载后出现，也会把提交按钮往下推
+      await expect(field.locator("[data-crop-editor]")).toBeVisible({ timeout: 30_000 });
+      await field.locator("input").fill(String(value));
+      return;
     default:
       await field.locator("textarea, input").fill(String(value));
   }

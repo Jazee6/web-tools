@@ -35,6 +35,7 @@
 | unit / metric / imperial / absolute zero | unit / metric / imperial / absolute zero | measurement (alone), standard |
 | domain / record / resolver / TTL / name server | domain / record / resolver / TTL / name server | host (alone), DNS server (for resolver) |
 | resize / proportions / crop / stretch | resize / proportions / crop / stretch | scale (alone), aspect (alone) |
+| aspect ratio / crop area / crop box / flip (horizontally, vertically) | aspect ratio / crop area / crop box / flip (horizontally, vertically) | ratio (alone, as the option name), mirror (for the option) |
 | page range / extract (pages) / split | page range / extract / split | cut (for PDF) |
 | resolution / DPI / render (a page) | resolution / DPI / render (a page) | dpi (lowercase), rasterize |
 | page size / orientation (portrait, landscape) / margin | page size / orientation (portrait, landscape) / margin | paper size (for the option), border (for margin) |
@@ -51,6 +52,7 @@
 | image-compressor | Image Compressor |
 | image-converter | Image Converter |
 | image-resizer | Image Resizer |
+| image-cropper | Image Cropper |
 | merge-pdf | Merge PDF |
 | split-pdf | Split PDF |
 | pdf-to-image | PDF to Image |

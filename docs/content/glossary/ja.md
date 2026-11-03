@@ -36,6 +36,7 @@
 | unit / metric / imperial / absolute zero | 単位 / メートル法 / ヤード・ポンド法 / 絶対零度 | ユニット、英国式 |
 | domain / record / resolver / TTL / name server | ドメイン / レコード / リゾルバー / TTL / ネームサーバー | 名前解決サーバー、DNS サーバー（リゾルバーの意味で） |
 | resize / proportions / crop / stretch | リサイズ / 縦横比 / 切り抜く / 引き伸ばす | 拡大縮小（単独）、アスペクト比、トリミング（画像の crop の意味で） |
+| aspect ratio / crop area / crop box / flip (horizontally, vertically) | 縦横比 / 切り抜き範囲 / 切り抜き枠 / 反転（左右、上下） | アスペクト比、トリミング、ミラー |
 | page range / extract (pages) / split | ページ範囲 / 抽出 / 分割 | 切り出し、カット（PDF） |
 | resolution / DPI / render (a page) | 解像度 / DPI / レンダリング（ページ） | ラスタライズ |
 | page size / orientation (portrait, landscape) / margin | ページサイズ / 向き（縦、横） / 余白 | 用紙サイズ（オプション名として）、マージン |
@@ -52,6 +53,7 @@
 | image-compressor | 画像圧縮 |
 | image-converter | 画像変換 |
 | image-resizer | 画像リサイズ |
+| image-cropper | 画像切り抜き |
 | merge-pdf | PDF 結合 |
 | split-pdf | PDF 分割 |
 | pdf-to-image | PDF 画像変換 |

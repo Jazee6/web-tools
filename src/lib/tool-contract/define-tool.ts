@@ -12,8 +12,13 @@ export type FieldMetadata = {
   // code：等宽多行；url：单行网址输入；line：单行文本（时区名、时间戳之类的短值）；默认是普通多行文本。
   // pages：PDF 页面排列（lib/pdf/arrangement.ts 的语法），单行文本加缩略图编辑器；
   // pagesOf 是提供 PDF 的文件字段，Worker 要用 exposeRun 的 preview 提供缩略图（lib/pdf/thumbnails.ts）
-  widget?: "code" | "url" | "line" | "pages";
+  // crop：裁剪区域（lib/image/crop.ts 的 "x, y, width, height"），单行文本加拖拽裁剪框；cropOf 是提供图片的文件字段，
+  // 编辑器按同一表单里的 rotate、flipHorizontal、flipVertical、aspect 字段显示预览（字段可以没有）
+  widget?: "code" | "url" | "line" | "pages" | "crop";
   pagesOf?: string;
+  cropOf?: string;
+  // false：数字、开关、下拉字段不记作本地偏好（如只对当前文件有意义的旋转）
+  remember?: false;
   // 下拉选项是语言代码（BCP 47）：选项名由 Intl.DisplayNames 按当前 Locale 生成并按名称排序，
   // 内容 frontmatter 只需给不是语言代码的选项（如 auto）写标签
   languageNames?: boolean;

@@ -37,6 +37,7 @@
 | unit / metric / imperial / absolute zero | 单位 / 公制 / 英制 / 绝对零度 | 度量衡、计量单位 |
 | domain / record / resolver / TTL / name server | 域名 / 记录 / 解析器 / TTL / 名称服务器 | 主机、DNS 服务器（指解析器时）、生存时间 |
 | resize / proportions / crop / stretch | 调整尺寸 / 比例 / 裁剪 / 拉伸 | 缩放（单独使用）、宽高比（正文中）、剪裁 |
+| aspect ratio / crop area / crop box / flip (horizontally, vertically) | 比例 / 裁剪区域 / 裁剪框 / 翻转（水平、垂直） | 宽高比（正文中）、镜像、剪裁 |
 | page range / extract (pages) / split | 页码范围 / 提取 / 拆分 | 切割、分割 |
 | resolution / DPI / render (a page) | 分辨率 / DPI / 渲染（页面） | 像素化、栅格化 |
 | page size / orientation (portrait, landscape) / margin | 页面尺寸 / 方向（纵向、横向） / 页边距 | 纸张大小、竖版、横版、边框 |
@@ -53,6 +54,7 @@
 | image-compressor | 图片压缩 |
 | image-converter | 图片格式转换 |
 | image-resizer | 图片尺寸调整 |
+| image-cropper | 图片裁剪 |
 | merge-pdf | PDF 合并 |
 | split-pdf | PDF 拆分 |
 | pdf-to-image | PDF 转图片 |
