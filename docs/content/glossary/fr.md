@@ -39,6 +39,7 @@
 | page range / extract (pages) / split | plage de pages / extraire / diviser | intervalle, découper (pour un PDF) |
 | resolution / DPI / render (a page) | résolution / DPI / rendre (une page) | rastériser |
 | page size / orientation (portrait, landscape) / margin | format de page / orientation (portrait, paysage) / marge | taille du papier, bordure |
+| reorder / rotate (clockwise) / delete (pages) | réorganiser / faire pivoter (dans le sens horaire) / supprimer (des pages) | tourner, retourner, effacer |
 | trim / key frame / re-encode / edit list | couper / image clé / réencoder / liste d'édition | rogner (pour une vidéo), keyframe, transcoder (dans le texte) |
 
 ## Noms des outils et des catégories
@@ -54,6 +55,7 @@
 | split-pdf | Diviser PDF |
 | pdf-to-image | PDF en image |
 | image-to-pdf | Image en PDF |
+| organize-pdf | Organiser PDF |
 | video-converter | Convertisseur vidéo |
 | trim-video | Couper la vidéo |
 | speech-to-text | Transcription audio en texte |

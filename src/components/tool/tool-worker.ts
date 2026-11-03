@@ -59,3 +59,10 @@ export const estimateInWorker = async (
   input: unknown,
   ctx?: ToolContext,
 ): Promise<(number | null)[]> => callWorker(await getWorker(tool.id), input, ctx, "estimate");
+
+// 预览（如 PDF 页面缩略图）：同样共用 Worker，失败也不丢弃
+export const previewInWorker = async <T>(
+  tool: AnyTool,
+  input: unknown,
+  ctx?: ToolContext,
+): Promise<T> => callWorker(await getWorker(tool.id), input, ctx, "preview");

@@ -152,6 +152,47 @@ for (const tool of tools) {
       });
     }
 
+    const pagesField = describeFields(tool.input).find((spec) => spec.kind === "pages");
+    if (pagesField?.kind === "pages") {
+      // 页面排列字段：选了 PDF 后在 Worker 里画缩略图，编辑器的按钮和文本框改的是同一个字符串
+      test("edits the page arrangement with thumbnails", async ({ page }) => {
+        const name = tool.examples.map((example) => example.files?.[pagesField.source])[0];
+        await page.goto(`/${tool.id}`);
+        await page.waitForSelector("[data-hydrated]");
+        await page
+          .locator(`[data-field="${pagesField.source}"] input[type="file"]`)
+          .setInputFiles(`src/tools/${tool.id}/examples/${String(name)}`);
+        const field = page.locator(`[data-field="${pagesField.name}"]`);
+        const text = field.locator("input");
+        const tiles = field.locator("[data-page-editor] li");
+        await expect(tiles.last().locator("img")).toBeVisible({ timeout: 30_000 });
+        const total = await tiles.count();
+        expect(total).toBeGreaterThanOrEqual(3);
+        const order = () => tiles.evaluateAll((items) => items.map((item) => item.dataset.page));
+
+        await tiles
+          .last()
+          .getByRole("button", { name: `Move page ${total} earlier` })
+          .click();
+        await expect(text).toHaveValue(`1-${total - 2}, ${total}, ${total - 1}`);
+        await tiles.first().getByRole("button", { name: "Rotate page 1 clockwise" }).click();
+        await expect(tiles.first()).toContainText("90°");
+        await tiles.nth(1).getByRole("button", { name: "Remove page 2" }).click();
+        await expect(tiles).toHaveCount(total - 1);
+        expect((await text.inputValue()).startsWith("1 r90, ")).toBe(true);
+
+        // 直接输入时编辑器跟着变；写错的文本保留上一次的排列
+        await text.fill("2, 1");
+        await expect.poll(order).toEqual(["2", "1"]);
+        await text.fill("2, x");
+        await expect.poll(order).toEqual(["2", "1"]);
+
+        await field.getByRole("button", { name: "Reset pages" }).click();
+        await expect(text).toHaveValue("");
+        await expect(tiles).toHaveCount(total);
+      });
+    }
+
     if (tool.agent.webmcp) {
       // WebMCP 还在 origin trial，用桩对象验证注册的描述符和 execute 的返回
       test("registers a WebMCP tool that runs the first example", async ({ page }) => {

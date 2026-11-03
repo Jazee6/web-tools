@@ -8,6 +8,7 @@ import { acceptOf as acceptOfTypes, type FileTypes } from "./file-type";
 // files 是 v.array(v.file())，有顺序，只用于输入。
 export type FieldSpec =
   | { name: string; kind: "text" | "code" | "url" | "line" }
+  | { name: string; kind: "pages"; source: string }
   | { name: string; kind: "number" }
   | { name: string; kind: "boolean" }
   | { name: string; kind: "select"; options: string[]; languageNames?: boolean }
@@ -51,6 +52,14 @@ export const describeFields = (schema: ToolSchema): FieldSpec[] =>
     switch (base.type) {
       case "string": {
         const metadata = v.getMetadata(base) as FieldMetadata;
+        if (metadata.widget === "pages") {
+          const source = metadata.pagesOf ?? "";
+          const target = schema.entries[source] as AnySchema | undefined;
+          if (!target || unwrap(target).type !== "file") {
+            throw new Error(`页面排列字段 ${name} 的 pagesOf 必须指向单文件字段`);
+          }
+          return { name, kind: "pages", source };
+        }
         return { name, kind: metadata.widget ?? "text" };
       }
       case "number":

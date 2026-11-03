@@ -1,6 +1,6 @@
 ---
 review: draft
-updated: 2026-11-02
+updated: 2026-11-03
 title: Diviser PDF – Extraire des pages ou séparer un PDF gratuitement
 description: Divisez un PDF en plusieurs fichiers ou extrayez les pages voulues. Gratuit et privé — la division se fait dans votre navigateur, votre document n'est jamais envoyé.
 name: Diviser PDF
@@ -61,6 +61,8 @@ L'outil utilise PDFium — le moteur PDF de Google Chrome — compilé en WebAss
 - **Mémoire :** le fichier et tous les résultats sont gardés en mémoire, les très gros documents peuvent donc échouer sur mobile.
 
 Pour recombiner les parties, ou pour réunir d'autres documents, utilisez [Fusionner PDF](/fr/merge-pdf).
+
+Pour réorganiser, faire pivoter ou supprimer des pages dans un même document, utilisez [Organiser PDF](/fr/organize-pdf).
 
 ## Confidentialité
 

@@ -1,6 +1,6 @@
 ---
 review: draft
-updated: 2026-11-02
+updated: 2026-11-03
 title: PDF teilen – Seiten extrahieren oder PDF kostenlos online teilen
 description: Teilen Sie eine PDF in mehrere Dateien oder extrahieren Sie Seiten. Kostenlos und privat – alles läuft in Ihrem Browser, Ihr Dokument wird nie hochgeladen.
 name: PDF teilen
@@ -61,6 +61,8 @@ Das Tool verwendet das zu WebAssembly kompilierte PDFium – die PDF-Engine von 
 - **Arbeitsspeicher:** Die Datei und alle Ergebnisse werden im Speicher gehalten, sodass sehr große Dokumente auf Smartphones scheitern können.
 
 Um die Teile wieder zusammenzufügen oder andere Dokumente zu verbinden, nutzen Sie [PDF zusammenfügen](/de/merge-pdf).
+
+Um Seiten innerhalb eines Dokuments neu anzuordnen, zu drehen oder zu löschen, nutzen Sie [PDF organisieren](/de/organize-pdf).
 
 ## Datenschutz
 

@@ -107,6 +107,8 @@ const noopSubscribe = () => () => {};
 const Unsupported = lazy(() => import("./Unsupported"));
 const FilesInput = lazy(() => import("./FilesInput"));
 const FilePreview = lazy(() => import("./FilePreview"));
+// 只有页面排列字段用，选了 PDF 后才加载
+const PageEditor = lazy(() => import("./PageEditor"));
 const RunProgress = lazy(() => import("./RunProgress"));
 // 只有少数 Tool 有开关字段，只有 Server-assisted Tool 用 Turnstile，都不进其他 Tool 页的首屏（architecture §15）
 const Switch = lazy(() =>
@@ -454,6 +456,35 @@ export function ToolForm({
             onChange={(event) => onChange(event.target.value)}
           />
         );
+      case "pages":
+        return (
+          <>
+            <Input
+              id={id}
+              name={field.name}
+              value={String(field.state.value)}
+              placeholder={label?.placeholder}
+              aria-invalid={invalid}
+              spellCheck={false}
+              onBlur={field.handleBlur}
+              onChange={(event) => onChange(event.target.value)}
+            />
+            <form.Subscribe selector={(state) => state.values[spec.source]}>
+              {(source) =>
+                source instanceof File && (
+                  <Suspense>
+                    <PageEditor
+                      tool={tool}
+                      file={source}
+                      value={String(field.state.value)}
+                      onChange={onChange}
+                    />
+                  </Suspense>
+                )
+              }
+            </form.Subscribe>
+          </>
+        );
       case "line":
         return (
           <Input
@@ -542,7 +573,15 @@ export function ToolForm({
               accept={(variant?.accept[spec.name] ?? spec.accept).join(",")}
               aria-invalid={invalid}
               onBlur={field.handleBlur}
-              onChange={(event) => onChange(event.target.files?.[0])}
+              onChange={(event) => {
+                onChange(event.target.files?.[0]);
+                // 换了 PDF，原来的页面排列不再适用
+                for (const linked of fields) {
+                  if (linked.kind === "pages" && linked.source === spec.name) {
+                    form.setFieldValue(linked.name, "" as never);
+                  }
+                }
+              }}
             />
             {field.state.value instanceof File && (
               <Suspense>

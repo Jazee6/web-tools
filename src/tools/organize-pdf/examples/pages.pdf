@@ -1,0 +1,65 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R 10 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Length 75 >>
+stream
+0.85 0.9 1 rg 10 10 180 380 re f 0 0 0 rg BT /F1 160 Tf 55 140 Td (1) Tj ET
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 400] /Resources << /Font << /F1 1 0 R >> >> /Contents 3 0 R >>
+endobj
+5 0 obj
+<< /Length 76 >>
+stream
+0.85 0.9 1 rg 10 10 280 380 re f 0 0 0 rg BT /F1 160 Tf 105 140 Td (2) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 400] /Resources << /Font << /F1 1 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 75 >>
+stream
+0.85 0.9 1 rg 10 10 380 230 re f 0 0 0 rg BT /F1 160 Tf 155 65 Td (3) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 250] /Rotate 90 /Resources << /Font << /F1 1 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 76 >>
+stream
+0.85 0.9 1 rg 10 10 480 380 re f 0 0 0 rg BT /F1 160 Tf 205 140 Td (4) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 500 400] /Resources << /Font << /F1 1 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000009 00000 n 
+0000000079 00000 n 
+0000000155 00000 n 
+0000000280 00000 n 
+0000000406 00000 n 
+0000000532 00000 n 
+0000000658 00000 n 
+0000000783 00000 n 
+0000000920 00000 n 
+0000001046 00000 n 
+0000001173 00000 n 
+trailer
+<< /Size 12 /Root 11 0 R >>
+startxref
+1223
+%%EOF

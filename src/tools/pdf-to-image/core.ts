@@ -1,6 +1,7 @@
 import { encodeImage } from "@/lib/image/encode";
 import { type PageRange, readPages, resolvePages } from "@/lib/pdf/pages";
-import { closeDocument, loadPdfium, openDocument, type Pdfium } from "@/lib/pdf/pdfium";
+import { closeDocument, loadPdfium, openDocument } from "@/lib/pdf/pdfium";
+import { renderPage } from "@/lib/pdf/render";
 import { type ToolContext, ToolError } from "@/lib/tool-contract/define-tool";
 
 export interface PdfToImageInput {
@@ -22,10 +23,6 @@ const MAX_OUTPUT_FILES = 500;
 // 与 Image Resizer 相同；PDFium 的位图在 WASM 堆里，10,000 × 10,000 已经是 400 MB
 const MAX_SIDE = 10_000;
 
-// fpdfview.h：画出注释（含表单域的外观），并直接输出 RGBA 而不是 BGRA
-const FPDF_ANNOT = 0x01;
-const FPDF_REVERSE_BYTE_ORDER = 0x10;
-
 // 页码去重并保持首次出现的顺序：同一页只出一张图，文件名不会重复
 const pageNumbers = (requested: PageRange[], total: number) => {
   const ranges = resolvePages(requested, total);
@@ -39,46 +36,6 @@ const pageNumbers = (requested: PageRange[], total: number) => {
 
 const tooLarge = (page: number) =>
   new ToolError("too_large", { field: "dpi", detail: String(page) });
-
-// 按 dpi 把一页画成 RGBA 像素，白底。页面尺寸已经计入 /Rotate，渲染时也按页面自身的旋转摆正
-const renderPage = (module: Pdfium, document: number, page: number, dpi: number): ImageData => {
-  const handle = module.FPDF_LoadPage(document, page - 1);
-  if (!handle) throw new Error(`PDFium 无法加载第 ${page} 页`);
-  try {
-    const scale = dpi / 72;
-    const width = Math.max(1, Math.round(module.FPDF_GetPageWidthF(handle) * scale));
-    const height = Math.max(1, Math.round(module.FPDF_GetPageHeightF(handle) * scale));
-    if (Math.max(width, height) > MAX_SIDE) throw tooLarge(page);
-    // WASM 堆放不下时返回 0
-    const bitmap = module.FPDFBitmap_Create(width, height, 1);
-    if (!bitmap) throw tooLarge(page);
-    try {
-      module.FPDFBitmap_FillRect(bitmap, 0, 0, width, height, 0xffffffff);
-      module.FPDF_RenderPageBitmap(
-        bitmap,
-        handle,
-        0,
-        0,
-        width,
-        height,
-        0,
-        FPDF_ANNOT | FPDF_REVERSE_BYTE_ORDER,
-      );
-      const buffer = module.FPDFBitmap_GetBuffer(bitmap);
-      const stride = module.FPDFBitmap_GetStride(bitmap);
-      const pixels = new Uint8ClampedArray(width * height * 4);
-      for (let row = 0; row < height; row++) {
-        const from = buffer + row * stride;
-        pixels.set(module.pdfium.HEAPU8.subarray(from, from + width * 4), row * width * 4);
-      }
-      return new ImageData(pixels, width, height);
-    } finally {
-      module.FPDFBitmap_Destroy(bitmap);
-    }
-  } finally {
-    module.FPDF_ClosePage(handle);
-  }
-};
 
 const stemOf = (name: string) => {
   const dot = name.lastIndexOf(".");
@@ -107,7 +64,9 @@ export const pdfToImage = async (
     const files: File[] = [];
     for (const [index, page] of numbers.entries()) {
       signal?.throwIfAborted();
-      const image = renderPage(module, source.document, page, Number(dpi));
+      const scale = Number(dpi) / 72;
+      const image = renderPage(module, source.document, page, () => scale, MAX_SIDE);
+      if (!image) throw tooLarge(page);
       let bytes: ArrayBuffer;
       try {
         bytes = await encodeImage(image, output.type, quality);

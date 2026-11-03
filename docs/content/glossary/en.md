@@ -38,6 +38,7 @@
 | page range / extract (pages) / split | page range / extract / split | cut (for PDF) |
 | resolution / DPI / render (a page) | resolution / DPI / render (a page) | dpi (lowercase), rasterize |
 | page size / orientation (portrait, landscape) / margin | page size / orientation (portrait, landscape) / margin | paper size (for the option), border (for margin) |
+| reorder / rotate (clockwise) / delete (pages) | reorder / rotate (clockwise) / delete | sort (for pages), turn (alone), flip (for rotate) |
 | trim / key frame / re-encode / edit list | trim / key frame / re-encode / edit list | keyframe (one word), transcode (in body text) |
 
 ## Tool 与 Category 名称
@@ -53,6 +54,7 @@
 | split-pdf | Split PDF |
 | pdf-to-image | PDF to Image |
 | image-to-pdf | Image to PDF |
+| organize-pdf | Organize PDF |
 | video-converter | Video Converter |
 | trim-video | Trim Video |
 | speech-to-text | Speech to Text |

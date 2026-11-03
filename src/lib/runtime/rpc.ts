@@ -4,7 +4,7 @@ import { type ProgressStage, type ToolContext, ToolError } from "@/lib/tool-cont
 // Worker 回传进度和结果；结果中的 ArrayBuffer / 类型化数组以 Transferable 零拷贝传回（File / Blob 本身克隆成本很低）。
 // ToolError 跨线程会丢失类型，按字段序列化后在主线程还原。
 
-type Method = "run" | "estimate";
+type Method = "run" | "estimate" | "preview";
 
 type Request<TIn> = { id: number; type: Method; input: TIn } | { id: number; type: "abort" };
 
@@ -57,14 +57,20 @@ const deserializeError = (error: SerializedError): Error =>
 // 预估：与输入的多文件字段一一对应的预估输出字节数，无法预估为 null（Tool 契约的 estimate）
 export type Estimate<TIn> = Run<TIn, readonly (number | null)[]>;
 
-// Worker 入口（engine.worker.ts）调用：把 core（和可选的 estimate）暴露给主线程
-export const exposeRun = <TIn, TOut>(run: Run<TIn, TOut>, estimate?: Estimate<TIn>) => {
+// 预览：表单控件在提交前向 Worker 要的辅助数据（如 PDF 页面缩略图），输入输出由控件和 Tool 约定
+// oxlint-disable-next-line typescript/no-explicit-any -- 各 Tool 的预览输入输出不同
+export type Preview = Run<any, unknown>;
+
+// Worker 入口（engine.worker.ts）调用：把 core（和可选的 estimate、preview）暴露给主线程
+export const exposeRun = <TIn, TOut>(
+  run: Run<TIn, TOut>,
+  { estimate, preview }: { estimate?: Estimate<TIn>; preview?: Preview } = {},
+) => {
+  const methods: Record<Method, Run<TIn, unknown> | undefined> = { run, estimate, preview };
   const scope = self as unknown as WorkerScope;
   const controllers = new Map<number, AbortController>();
-  const post = (
-    message: Response<TOut | readonly (number | null)[]>,
-    transfer: Transferable[] = [],
-  ) => scope.postMessage(message, transfer);
+  const post = (message: Response<unknown>, transfer: Transferable[] = []) =>
+    scope.postMessage(message, transfer);
   scope.addEventListener("message", async (event: MessageEvent<Request<TIn>>) => {
     const request = event.data;
     if (request.type === "abort") {
@@ -74,7 +80,9 @@ export const exposeRun = <TIn, TOut>(run: Run<TIn, TOut>, estimate?: Estimate<TI
     const controller = new AbortController();
     controllers.set(request.id, controller);
     try {
-      const output = await (request.type === "estimate" ? estimate! : run)(request.input, {
+      const method = methods[request.type];
+      if (!method) throw new Error(`Worker 没有暴露 ${request.type}`);
+      const output = await method(request.input, {
         signal: controller.signal,
         onProgress: (ratio, stage) => post({ id: request.id, type: "progress", ratio, stage }),
       });

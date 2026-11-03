@@ -1,6 +1,6 @@
 ---
 review: draft
-updated: 2026-11-02
+updated: 2026-11-03
 title: Split PDF – Extract Pages or Split a PDF Online for Free
 description: Split a PDF into several files or extract the pages you need. Free and private — splitting runs in your browser, so your document is never uploaded.
 name: Split PDF
@@ -61,6 +61,8 @@ The tool uses PDFium — the PDF engine inside Google Chrome — compiled to Web
 - **Memory:** the file and all results are held in memory, so very large documents may fail on phones.
 
 To combine the parts again, or to join other documents, use [Merge PDF](/merge-pdf).
+
+To reorder, rotate or delete pages within one document, use [Organize PDF](/organize-pdf).
 
 ## Privacy
 

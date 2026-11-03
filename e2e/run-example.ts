@@ -19,6 +19,11 @@ const fill = async (page: Page, name: string, kind: string, value: unknown) => {
       // 关闭的下拉仍留在 DOM 里，两个下拉有同名选项时（单位换算的 From / To）只点打开的那个
       await page.locator(`[data-option="${String(value)}"]:visible`).click();
       return;
+    case "pages":
+      await field.locator("input").fill(String(value));
+      // 缩略图编辑器出现时会把提交按钮往下推，先等它出现，否则点击可能落空
+      await expect(field.locator("[data-page-editor]")).toBeVisible({ timeout: 30_000 });
+      return;
     default:
       await field.locator("textarea, input").fill(String(value));
   }

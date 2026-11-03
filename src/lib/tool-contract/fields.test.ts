@@ -27,6 +27,17 @@ describe("describeFields", () => {
     ]);
   });
 
+  it("links a page arrangement to its PDF field", () => {
+    const file = v.pipe(v.file(), fileType({ "application/pdf": [".pdf"] }));
+    const pages = v.pipe(v.string(), v.metadata({ widget: "pages", pagesOf: "file" }));
+    expect(describeFields(v.object({ file, pages }))[1]).toEqual({
+      name: "pages",
+      kind: "pages",
+      source: "file",
+    });
+    expect(() => describeFields(v.object({ pages }))).toThrow(/pagesOf/);
+  });
+
   it("derives tables from arrays of flat objects", () => {
     const rows = v.array(v.object({ name: v.string(), ttl: v.optional(v.number()) }));
     expect(describeFields(v.object({ rows }))).toEqual([

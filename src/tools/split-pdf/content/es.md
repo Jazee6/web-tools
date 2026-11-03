@@ -1,6 +1,6 @@
 ---
 review: draft
-updated: 2026-11-02
+updated: 2026-11-03
 title: Dividir PDF – Extrae páginas o divide un PDF en línea gratis
 description: Divide un PDF en varios archivos o extrae las páginas que necesitas. Gratis y privado — todo se hace en tu navegador, así que tu documento nunca se sube.
 name: Dividir PDF
@@ -61,6 +61,8 @@ La herramienta usa PDFium — el motor de PDF de Google Chrome — compilado a W
 - **Memoria:** el archivo y todos los resultados se mantienen en memoria, así que los documentos muy grandes pueden fallar en móviles.
 
 Para volver a combinar las partes, o para unir otros documentos, usa [Unir PDF](/es/merge-pdf).
+
+Para reordenar, girar o eliminar páginas dentro de un mismo documento, usa [Organizar PDF](/es/organize-pdf).
 
 ## Privacidad
 
