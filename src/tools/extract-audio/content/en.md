@@ -50,11 +50,13 @@ faq:
 
 The tool reads the video with Mediabunny, an open-source media library, and keeps only the main audio track. For WAV and M4A it decodes and encodes the sound with the WebCodecs API built into your browser. Browsers can't encode MP3, so for MP3 the tool loads an encoder built from LAME, an open-source MP3 encoder, the first time you need it. With Original track nothing is decoded: the audio data is copied as it is. The work runs in a background thread, so the page stays responsive.
 
+To convert an audio file rather than a video, use the [Audio Converter](/audio-converter).
+
 ## Options and limits
 
 - **Input:** MP4, MOV, WebM and MKV files up to 500 MB.
 - **MP3:** 192 kbps, up to 2 channels. Surround sound is mixed down to stereo, and unusual sample rates are converted to 48 kHz.
-- **M4A:** AAC at 192 kbps. Firefox has no AAC encoder, so there M4A only works when the video's sound is already AAC, which is then copied.
+- **M4A:** AAC at 192 kbps. Firefox has no AAC encoder, so there M4A only works when the video's sound is already AAC, which is then copied. Encoded M4A has up to 2 channels, like MP3.
 - **WAV:** 16-bit uncompressed sound, about 10 MB per minute of stereo audio.
 - **Original track:** AAC goes into M4A, MP3 into MP3, Opus and Vorbis into OGG, FLAC into FLAC and PCM into WAV. Other codecs, such as AC-3 or DTS, go into an MKA (Matroska audio) file.
 - **Tracks:** only the main audio track is extracted. If the video has no sound, the tool says so instead of creating an empty file.

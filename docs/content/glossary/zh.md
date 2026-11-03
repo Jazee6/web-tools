@@ -61,6 +61,7 @@
 | video-converter | 视频格式转换 |
 | trim-video | 视频剪切 |
 | extract-audio | 视频提取音频 |
+| audio-converter | 音频格式转换 |
 | speech-to-text | 语音转文字 |
 | base64-encode-decode | Base64 编码/解码 |
 | url-encode-decode | URL 编码/解码 |

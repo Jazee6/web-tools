@@ -60,6 +60,7 @@
 | video-converter | Convertisseur vidéo |
 | trim-video | Couper la vidéo |
 | extract-audio | Extraire l'audio |
+| audio-converter | Convertisseur audio |
 | speech-to-text | Transcription audio en texte |
 | base64-encode-decode | Encodeur/décodeur Base64 |
 | url-encode-decode | Encodeur/décodeur d'URL |

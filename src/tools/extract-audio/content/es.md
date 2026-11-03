@@ -50,11 +50,13 @@ faq:
 
 La herramienta lee el vídeo con Mediabunny, una biblioteca multimedia de código abierto, y se queda solo con la pista de audio principal. Para WAV y M4A, decodifica y codifica el sonido con la API WebCodecs integrada en tu navegador. Los navegadores no pueden codificar MP3, así que para MP3 la herramienta carga, la primera vez que lo necesitas, un codificador creado a partir de LAME, un codificador de MP3 de código abierto. Con Pista original no se decodifica nada: los datos de audio se copian tal cual. El trabajo se hace en un hilo en segundo plano, así que la página sigue respondiendo.
 
+Para convertir un archivo de audio en lugar de un vídeo, usa el [Conversor de audio](/es/audio-converter).
+
 ## Opciones y límites
 
 - **Entrada:** archivos MP4, MOV, WebM y MKV de hasta 500 MB.
 - **MP3:** 192 kbps y hasta 2 canales. El sonido envolvente se mezcla en estéreo y las frecuencias de muestreo poco habituales se convierten a 48 kHz.
-- **M4A:** AAC a 192 kbps. Firefox no tiene codificador AAC, así que allí M4A solo funciona cuando el sonido del vídeo ya es AAC, que entonces se copia.
+- **M4A:** AAC a 192 kbps. Firefox no tiene codificador AAC, así que allí M4A solo funciona cuando el sonido del vídeo ya es AAC, que entonces se copia. Al codificarse, el M4A tiene hasta 2 canales, como el MP3.
 - **WAV:** sonido sin compresión de 16 bits, unos 10 MB por minuto de audio estéreo.
 - **Pista original:** AAC va a M4A, MP3 a MP3, Opus y Vorbis a OGG, FLAC a FLAC y PCM a WAV. Otros códecs, como AC-3 o DTS, van a un archivo MKA (audio Matroska).
 - **Pistas:** solo se extrae la pista de audio principal. Si el vídeo no tiene sonido, la herramienta te lo indica en lugar de crear un archivo vacío.

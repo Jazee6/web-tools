@@ -13,9 +13,11 @@ export const primaryVideoTrack = async (input: Input): Promise<InputVideoTrack> 
 
 // 只处理主视频轨和主音频轨，字幕和多余的轨道丢弃。任何一条主轨被丢弃（无法解码、浏览器没有可用编码器）
 // 都报错，不静默输出没有声音或没有画面的文件；调用方用 discard: true 主动丢弃的轨道除外。
+// invalid 是读不出来时的错误码：视频 Tool 是 invalid_video，音频 Tool 是 invalid_audio
 export const runConversion = async (
   options: Omit<ConversionOptions, "tracks" | "showWarnings">,
   { signal, onProgress }: ToolContext,
+  invalid: "invalid_video" | "invalid_audio" = "invalid_video",
 ): Promise<void> => {
   const conversion = await Conversion.init({ ...options, tracks: "primary", showWarnings: false });
   // 认不出 codec 的轨道按无法读取处理；认得出但解不了码或没有可用编码器的，把源 codec 放在 detail
@@ -24,7 +26,7 @@ export const runConversion = async (
   if (!conversion.isValid || dropped.length > 0) {
     throw codec
       ? new ToolError("unsupported_codec", { field: "file", detail: codec })
-      : new ToolError("invalid_video", { field: "file" });
+      : new ToolError(invalid, { field: "file" });
   }
 
   // 中止时取消转换；Mediabunny 抛出的取消错误（随取消时所处阶段而不同）统一换成 signal.reason

@@ -59,6 +59,7 @@
 | video-converter | Video Converter |
 | trim-video | Trim Video |
 | extract-audio | Extract Audio |
+| audio-converter | Audio Converter |
 | speech-to-text | Speech to Text |
 | base64-encode-decode | Base64 Encode/Decode |
 | url-encode-decode | URL Encode/Decode |

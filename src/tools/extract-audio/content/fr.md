@@ -50,11 +50,13 @@ faq:
 
 L'outil lit la vidéo avec Mediabunny, une bibliothèque multimédia open source, et ne garde que la piste audio principale. Pour le WAV et le M4A, il décode et encode le son avec l'API WebCodecs intégrée à votre navigateur. Les navigateurs ne savent pas encoder le MP3 : pour le MP3, l'outil charge donc, la première fois que vous en avez besoin, un encodeur construit à partir de LAME, un encodeur MP3 open source. Avec Piste d'origine, rien n'est décodé : les données audio sont copiées telles quelles. Le travail s'effectue dans un thread en arrière-plan, la page reste donc réactive.
 
+Pour convertir un fichier audio plutôt qu'une vidéo, utilisez le [Convertisseur audio](/fr/audio-converter).
+
 ## Options et limites
 
 - **Entrée :** fichiers MP4, MOV, WebM et MKV de 500 Mo maximum.
 - **MP3 :** 192 kbit/s, jusqu'à 2 canaux. Le son surround est mixé en stéréo et les fréquences d'échantillonnage inhabituelles sont converties en 48 kHz.
-- **M4A :** AAC à 192 kbit/s. Firefox n'a pas d'encodeur AAC : le M4A n'y fonctionne que si le son de la vidéo est déjà en AAC, qui est alors copié.
+- **M4A :** AAC à 192 kbit/s. Firefox n'a pas d'encodeur AAC : le M4A n'y fonctionne que si le son de la vidéo est déjà en AAC, qui est alors copié. Une fois encodé, le M4A a jusqu'à 2 canaux, comme le MP3.
 - **WAV :** son non compressé en 16 bits, environ 10 Mo par minute d'audio stéréo.
 - **Piste d'origine :** l'AAC va dans un M4A, le MP3 dans un MP3, l'Opus et le Vorbis dans un OGG, le FLAC dans un FLAC et le PCM dans un WAV. Les autres codecs, comme l'AC-3 ou le DTS, vont dans un fichier MKA (audio Matroska).
 - **Pistes :** seule la piste audio principale est extraite. Si la vidéo n'a pas de son, l'outil vous le signale au lieu de créer un fichier vide.

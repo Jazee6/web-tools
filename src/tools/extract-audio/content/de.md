@@ -50,11 +50,13 @@ faq:
 
 Das Tool liest das Video mit Mediabunny, einer Open-Source-Medienbibliothek, und behält nur die Haupt-Audiospur. Für WAV und M4A dekodiert und kodiert es den Ton mit der in Ihren Browser eingebauten WebCodecs-API. Browser können kein MP3 kodieren, deshalb lädt das Tool für MP3 beim ersten Bedarf einen Encoder, der auf LAME basiert, einem Open-Source-MP3-Encoder. Mit Originalspur wird nichts dekodiert: Die Audiodaten werden unverändert kopiert. Die Arbeit läuft in einem Hintergrund-Thread, sodass die Seite reaktionsfähig bleibt.
 
+Um statt eines Videos eine Audiodatei umzuwandeln, nutzen Sie den [Audio-Konverter](/de/audio-converter).
+
 ## Optionen und Grenzen
 
 - **Eingabe:** MP4-, MOV-, WebM- und MKV-Dateien mit bis zu 500 MB.
 - **MP3:** 192 kbit/s, bis zu 2 Kanäle. Surround-Ton wird zu Stereo heruntergemischt, ungewöhnliche Abtastraten werden in 48 kHz umgewandelt.
-- **M4A:** AAC mit 192 kbit/s. Firefox hat keinen AAC-Encoder, dort funktioniert M4A also nur, wenn der Ton des Videos bereits AAC ist; er wird dann kopiert.
+- **M4A:** AAC mit 192 kbit/s. Firefox hat keinen AAC-Encoder, dort funktioniert M4A also nur, wenn der Ton des Videos bereits AAC ist; er wird dann kopiert. Neu kodiertes M4A hat wie MP3 bis zu 2 Kanäle.
 - **WAV:** unkomprimierter 16-Bit-Ton, etwa 10 MB pro Minute Stereo-Audio.
 - **Originalspur:** AAC landet in M4A, MP3 in MP3, Opus und Vorbis in OGG, FLAC in FLAC und PCM in WAV. Andere Codecs wie AC-3 oder DTS landen in einer MKA-Datei (Matroska-Audio).
 - **Spuren:** Nur die Haupt-Audiospur wird extrahiert. Hat das Video keinen Ton, meldet das Tool dies, statt eine leere Datei zu erstellen.

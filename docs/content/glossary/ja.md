@@ -60,6 +60,7 @@
 | video-converter | 動画変換 |
 | trim-video | 動画トリミング |
 | extract-audio | 音声抽出 |
+| audio-converter | 音声変換 |
 | speech-to-text | 音声文字起こし |
 | base64-encode-decode | Base64 エンコード/デコード |
 | url-encode-decode | URL エンコード/デコード |
