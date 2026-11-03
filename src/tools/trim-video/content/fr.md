@@ -1,6 +1,6 @@
 ---
 review: draft
-updated: 2026-11-02
+updated: 2026-11-03
 title: Couper la vidéo – Découper MP4, MOV, WebM et MKV gratuitement
 description: Coupez une vidéo entre un début et une fin, gratuitement, en MP4, MOV, WebM ou MKV. Privé et rapide — tout se fait dans le navigateur, votre vidéo n'est jamais envoyée.
 name: Couper la vidéo
@@ -51,7 +51,7 @@ faq:
   - q: Que se passe-t-il si l'heure de fin dépasse la fin de la vidéo ?
     a: L'extrait va simplement jusqu'à la fin de la vidéo.
   - q: Puis-je changer le format pendant la coupe ?
-    a: Non. L'extrait reste dans le même format que l'original. Pour le changer ensuite, utilisez le [Convertisseur vidéo](/fr/video-converter).
+    a: Non. L'extrait reste dans le même format que l'original. Pour le changer ensuite, utilisez le [Convertisseur vidéo](/fr/video-converter). Pour ne garder que le son, en MP3 par exemple, utilisez [Extraire l'audio](/fr/extract-audio).
 ---
 
 ## Fonctionnement de la coupe

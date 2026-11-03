@@ -40,6 +40,7 @@
 | page size / orientation (portrait, landscape) / margin | page size / orientation (portrait, landscape) / margin | paper size (for the option), border (for margin) |
 | reorder / rotate (clockwise) / delete (pages) | reorder / rotate (clockwise) / delete | sort (for pages), turn (alone), flip (for rotate) |
 | trim / key frame / re-encode / edit list | trim / key frame / re-encode / edit list | keyframe (one word), transcode (in body text) |
+| extract (audio) / audio track / bitrate / sample rate | extract (audio) / audio track / bitrate / sample rate | rip, strip (audio), bit rate (two words) |
 
 ## Tool 与 Category 名称
 
@@ -57,6 +58,7 @@
 | organize-pdf | Organize PDF |
 | video-converter | Video Converter |
 | trim-video | Trim Video |
+| extract-audio | Extract Audio |
 | speech-to-text | Speech to Text |
 | base64-encode-decode | Base64 Encode/Decode |
 | url-encode-decode | URL Encode/Decode |

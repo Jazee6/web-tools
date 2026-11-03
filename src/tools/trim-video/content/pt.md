@@ -1,6 +1,6 @@
 ---
 review: draft
-updated: 2026-11-02
+updated: 2026-11-03
 title: Cortar vídeo – Corte clipes MP4, MOV, WebM e MKV online grátis
 description: Corte um vídeo entre um início e um fim, grátis, em MP4, MOV, WebM ou MKV. Privado e rápido — o corte é processado no seu navegador, então seu vídeo nunca é enviado.
 name: Cortar vídeo
@@ -51,7 +51,7 @@ faq:
   - q: O que acontece se o tempo de fim passar do fim do vídeo?
     a: O trecho simplesmente vai até o fim do vídeo.
   - q: Posso mudar o formato ao cortar?
-    a: Não. O trecho continua no mesmo formato do original. Para mudá-lo depois, use o [Conversor de vídeo](/pt/video-converter).
+    a: Não. O trecho continua no mesmo formato do original. Para mudá-lo depois, use o [Conversor de vídeo](/pt/video-converter). Para ficar só com o som, em MP3 por exemplo, use [Extrair áudio](/pt/extract-audio).
 ---
 
 ## Como o corte funciona

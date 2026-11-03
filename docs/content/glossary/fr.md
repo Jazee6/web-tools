@@ -41,6 +41,7 @@
 | page size / orientation (portrait, landscape) / margin | format de page / orientation (portrait, paysage) / marge | taille du papier, bordure |
 | reorder / rotate (clockwise) / delete (pages) | réorganiser / faire pivoter (dans le sens horaire) / supprimer (des pages) | tourner, retourner, effacer |
 | trim / key frame / re-encode / edit list | couper / image clé / réencoder / liste d'édition | rogner (pour une vidéo), keyframe, transcoder (dans le texte) |
+| extract (audio) / audio track / bitrate / sample rate | extraire (l'audio) / piste audio / débit / fréquence d'échantillonnage | bitrate, taux d'échantillonnage |
 
 ## Noms des outils et des catégories
 
@@ -58,6 +59,7 @@
 | organize-pdf | Organiser PDF |
 | video-converter | Convertisseur vidéo |
 | trim-video | Couper la vidéo |
+| extract-audio | Extraire l'audio |
 | speech-to-text | Transcription audio en texte |
 | base64-encode-decode | Encodeur/décodeur Base64 |
 | url-encode-decode | Encodeur/décodeur d'URL |

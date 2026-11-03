@@ -1,6 +1,6 @@
 ---
 review: draft
-updated: 2026-11-02
+updated: 2026-11-03
 title: Trim Video – Cut MP4, MOV, WebM & MKV Clips Online Free
 description: Cut a video to a start and end time for free, in MP4, MOV, WebM or MKV. Private and fast — trimming runs in your browser, so your video is never uploaded.
 name: Trim Video
@@ -51,7 +51,7 @@ faq:
   - q: What happens if the end time is past the end of the video?
     a: The clip simply runs to the end of the video.
   - q: Can I change the format while trimming?
-    a: No. The clip stays in the same format as the original. To change it afterwards, use the [Video Converter](/video-converter).
+    a: No. The clip stays in the same format as the original. To change it afterwards, use the [Video Converter](/video-converter). To keep only its sound, as MP3 for example, use [Extract Audio](/extract-audio).
 ---
 
 ## How the trimming works

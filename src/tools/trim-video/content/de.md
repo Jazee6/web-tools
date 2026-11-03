@@ -1,6 +1,6 @@
 ---
 review: draft
-updated: 2026-11-02
+updated: 2026-11-03
 title: Video schneiden – MP4-, MOV-, WebM- und MKV-Clips online kostenlos
 description: Schneiden Sie ein Video kostenlos auf Start- und Endzeit, in MP4, MOV, WebM oder MKV. Privat und schnell – alles läuft in Ihrem Browser, Ihr Video wird nie hochgeladen.
 name: Video schneiden
@@ -51,7 +51,7 @@ faq:
   - q: Was passiert, wenn die Endzeit nach dem Ende des Videos liegt?
     a: Der Clip läuft dann einfach bis zum Ende des Videos.
   - q: Kann ich beim Schneiden das Format ändern?
-    a: Nein. Der Clip bleibt im selben Format wie das Original. Um es danach zu ändern, nutzen Sie den [Video-Konverter](/de/video-converter).
+    a: Nein. Der Clip bleibt im selben Format wie das Original. Um es danach zu ändern, nutzen Sie den [Video-Konverter](/de/video-converter). Wenn Sie nur den Ton brauchen, etwa als MP3, nutzen Sie [Audio extrahieren](/de/extract-audio).
 ---
 
 ## So funktioniert das Schneiden

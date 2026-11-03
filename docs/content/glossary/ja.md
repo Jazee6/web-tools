@@ -41,6 +41,7 @@
 | page size / orientation (portrait, landscape) / margin | ページサイズ / 向き（縦、横） / 余白 | 用紙サイズ（オプション名として）、マージン |
 | reorder / rotate (clockwise) / delete (pages) | 並べ替え / 回転（時計回り） / 削除（ページ） | ソート、反転 |
 | trim / key frame / re-encode / edit list | トリミング / キーフレーム / 再エンコード / エディットリスト | キー フレーム、トランスコード（本文中） |
+| extract (audio) / audio track / bitrate / sample rate | 抽出（音声） / 音声トラック / ビットレート / サンプリングレート | 取り出し、サンプルレート |
 
 ## ツールとカテゴリの名称
 
@@ -58,6 +59,7 @@
 | organize-pdf | PDF ページ整理 |
 | video-converter | 動画変換 |
 | trim-video | 動画トリミング |
+| extract-audio | 音声抽出 |
 | speech-to-text | 音声文字起こし |
 | base64-encode-decode | Base64 エンコード/デコード |
 | url-encode-decode | URL エンコード/デコード |
