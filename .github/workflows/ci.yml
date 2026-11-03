@@ -49,7 +49,7 @@ jobs:
           path: .cache/models
           key: models-${{ hashFiles('src/tools/*/model.ts') }}
       - run: bun run models
-      - run: bunx vitest run --project browser
+      - run: bunx vitest run --project browser --project browser-isolated
       - run: bun run build
       - run: bun run check:limits
       - run: bun run check:seo

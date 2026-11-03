@@ -1,7 +1,7 @@
 import * as v from "valibot";
-import { afterAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { runInWorker, terminateWorker } from "@/components/tool/tool-worker";
+import { runInWorker } from "@/components/tool/tool-worker";
 
 import { loadExampleFile } from "./example-files";
 import { toExampleShape } from "./example-output";
@@ -12,9 +12,6 @@ import { tools } from "./registry";
 const workerTools = tools.filter((tool) => tool.runtime.worker);
 
 describe.each(workerTools.map((tool) => [tool.id, tool] as const))("%s", (_id, tool) => {
-  // 所有引擎的 WASM 内存累积在同一个页面里会超出 WebKit 的上限，每个 Tool 测完就终止它的 Worker
-  afterAll(() => terminateWorker(tool));
-
   it.each(tool.examples.map((example, index) => [index, example] as const))(
     "example %i satisfies the contract in a Web Worker",
     async (_, example) => {

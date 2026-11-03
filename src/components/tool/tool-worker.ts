@@ -39,12 +39,6 @@ const discardWorker = (id: string, worker: Promise<Worker>) => {
 
 export const warmWorker = (tool: AnyTool) => void getWorker(tool.id);
 
-// 终止 Tool 的 Worker，释放它的 WASM 内存（契约测试逐个 Tool 跑完就释放，WebKit 一个页面放不下所有引擎）
-export const terminateWorker = (tool: AnyTool) => {
-  const worker = workers.get(tool.id);
-  if (worker) discardWorker(tool.id, worker);
-};
-
 export const runInWorker = async (
   tool: AnyTool,
   input: unknown,

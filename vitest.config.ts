@@ -9,6 +9,50 @@ const ortWebGpu = fileURLToPath(
   new URL("node_modules/onnxruntime-web/dist/ort.webgpu.min.mjs", import.meta.url),
 );
 
+// 各自启动浏览器的测试文件：
+// - 契约测试（每个 Worker Tool 的 examples）：WebKit 不会在同一个页面进程里释放已终止 Worker 的 WASM 内存，
+//   和其他重引擎的测试放在一起会 Out of memory；
+// - model-files 测试读写 models 缓存，Speech to Text 的恢复测试会删掉这个缓存，二者不能并发
+const isolatedTests = [
+  "src/tools/contract.browser.test.ts",
+  "src/lib/runtime/model-files.browser.test.ts",
+];
+
+const browserProject = (
+  name: string,
+  groupOrder: number,
+  files: { include?: string[]; exclude?: string[] },
+) => ({
+  extends: true,
+  optimizeDeps: {
+    exclude: [
+      "@jsquash/jpeg",
+      "@jsquash/webp",
+      "@jsquash/avif",
+      "@jsquash/oxipng",
+      "@embedpdf/pdfium",
+    ],
+  },
+  worker: { format: "es" as const },
+  test: {
+    name,
+    // groupOrder 不同的 project 依次运行，同一时间只有一组浏览器
+    sequence: { groupOrder },
+    include: files.include ?? ["src/**/*.browser.test.ts"],
+    exclude: files.exclude ?? [],
+    browser: {
+      enabled: true,
+      headless: true,
+      provider: playwright(),
+      instances: [
+        { browser: "chromium" as const },
+        { browser: "firefox" as const },
+        { browser: "webkit" as const },
+      ],
+    },
+  },
+});
+
 export default defineConfig({
   resolve: {
     tsconfigPaths: true,
@@ -24,30 +68,9 @@ export default defineConfig({
           exclude: ["src/**/*.browser.test.ts"],
         },
       },
-      // WASM / WebCodecs / WebGPU 路径在真实浏览器里测（architecture §18）
-      {
-        extends: true,
-        optimizeDeps: {
-          exclude: [
-            "@jsquash/jpeg",
-            "@jsquash/webp",
-            "@jsquash/avif",
-            "@jsquash/oxipng",
-            "@embedpdf/pdfium",
-          ],
-        },
-        worker: { format: "es" },
-        test: {
-          name: "browser",
-          include: ["src/**/*.browser.test.ts"],
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: playwright(),
-            instances: [{ browser: "chromium" }, { browser: "firefox" }, { browser: "webkit" }],
-          },
-        },
-      },
+      // WASM / WebCodecs / WebGPU 路径在真实浏览器里测（architecture §18）；isolatedTests 在另一个 project 里，用另一组浏览器
+      browserProject("browser", 1, { exclude: isolatedTests }),
+      browserProject("browser-isolated", 2, { include: isolatedTests }),
       {
         extends: true,
         plugins: [
