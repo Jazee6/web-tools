@@ -38,6 +38,7 @@
 | resize / proportions / crop / stretch | redimensionar / proporções / recortar / esticar | escalar, aspecto (sozinho) |
 | page range / extract (pages) / split | intervalo de páginas / extrair / dividir | cortar (em PDF) |
 | resolution / DPI / render (a page) | resolução / DPI / renderizar (uma página) | rasterizar |
+| page size / orientation (portrait, landscape) / margin | tamanho da página / orientação (retrato, paisagem) / margem | tamanho do papel, borda |
 | trim / key frame / re-encode / edit list | cortar (vídeo) / quadro-chave / recodificar / lista de edição | trimar, keyframe, transcodificar |
 
 ## Nomes de ferramentas e categorias
@@ -52,6 +53,7 @@
 | merge-pdf | Juntar PDF |
 | split-pdf | Dividir PDF |
 | pdf-to-image | PDF para imagem |
+| image-to-pdf | Imagem para PDF |
 | video-converter | Conversor de vídeo |
 | trim-video | Cortar vídeo |
 | speech-to-text | Voz para texto |

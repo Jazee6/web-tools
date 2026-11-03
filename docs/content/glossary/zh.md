@@ -39,6 +39,7 @@
 | resize / proportions / crop / stretch | 调整尺寸 / 比例 / 裁剪 / 拉伸 | 缩放（单独使用）、宽高比（正文中）、剪裁 |
 | page range / extract (pages) / split | 页码范围 / 提取 / 拆分 | 切割、分割 |
 | resolution / DPI / render (a page) | 分辨率 / DPI / 渲染（页面） | 像素化、栅格化 |
+| page size / orientation (portrait, landscape) / margin | 页面尺寸 / 方向（纵向、横向） / 页边距 | 纸张大小、竖版、横版、边框 |
 | trim / key frame / re-encode / edit list | 剪切 / 关键帧 / 重新编码 / 编辑列表（edit list） | 裁剪（指视频时）、截取、关键桢、转码（正文中） |
 
 ## Tool 与 Category 名称
@@ -53,6 +54,7 @@
 | merge-pdf | PDF 合并 |
 | split-pdf | PDF 拆分 |
 | pdf-to-image | PDF 转图片 |
+| image-to-pdf | 图片转 PDF |
 | video-converter | 视频格式转换 |
 | trim-video | 视频剪切 |
 | speech-to-text | 语音转文字 |

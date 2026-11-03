@@ -39,6 +39,7 @@
 | resize / proportions / crop / stretch | Größe ändern / Proportionen / zuschneiden / strecken | skalieren (allein), Seitenverhältnis (allein) |
 | page range / extract (pages) / split | Seitenbereich / extrahieren / teilen | zerschneiden (für PDF) |
 | resolution / DPI / render (a page) | Auflösung / DPI / rendern (eine Seite) | rastern |
+| page size / orientation (portrait, landscape) / margin | Seitengröße / Ausrichtung (Hochformat, Querformat) / Rand | Papierformat (für die Option), Rahmen |
 | trim / key frame / re-encode / edit list | schneiden / Keyframe / neu kodieren / Bearbeitungsliste | trimmen, Schlüsselbild, transkodieren (im Fließtext) |
 
 ## Namen von Tools und Kategorien
@@ -53,6 +54,7 @@
 | merge-pdf | PDF zusammenfügen |
 | split-pdf | PDF teilen |
 | pdf-to-image | PDF in Bild |
+| image-to-pdf | Bild in PDF |
 | video-converter | Video-Konverter |
 | trim-video | Video schneiden |
 | speech-to-text | Sprache zu Text |

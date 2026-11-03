@@ -1,8 +1,8 @@
 ---
 review: draft
-updated: 2026-11-02
-title: "PDF Tools – Merge, Split and Convert PDF to Images Online"
-description: "Free online PDF tools: merge several PDF files into one, split a PDF or extract its pages, and turn pages into JPG, PNG or WebP images. Everything runs in your browser."
+updated: 2026-11-03
+title: "PDF Tools – Merge, Split and Convert PDF and Images Online"
+description: "Free online PDF tools: merge PDF files, split a PDF or extract pages, turn pages into JPG, PNG or WebP images, and make a PDF from images. All in your browser."
 name: "PDF"
-intro: "Merge, split and convert PDF files to images without uploading them. Every tool runs on your device, so contracts, invoices and other private documents stay private."
+intro: "Merge, split and convert PDF files, or make a PDF from images, without uploading anything. Every tool runs on your device, so contracts, invoices and other private documents stay private."
 ---
