@@ -100,7 +100,7 @@ M2、M3、M4 只依赖 M1，可以并行推进。M5 在 M1 的内容 schema 定�
   - 第一次访问时页面在 SW 接管前已加载完：页面用 PerformanceObserver 把没经过 SW 的资源（`workerStart` 为 0，含接管时还在路上的请求）和当前 URL 报给 SW 补缓存。在 SW 接管前就创建的引擎 Worker 不受 SW 控制，它加载的 WASM 要等下次使用时才会被缓存；SW 通常在首次交互之前就已接管。
   - manifest 每个 Locale 一份（从该 Locale 首页启动，scope 是整站），图标（192、512、maskable、apple-touch-icon）由 postbuild 用 takumi 从 `favicon.svg` 生成。
   - e2e（`e2e/offline.spec.ts`，由注册表生成）：4 个 Worker Tool 各跑一次 example 后断网，新开页面仍能打开并再跑一次（Speech to Text 的模型来自 `models` 缓存），隔离页在 Chromium 上仍是跨源隔离；没访问过的页面显示对应 Locale 的离线页。本机 Playwright WebKit 跑完 Speech to Text 后 reload 页面会崩溃（不开 SW、不断网也一样），所以用例关掉原页面后新开一页。其他用例默认禁用 SW（`page.route` 拦不到经 SW 处理的请求）。Chromium、WebKit 通过；Firefox 下 Playwright 的离线模拟不作用于 SW 的请求，跳过。⏳ 在真实 Firefox、Safari 里手动确认离线使用。
-- ✅ Vitest Browser Mode 覆盖 WASM、WebCodecs、WebGPU 三条路径（`*.browser.test.ts`，Chromium / Firefox / WebKit）。WebGPU 只在有真实 GPU 的浏览器上跑（本机 macOS 的 WebKit）。
+- ✅ Vitest Browser Mode 覆盖 WASM、WebCodecs、WebGPU 三条路径（`*.browser.test.ts`，Chromium / Firefox / WebKit）。WebGPU 只在有真实 GPU 的浏览器上跑（本机 macOS 的 WebKit）。Worker contract 测试（`src/tools/contract.browser.test.ts`）单独放在 `browser-isolated` 项目里（`sequence.groupOrder` 让它在主项目之后用新的浏览器跑），因为 WebKit 在同一页面进程里不释放前面文件的 WASM 内存；即便如此，CI 的 Linux 版 WebKit 仍装不下 Speech to Text 的模型（`RangeError: Out of memory`），所以只在 Linux WebKit 上跳过它的 contract 示例（2026-11-05 确认），Chromium、Firefox 照跑，e2e 仍覆盖。读写 `models` 缓存的三个测试用 Web Lock `models-cache-test` 互斥。
 
 **退出条件**：4 个样板 Tool 在最新版 Chrome、Safari、Firefox 上都能运行（能力缺失时显示 Empty），用过一次后可以离线使用。
 
