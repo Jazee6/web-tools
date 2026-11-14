@@ -53,6 +53,15 @@ export const expectOutput = async (page: Page, tool: AnyTool, output: Record<str
       }
       continue;
     }
+    if (spec.kind === "html") {
+      // 富文本输出在 iframe 的 srcdoc 里预览
+      const source = isExamplePattern(value) ? value.pattern : RegExp.escape(String(value));
+      await expect(field.locator("iframe")).toHaveAttribute(
+        "srcdoc",
+        new RegExp(`<body>(?:${source})</body>`),
+      );
+      continue;
+    }
     if (spec.kind !== "table") {
       await expect(field.locator("textarea, input")).toHaveValue(
         isExamplePattern(value) ? examplePatternRegex(value) : String(value),
@@ -90,7 +99,8 @@ export const runExample = async (
     // 可选字段没有默认值时留空
     if (input[spec.name] !== undefined) await fill(page, spec.name, spec.kind, input[spec.name]);
   }
-  await page.locator('button[type="submit"]').click();
+  // 实时预览的 Tool 没有提交按钮，填完就会运行
+  if (!tool.form?.live) await page.locator('button[type="submit"]').click();
   // Worker Tool 可能要先下载 WASM 或模型，等输出出现再逐项比较
   if (tool.runtime.worker) {
     await expect(page.locator("[data-output]").first()).toBeVisible({ timeout: 90_000 });

@@ -34,6 +34,8 @@ import {
   ScanText,
   Scissors,
   Server,
+  Type,
+  Newspaper,
   WholeWord,
 } from "lucide-react";
 
@@ -42,6 +44,7 @@ import { toolIds } from "@/tools/tool-ids";
 
 export const categoryIcons: Record<CategoryId, LucideIcon> = {
   developer: Code,
+  text: Type,
   image: Image,
   pdf: FileText,
   media: Clapperboard,
@@ -76,6 +79,7 @@ const toolIcons: Record<string, LucideIcon> = {
   "unit-converter": Ruler,
   "url-encode-decode": Link,
   "uuid-generator": Dices,
+  "wechat-formatter": Newspaper,
   "video-converter": Film,
   "word-counter": WholeWord,
 };

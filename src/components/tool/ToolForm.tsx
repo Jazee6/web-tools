@@ -12,6 +12,7 @@ import {
 import * as v from "valibot";
 
 import { Button } from "@/components/ui/button";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
 import {
   Field,
   FieldContent,
@@ -50,7 +51,7 @@ import {
 import { m } from "@/paraglide/messages";
 
 import type { Estimates } from "./FilesInput";
-import { invokeTool } from "./invoke";
+import { invokeTool, previewTool } from "./invoke";
 import { selectItems } from "./select-items";
 import type { OutputLabel } from "./ToolOutput";
 
@@ -184,6 +185,16 @@ export function ToolForm({
         .map((spec) => spec.name),
     [fields, variant],
   );
+  // 草稿字段（draft: true）：Variant 预设了的字段不恢复也不保存，与偏好一致
+  const draftNames = useMemo(
+    () =>
+      fields
+        .filter((spec) => "draft" in spec && spec.draft && !(spec.name in (variant?.preset ?? {})))
+        .map((spec) => spec.name),
+    [fields, variant],
+  );
+  const live = tool.form?.live ?? false;
+  const split = tool.form?.split ?? false;
   const defaultValues = useMemo(
     () => ({ ...initialValues(tool.input), ...variant?.preset }),
     [tool, variant],
@@ -364,6 +375,92 @@ export function ToolForm({
     estimateRequest !== undefined &&
     (estimateRequest[estimateField!] as File[]).length > 0 &&
     !estimateCurrent;
+
+  // 实时预览（form.live）：输入变化后防抖运行；输入不完整时清空结果，不显示校验错误。
+  // 新输入会中止上一次还没完成的运行
+  const liveValues = useStore(form.store, (state) => (live ? state.values : undefined));
+  useEffect(() => {
+    if (!liveValues) return;
+    const parsed = v.safeParse(tool.input, withBlankNumbersOmitted(tool.input, liveValues));
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      if (!parsed.success) {
+        setOutput(undefined);
+        setRunError(undefined);
+        return;
+      }
+      const input = parsed.output as Values;
+      previewTool(tool, input, { signal: controller.signal })
+        .then((result) => {
+          if (controller.signal.aborted) return;
+          setRunError(undefined);
+          setOutput(result);
+          setSubmitted(input);
+          void import("./preferences")
+            .then(({ rememberRun }) => rememberRun(tool.id, preferenceNames, liveValues))
+            .catch(() => {});
+        })
+        .catch((error: unknown) => {
+          if (controller.signal.aborted) return;
+          setOutput(undefined);
+          const message = errorMessage(error, strings);
+          if (!message) console.error(error);
+          setRunError({
+            field: error instanceof ToolError ? error.field : undefined,
+            message: message ?? m.tool_error(),
+          });
+        });
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [tool, liveValues, preferenceNames, strings]);
+
+  // 草稿：水合后恢复，编辑后防抖保存；IndexedDB 不可用时忽略
+  const draftValues = useStore(form.store, (state) =>
+    draftNames.length > 0
+      ? JSON.stringify(draftNames.map((name) => String(state.values[name] ?? "")))
+      : undefined,
+  );
+  const draftsRestored = useRef(false);
+  useEffect(() => {
+    if (draftNames.length === 0) return;
+    let active = true;
+    const initial = form.options.defaultValues as Values;
+    void import("./preferences")
+      .then(({ restoreDrafts }) =>
+        restoreDrafts(
+          tool.id,
+          {
+            names: draftNames,
+            untouched: (name) => form.getFieldValue(name as never) === initial[name],
+            set: (name, value) => form.setFieldValue(name as never, value as never),
+          },
+          () => active,
+        ),
+      )
+      .catch(() => {})
+      .finally(() => {
+        if (active) draftsRestored.current = true;
+      });
+    return () => {
+      active = false;
+    };
+  }, [tool, form, draftNames]);
+  useEffect(() => {
+    // 恢复完成前不保存，否则初始的空值会覆盖已有草稿
+    if (draftValues === undefined || !draftsRestored.current) return;
+    const texts = JSON.parse(draftValues) as string[];
+    const timer = setTimeout(() => {
+      void import("./preferences")
+        .then(({ saveDrafts }) =>
+          saveDrafts(tool.id, Object.fromEntries(draftNames.map((name, i) => [name, texts[i]!]))),
+        )
+        .catch(() => {});
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [tool, draftNames, draftValues]);
 
   // 水合后恢复上次用过的选项（服务端与首次渲染都用 schema 默认值）
   useEffect(() => {
@@ -568,7 +665,7 @@ export function ToolForm({
             placeholder={label?.placeholder}
             aria-invalid={invalid}
             spellCheck={false}
-            variant={spec.kind === "code" ? "code" : "default"}
+            variant={spec.kind === "code" ? (split ? "editor" : "code") : "default"}
             onBlur={field.handleBlur}
             onChange={(event) => onChange(event.target.value)}
           />
@@ -673,7 +770,8 @@ export function ToolForm({
           </Suspense>
         );
       case "table":
-        throw new Error(`表格字段 ${spec.name} 只能用于输出`);
+      case "html":
+        throw new Error(`${spec.kind} 字段 ${spec.name} 只能用于输出`);
     }
   };
 
@@ -686,7 +784,10 @@ export function ToolForm({
   }
 
   return (
-    <div className="flex flex-col gap-6" data-hydrated={hydrated || undefined}>
+    <div
+      className={split ? "grid gap-6 lg:grid-cols-2 lg:items-start" : "flex flex-col gap-6"}
+      data-hydrated={hydrated || undefined}
+    >
       <form
         ref={formRef}
         noValidate
@@ -725,58 +826,71 @@ export function ToolForm({
                 }}
               </form.Field>
             ))}
-            <form.Subscribe selector={(state) => state.isSubmitting}>
-              {(submitting) => (
-                <>
-                  <Field orientation="horizontal">
-                    <Button type="submit" disabled={submitting}>
-                      {submitting && <Spinner />}
-                      {strings.action}
-                    </Button>
-                    {/* 只有 Worker Tool 能中途取消（Worker RPC 会把 abort 转给 core） */}
-                    {submitting && tool.runtime.worker && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => running.current?.abort()}
-                      >
-                        {m.tool_cancel()}
+            {/* 实时预览的 Tool 不需要提交按钮 */}
+            {!live && (
+              <form.Subscribe selector={(state) => state.isSubmitting}>
+                {(submitting) => (
+                  <>
+                    <Field orientation="horizontal">
+                      <Button type="submit" disabled={submitting}>
+                        {submitting && <Spinner />}
+                        {strings.action}
                       </Button>
+                      {/* 只有 Worker Tool 能中途取消（Worker RPC 会把 abort 转给 core） */}
+                      {submitting && tool.runtime.worker && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => running.current?.abort()}
+                        >
+                          {m.tool_cancel()}
+                        </Button>
+                      )}
+                    </Field>
+                    {submitting && progress !== undefined && (
+                      <Suspense>
+                        <RunProgress ratio={progress.ratio} stage={progress.stage} />
+                      </Suspense>
                     )}
-                  </Field>
-                  {submitting && progress !== undefined && (
-                    <Suspense>
-                      <RunProgress ratio={progress.ratio} stage={progress.stage} />
-                    </Suspense>
-                  )}
-                </>
-              )}
-            </form.Subscribe>
+                  </>
+                )}
+              </form.Subscribe>
+            )}
           </FieldGroup>
         </FieldSet>
         {server && <div ref={challenge} />}
       </form>
 
-      {runError && !runError.field && (
-        <Suspense>
-          <RunErrorAlert message={runError.message} />
-        </Suspense>
-      )}
+      {/* 分栏时结果在右栏（移动端在下方），还没有结果时用 Empty 占住位置 */}
+      <div className="flex min-w-0 flex-col gap-6 empty:hidden">
+        {runError && !runError.field && (
+          <Suspense>
+            <RunErrorAlert message={runError.message} />
+          </Suspense>
+        )}
 
-      {output && (
-        <Suspense>
-          {outputFields.map((spec) => (
-            <ToolOutput
-              key={spec.name}
-              spec={spec}
-              value={output[spec.name]}
-              label={strings.output[spec.name]}
-              sources={sourcesOf(fields, submitted, output[spec.name])}
-              toolId={tool.id}
-            />
-          ))}
-        </Suspense>
-      )}
+        {output ? (
+          <Suspense>
+            {outputFields.map((spec) => (
+              <ToolOutput
+                key={spec.name}
+                spec={spec}
+                value={output[spec.name]}
+                label={strings.output[spec.name]}
+                sources={sourcesOf(fields, submitted, output[spec.name])}
+                toolId={tool.id}
+              />
+            ))}
+          </Suspense>
+        ) : (
+          split &&
+          !runError && (
+            <Empty className="border">
+              <EmptyDescription>{m.tool_output_empty()}</EmptyDescription>
+            </Empty>
+          )
+        )}
+      </div>
     </div>
   );
 }

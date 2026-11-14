@@ -8,6 +8,8 @@ const textareaVariants = cva("", {
       default: "",
       // 代码 / 数据输入：等宽字体，限制最大高度后内部滚动
       code: "max-h-[60svh] min-h-48 font-mono",
+      // 长文编辑（左右分栏的 Tool）：更高的起始高度
+      editor: "max-h-[75svh] min-h-96 font-mono",
     },
   },
   defaultVariants: {

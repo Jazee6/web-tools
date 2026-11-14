@@ -101,7 +101,7 @@ const updated = new Intl.DateTimeFormat(hreflang[locale], { dateStyle: "long" })
 >
   <main class="pb-16 sm:pb-24">
     <ToolHero crumbs={crumbs} toolId={node.id} name={data.name} answer={data.answer} />
-    <ToolStage>
+    <ToolStage wide={node.tool.form?.split}>
       <ToolIsland client:load toolId={node.id} strings={strings} agent={agent} server={server} />
     </ToolStage>
 

@@ -1,13 +1,14 @@
-// 本地状态（architecture §13）：收藏、最近使用、每个 Tool 的偏好参数存在 IndexedDB，只在本设备，不上传。
+// 本地状态（architecture §13）：收藏、最近使用、每个 Tool 的偏好参数和草稿存在 IndexedDB，只在本设备，不上传。
 // 自写的薄封装，不引入 idb。只在浏览器里按需加载（⌘K 对话框、Tool 表单水合后、页脚的"清除本地数据"）。
 // IndexedDB 不可用（如部分隐私模式）时各函数 reject，调用方忽略即可，不影响 Tool 本身。
 
 const DB_NAME = "web-tools";
-const DB_VERSION = 1;
+// 版本 2 加了 drafts；upgradeneeded 只补建缺少的 store，已有数据不动
+const DB_VERSION = 2;
 
-type StoreName = "favorites" | "recents" | "preferences";
+type StoreName = "favorites" | "recents" | "preferences" | "drafts";
 
-const stores: StoreName[] = ["favorites", "recents", "preferences"];
+const stores: StoreName[] = ["favorites", "recents", "preferences", "drafts"];
 
 // 最近使用只保留这么多条
 export const MAX_RECENTS = 20;
@@ -112,6 +113,20 @@ export const getPreferences = async (id: string): Promise<Preferences | undefine
 export const savePreferences = (id: string, values: Preferences): Promise<void> =>
   transact<void>("preferences", "readwrite", (store) => {
     store.put({ id, values });
+  });
+
+// 草稿：文本字段（契约里 draft: true）的内容，键是 "<Tool id>/<字段名>"；空文本删除草稿
+export const getDraft = async (id: string): Promise<string | undefined> =>
+  (
+    await transact<{ id: string; text: string } | undefined>("drafts", "readonly", (store) =>
+      store.get(id),
+    )
+  )?.text;
+
+export const saveDraft = (id: string, text: string): Promise<void> =>
+  transact<void>("drafts", "readwrite", (store) => {
+    if (text) store.put({ id, text });
+    else store.delete(id);
   });
 
 const deleteDb = () =>

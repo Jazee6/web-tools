@@ -14,11 +14,14 @@ export type FieldMetadata = {
   // pagesOf 是提供 PDF 的文件字段，Worker 要用 exposeRun 的 preview 提供缩略图（lib/pdf/thumbnails.ts）
   // crop：裁剪区域（lib/image/crop.ts 的 "x, y, width, height"），单行文本加拖拽裁剪框；cropOf 是提供图片的文件字段，
   // 编辑器按同一表单里的 rotate、flipHorizontal、flipVertical、aspect 字段显示预览（字段可以没有）
-  widget?: "code" | "url" | "line" | "pages" | "crop";
+  // html：只用于输出，显示公众号排版之类的富文本预览，可复制成富文本或 HTML 源码
+  widget?: "code" | "url" | "line" | "pages" | "crop" | "html";
   pagesOf?: string;
   cropOf?: string;
   // false：数字、开关、下拉字段不记作本地偏好（如只对当前文件有意义的旋转）
   remember?: false;
+  // true：文本字段的内容作为草稿自动存在访客浏览器本地，刷新后恢复（长文写作类 Tool）
+  draft?: true;
   // 下拉选项是语言代码（BCP 47）：选项名由 Intl.DisplayNames 按当前 Locale 生成并按名称排序，
   // 内容 frontmatter 只需给不是语言代码的选项（如 auto）写标签
   languageNames?: boolean;
@@ -104,6 +107,9 @@ export interface ToolDefinition<
     crossOriginIsolated?: boolean;
     requires?: readonly Capability[];
   };
+  // 页面表单的可选形态：live 是输入变化后自动运行（防抖），不显示提交按钮；
+  // split 是桌面端左输入、右输出的分栏，移动端上下堆叠。只给轻量、输出是文本的 Tool 用
+  form?: { live?: boolean; split?: boolean };
   agent: {
     webmcp: boolean;
     remote: boolean;

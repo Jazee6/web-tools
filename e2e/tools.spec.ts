@@ -64,7 +64,12 @@ for (const tool of tools) {
         expect(new URL(page.url()).pathname).toBe(path);
         await expect(page.locator("html")).toHaveAttribute("lang", hreflang[locale]);
         await expect(page.locator("h1")).toBeVisible();
-        await expect(page.locator('button[type="submit"]')).toBeVisible();
+        // 实时预览的 Tool 没有提交按钮
+        await expect(
+          tool.form?.live
+            ? page.locator("[data-field]").first()
+            : page.locator('button[type="submit"]'),
+        ).toBeVisible();
       });
     }
 

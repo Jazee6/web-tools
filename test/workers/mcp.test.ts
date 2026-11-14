@@ -165,7 +165,7 @@ describe("/mcp adapter (2026-07-28, opt-in fixtures)", () => {
 describe("/mcp production catalog", () => {
   it("keeps WebMCP available without exposing remote Tools", () => {
     expect(tools.filter((tool) => tool.agent.remote)).toEqual([]);
-    expect(tools.filter((tool) => tool.agent.webmcp)).toHaveLength(14);
+    expect(tools.filter((tool) => tool.agent.webmcp)).toHaveLength(15);
   });
 
   // 无注册工具时，SDK 不启用 tools capability，而不是返回空列表。

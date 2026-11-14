@@ -28,6 +28,7 @@ import { formatChange, formatSize } from "./format-size";
 // 表格依赖 TanStack Table，只有用到表格输出的 Tool 才加载
 const OutputTable = lazy(() => import("./OutputTable"));
 const FilePreview = lazy(() => import("./FilePreview"));
+const HtmlOutput = lazy(() => import("./HtmlOutput"));
 
 export interface OutputLabel {
   label: string;
@@ -212,6 +213,14 @@ export default function ToolOutput({
           />
         </Suspense>
       </Field>
+    );
+  }
+
+  if (spec.kind === "html") {
+    return (
+      <Suspense>
+        <HtmlOutput name={spec.name} label={title} value={String(value ?? "")} />
+      </Suspense>
     );
   }
 

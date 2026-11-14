@@ -1,8 +1,13 @@
 ---
-// 承载 Tool island 的卡片，上移压住 ToolHero 的底边
+// 承载 Tool island 的卡片，上移压住 ToolHero 的底边；wide 给左右分栏的 Tool（契约的 form.split）
+interface Props {
+  wide?: boolean;
+}
+
+const { wide = false } = Astro.props;
 ---
 
-<div class="relative mx-auto -mt-16 max-w-3xl px-4 sm:-mt-20">
+<div class:list={["relative mx-auto -mt-16 px-4 sm:-mt-20", wide ? "max-w-6xl" : "max-w-3xl"]}>
   <div class="rounded-3xl border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
     <slot />
   </div>

@@ -4,7 +4,8 @@ import { defineTool } from "@/lib/tool-contract/define-tool";
 
 export default defineTool({
   id: "case-converter",
-  category: "developer",
+  category: "text",
+  alsoListedIn: ["developer"],
   input: v.object({
     text: v.pipe(v.string(), v.nonEmpty(), v.description("The text to convert")),
     mode: v.optional(

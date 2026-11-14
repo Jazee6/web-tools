@@ -1,8 +1,8 @@
 ---
 review: reviewed
-updated: 2026-11-09
-title: "Ferramentas para desenvolvedores – JSON, Base64, regex, hash e DNS"
-description: "Ferramentas grátis para desenvolvedores e texto: formate JSON, gere UUID, decodifique JWT, teste regex, converta datas e unidades, conte palavras e consulte DNS."
-name: "Desenvolvedores e texto"
-intro: "Ferramentas diárias para desenvolvedores e escritores. Quase todas rodam no seu navegador sem enviar o que você digita. Duas enviam sua entrada pela rede: o Verificador de cabeçalhos HTTP envia a URL ao nosso servidor, que não guarda nada, e a Consulta DNS envia o domínio à Cloudflare ou ao Google."
+updated: 2026-11-14
+title: "Ferramentas de desenvolvedor – JSON, Base64, regex, hash, DNS e mais"
+description: "Ferramentas grátis: formate JSON, codifique Base64, gere UUID, decodifique JWT, teste expressões regulares, converta timestamps, cores e unidades e consulte DNS online."
+name: "Desenvolvedores"
+intro: "Ferramentas diárias para desenvolvedores. Quase tudo é processado no seu navegador sem enviar o que você digita. Duas exceções: o Verificador de cabeçalhos HTTP envia a URL ao nosso servidor para buscá-la, sem guardar nada, e a Consulta DNS envia o domínio à Cloudflare ou ao Google."
 ---

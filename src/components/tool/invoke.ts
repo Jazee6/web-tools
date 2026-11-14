@@ -36,6 +36,13 @@ export const invokeTool = async (
   }
 };
 
+// 实时预览（契约的 form.live）：输入一变就运行，不算一次使用，不计入遥测
+export const previewTool = (
+  tool: AnyTool,
+  input: unknown,
+  ctx: ToolContext = {},
+): Promise<Record<string, unknown>> => execute(tool, input, () => Promise.resolve(""), ctx);
+
 const execute = async (
   tool: AnyTool,
   input: unknown,
