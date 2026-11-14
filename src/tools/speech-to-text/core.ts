@@ -1,0 +1,219 @@
+import { pipeline, Tensor } from "@huggingface/transformers";
+import {
+  ALL_FORMATS,
+  type AudioSample,
+  BlobSource,
+  Conversion,
+  Input,
+  NullTarget,
+  Output,
+  WavOutputFormat,
+} from "mediabunny";
+
+import {
+  type Backend,
+  configureTransformers,
+  detectBackend,
+  loadModel,
+} from "@/lib/runtime/transformers";
+import { type ToolContext, ToolError } from "@/lib/tool-contract/define-tool";
+
+import {
+  configFiles,
+  decoderFile,
+  encoderFiles,
+  hostedFiles,
+  MODEL_ID,
+  MODEL_REVISION,
+} from "./model";
+import { formatSrt, type TimedChunk } from "./srt";
+import { MAX_DURATION_SECONDS, type whisperLanguages } from "./tool";
+
+export interface TranscribeInput {
+  file: File;
+  language: "auto" | (typeof whisperLanguages)[number];
+}
+
+// Whisper 的输入：16 kHz 单声道；长音频切成 30 秒的窗口，相邻窗口各重叠 5 秒，拼接时按重叠部分对齐
+const SAMPLE_RATE = 16_000;
+const CHUNK_SECONDS = 30;
+const STRIDE_SECONDS = 5;
+
+// 解码占"处理中"进度的前 10%，转录占后 90%
+const DECODE_SHARE = 0.1;
+
+export { type Backend, detectBackend };
+
+configureTransformers(hostedFiles, `{model}/${MODEL_REVISION}/`);
+
+type Transcriber = Awaited<ReturnType<typeof createTranscriber>>;
+
+const createTranscriber = (backend: Backend, ctx: ToolContext) =>
+  loadModel([...configFiles, encoderFiles[backend], decoderFile], ctx, () =>
+    pipeline("automatic-speech-recognition", MODEL_ID, {
+      revision: MODEL_REVISION,
+      device: { encoder_model: backend, decoder_model_merged: "wasm" },
+      dtype: { encoder_model: backend === "webgpu" ? "fp16" : "q8", decoder_model_merged: "q8" },
+    }),
+  );
+
+// 每种后端的模型只加载一次；加载失败（含取消）后丢弃，下次重新加载
+const transcribers = new Map<Backend, Promise<Transcriber>>();
+
+const getTranscriber = (backend: Backend, ctx: ToolContext): Promise<Transcriber> => {
+  let transcriber = transcribers.get(backend);
+  if (!transcriber) {
+    transcriber = createTranscriber(backend, ctx);
+    transcribers.set(backend, transcriber);
+    transcriber.catch(() => transcribers.delete(backend));
+  }
+  return transcriber;
+};
+
+// 解码主音轨，混成单声道并重采样到 16 kHz。Worker 里没有 AudioContext，借用 Mediabunny 的转换管线：
+// 输出到 NullTarget（WAV 容器 + PCM，基本不耗时），在 process 回调里拷出处理后的样本。
+const decodeAudio = async (file: File, { signal, onProgress }: ToolContext) => {
+  const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
+  try {
+    const track = await input.getPrimaryAudioTrack().catch(() => {
+      throw new ToolError("invalid_audio", { field: "file" });
+    });
+    if (!track) throw new ToolError("no_audio", { field: "file" });
+    const duration = await track.computeDuration();
+    if (duration > MAX_DURATION_SECONDS) throw new ToolError("too_long", { field: "file" });
+
+    // 按时长预分配，避免分段收集后再拼接时内存翻倍；时长估计偏小时扩容
+    let samples = new Float32Array(Math.ceil(duration * SAMPLE_RATE) + SAMPLE_RATE);
+    let length = 0;
+    const append = (sample: AudioSample) => {
+      const frames = sample.numberOfFrames;
+      if (length + frames > samples.length) {
+        const grown = new Float32Array(Math.max(samples.length * 2, length + frames));
+        grown.set(samples.subarray(0, length));
+        samples = grown;
+      }
+      sample.copyTo(samples.subarray(length, length + frames), {
+        planeIndex: 0,
+        format: "f32-planar",
+      });
+      length += frames;
+      // 返回 null 会让 WAV 输出没有任何数据包，finalize 时报错
+      return sample;
+    };
+
+    const conversion = await Conversion.init({
+      input,
+      output: new Output({ format: new WavOutputFormat(), target: new NullTarget() }),
+      tracks: "primary",
+      video: { discard: true },
+      audio: { numberOfChannels: 1, sampleRate: SAMPLE_RATE, codec: "pcm-f32", process: append },
+      showWarnings: false,
+    });
+    const discarded = conversion.discardedTracks.find((entry) => entry.track.isAudioTrack());
+    if (!conversion.isValid || discarded) {
+      const codec = await discarded?.track.getCodec();
+      throw codec
+        ? new ToolError("unsupported_codec", { field: "file", detail: codec })
+        : new ToolError("invalid_audio", { field: "file" });
+    }
+
+    signal?.throwIfAborted();
+    const abort = () => void conversion.cancel();
+    signal?.addEventListener("abort", abort, { once: true });
+    conversion.onProgress = (ratio) => onProgress?.(ratio * DECODE_SHARE);
+    try {
+      await conversion.execute();
+    } catch (error) {
+      signal?.throwIfAborted();
+      throw error;
+    } finally {
+      signal?.removeEventListener("abort", abort);
+    }
+    return samples.subarray(0, length);
+  } finally {
+    input.dispose();
+  }
+};
+
+// 与 Transformers.js 的 Whisper 分块逻辑一致：窗口每次前进 30 − 2 × 5 = 20 秒，直到覆盖结尾
+const chunkCount = (length: number) => {
+  const window = CHUNK_SECONDS * SAMPLE_RATE;
+  const jump = window - 2 * STRIDE_SECONDS * SAMPLE_RATE;
+  return length <= window ? 1 : 1 + Math.ceil((length - window) / jump);
+};
+
+interface WhisperGenerationConfig {
+  decoder_start_token_id: number;
+  // "<|de|>" → token id，覆盖模型支持的全部语言
+  lang_to_id: Record<string, number>;
+}
+
+// Transformers.js 不会自动识别语言（不指定时一律按英语转录，非英语音频会被"翻译"或乱码）。按 Whisper 的做法自己识别：
+// 把前 30 秒送进模型，只解码 <|startoftranscript|> 之后的一步，取语言 token 里 logit 最高的一个。返回 Whisper 的语言代码。
+const detectLanguage = async (transcriber: Transcriber, audio: Float32Array) => {
+  const { model, processor } = transcriber;
+  const config = model.generation_config as unknown as WhisperGenerationConfig;
+  const { input_features } = await processor(audio.subarray(0, CHUNK_SECONDS * SAMPLE_RATE));
+  const start = BigInt(config.decoder_start_token_id);
+  const { logits } = (await model({
+    input_features,
+    decoder_input_ids: new Tensor("int64", BigInt64Array.of(start), [1, 1]),
+  })) as { logits: Tensor };
+  // logits 形状是 [1, 1, 词表大小]
+  const scores = logits.data as Float32Array;
+  const [best] = Object.entries(config.lang_to_id).reduce((top, entry) =>
+    scores[entry[1]]! > scores[top[1]]! ? entry : top,
+  );
+  return best.slice(2, -2);
+};
+
+const subtitleName = (name: string) => {
+  const dot = name.lastIndexOf(".");
+  return `${dot > 0 ? name.slice(0, dot) : name}.srt`;
+};
+
+// backend 只在测试里指定，用来分别覆盖 WebGPU 和 WASM 两条路径
+export const transcribe = async (
+  { file, language }: TranscribeInput,
+  ctx: ToolContext,
+  backend?: Backend,
+) => {
+  const { signal, onProgress } = ctx;
+  // 先解码：文件有问题时立即报错，不用先下载模型
+  const audio = await decodeAudio(file, ctx);
+  const transcriber = await getTranscriber(backend ?? (await detectBackend()), ctx);
+  signal?.throwIfAborted();
+  // Whisper 把爪哇语记作 jw
+  const spoken =
+    language === "auto"
+      ? await detectLanguage(transcriber, audio)
+      : language === "jv"
+        ? "jw"
+        : language;
+  signal?.throwIfAborted();
+
+  // 每个窗口生成结束时（streamer.end）推进进度；每生成一个 token（streamer.put）检查是否已取消
+  const chunks = chunkCount(audio.length);
+  let done = 0;
+  onProgress?.(DECODE_SHARE);
+  const streamer = {
+    put: () => signal?.throwIfAborted(),
+    end: () => onProgress?.(DECODE_SHARE + (1 - DECODE_SHARE) * (++done / chunks)),
+  };
+  const result = (await transcriber(audio, {
+    chunk_length_s: CHUNK_SECONDS,
+    stride_length_s: STRIDE_SECONDS,
+    return_timestamps: true,
+    task: "transcribe",
+    language: spoken,
+    streamer,
+  } as Record<string, unknown>)) as { text: string; chunks?: TimedChunk[] };
+
+  const text = result.text.trim();
+  if (!text) throw new ToolError("no_speech", { field: "file" });
+  const srt = formatSrt(result.chunks ?? [], audio.length / SAMPLE_RATE);
+  return {
+    text,
+    subtitles: new File([srt], subtitleName(file.name), { type: "application/x-subrip" }),
+  };
+};

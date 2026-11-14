@@ -1,0 +1,12 @@
+---
+// 首页和 Category 页顶部的装饰背景：主题边框色的网格，从顶部中心向外淡出。父元素需要 relative isolate。
+---
+
+<div
+  aria-hidden="true"
+  class="absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] mask-[radial-gradient(ellipse_70%_60%_at_50%_0%,black,transparent)] bg-size-[3rem_3rem]"
+></div>
+<div
+  aria-hidden="true"
+  class="absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(ellipse_50%_80%_at_50%_0%,var(--muted),transparent)]"
+></div>

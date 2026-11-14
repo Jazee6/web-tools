@@ -1,0 +1,49 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "web-tools",
+  "compatibility_date": "2026-10-12",
+  "compatibility_flags": ["global_fetch_strictly_public", "nodejs_als"],
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  // 不设 run_worker_first：Free 计划超出配额时静态请求不受影响（architecture §20）
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+  },
+  "routes": [{ "pattern": "tools.jaze.top", "custom_domain": true }],
+  "workers_dev": true,
+  "preview_urls": true,
+  // 按 Cloudflare 节点近似计数，周期只能是 10 或 60 秒（architecture §20）。阈值按 Free 每天 10 万次请求配额定。
+  "ratelimits": [
+    // /api/tools/*：每个 IP 每个 Tool（网页调用另需 Turnstile）
+    {
+      "name": "TOOL_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 10, "period": 60 },
+    },
+    // Server-assisted Tool 对外请求：每个目标主机，防止被当作代理反复请求同一网站
+    {
+      "name": "TARGET_RATE_LIMITER",
+      "namespace_id": "1002",
+      "simple": { "limit": 30, "period": 60 },
+    },
+    // /mcp：每个 IP（匿名、无 Turnstile）
+    { "name": "MCP_RATE_LIMITER", "namespace_id": "1003", "simple": { "limit": 30, "period": 60 } },
+    // /api/e：每个 IP（事件已在客户端抽样，错误在同一会话内去重）
+    {
+      "name": "EVENT_RATE_LIMITER",
+      "namespace_id": "1004",
+      "simple": { "limit": 60, "period": 60 },
+    },
+  ],
+  // 事件和错误上报（architecture §16）。数据集在第一次写入时自动创建
+  "analytics_engine_datasets": [{ "binding": "EVENTS", "dataset": "web_tools_events" }],
+  // Turnstile（architecture §14）：site key 是公开值，构建期写进 Server-assisted Tool 页；
+  // secret 不写在这里，用 `wrangler secret put TURNSTILE_SECRET_KEY` 设置。
+  // 本地开发在 .dev.vars 里用官方测试 key 覆盖这两个值。
+  "vars": {
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFg-NppAAMnOcVwJ",
+  },
+  "observability": {
+    "enabled": true,
+  },
+}

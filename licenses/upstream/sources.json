@@ -1,0 +1,179 @@
+{
+  "onnx-LICENSE": {
+    "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/8d85527a0/LICENSE",
+    "bytes": 1073,
+    "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+  },
+  "onnx-ThirdPartyNotices.txt": {
+    "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/8d85527a0/ThirdPartyNotices.txt",
+    "bytes": 338088,
+    "sha256": "143764b952fdb1a7c69ce653bfba74a7744d6a8a573bfb73e235fba356c83de3"
+  },
+  "whisper-LICENSE": {
+    "url": "https://raw.githubusercontent.com/openai/whisper/v20240930/LICENSE",
+    "bytes": 1063,
+    "sha256": "b5d65a59060e68c4ff940e1eddfa6f94b2d68fdf58ed7f4dd57721c997e35e9d"
+  },
+  "libde265-COPYING": {
+    "url": "https://raw.githubusercontent.com/strukturag/libde265/v1.0.15/COPYING",
+    "bytes": 44339,
+    "sha256": "02cc1585a20677992e0ba578fa692635dc193735f2691dc81de924b51c4e8020"
+  },
+  "libavif-LICENSE": {
+    "url": "https://raw.githubusercontent.com/AOMediaCodec/libavif/v1.0.1/LICENSE",
+    "bytes": 18799,
+    "sha256": "10952217a6d404de8bf8a997fbea9b88f682df1fe98cb9b9f467ade641525639"
+  },
+  "libaom-LICENSE": {
+    "url": "https://aomedia.googlesource.com/aom/+/refs/tags/v3.7.0/LICENSE?format=TEXT",
+    "bytes": 1316,
+    "sha256": "4764a286d8b2faeaf42f4418e7d7a28d58fc8fd4d00a3d0a7f44b0a4099de7f2"
+  },
+  "libaom-PATENTS": {
+    "url": "https://aomedia.googlesource.com/aom/+/refs/tags/v3.7.0/PATENTS?format=TEXT",
+    "bytes": 5701,
+    "sha256": "661fb8e504744e95587b556b94a58343448300606a41bea8c7a9b97125696e61"
+  },
+  "webp-COPYING": {
+    "url": "https://raw.githubusercontent.com/webmproject/libwebp/e2c85878f6a33f29948b43d3492d9cdaf801aa54/COPYING",
+    "bytes": 1496,
+    "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf"
+  },
+  "webp-PATENTS": {
+    "url": "https://raw.githubusercontent.com/webmproject/libwebp/e2c85878f6a33f29948b43d3492d9cdaf801aa54/PATENTS",
+    "bytes": 1436,
+    "sha256": "cc3273e0694ea5896145e0677699b53471b03ea43021ddc50e7923fbb9f5023c"
+  },
+  "mozjpeg-README.ijg": {
+    "url": "https://raw.githubusercontent.com/mozilla/mozjpeg/v3.3.1/README.ijg",
+    "bytes": 13668,
+    "sha256": "53a3e3c299e08856964f4c5986e242c3695837b73c64625092f70c774e8af5d2"
+  },
+  "freetype-FTL.TXT": {
+    "url": "https://raw.githubusercontent.com/freetype/freetype/VER-2-14-1/docs/FTL.TXT",
+    "bytes": 6743,
+    "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f"
+  },
+  "pdfium-OpenJPEG-LICENSE": {
+    "url": "https://raw.githubusercontent.com/embedpdf/pdfium/73a041a5c1aaffa09ebb64f1981ff501cb91a41c/third_party/libopenjpeg/LICENSE",
+    "bytes": 2112,
+    "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6"
+  },
+  "pdfium-lcms-LICENSE": {
+    "url": "https://raw.githubusercontent.com/embedpdf/pdfium/73a041a5c1aaffa09ebb64f1981ff501cb91a41c/third_party/lcms/LICENSE",
+    "bytes": 1080,
+    "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31"
+  },
+  "pdfium-libtiff-LICENSE.md": {
+    "url": "https://raw.githubusercontent.com/embedpdf/pdfium/73a041a5c1aaffa09ebb64f1981ff501cb91a41c/third_party/libtiff/LICENSE.md",
+    "bytes": 1164,
+    "sha256": "0780558a8bfba0af1160ec1ff11ade4f41c0d7deafd6ecfc796b492a788e380d"
+  },
+  "pdfium-agg-agg_basics.h": {
+    "url": "https://raw.githubusercontent.com/embedpdf/pdfium/73a041a5c1aaffa09ebb64f1981ff501cb91a41c/third_party/agg23/agg_basics.h",
+    "bytes": 6353,
+    "sha256": "498e2ee1e5a082c40c7033183c9c1d6b6f17441165c9f2b7c341304e853cda91"
+  },
+  "pdfium-DEPS": {
+    "url": "https://raw.githubusercontent.com/embedpdf/pdfium/73a041a5c1aaffa09ebb64f1981ff501cb91a41c/DEPS",
+    "bytes": 38648,
+    "sha256": "f456f116824717cde93a32fa9cb2df1bae776226dadfa225a211dd5686ed05f1"
+  },
+  "onnx-common-LICENSE": {
+    "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/2a43ec07e/LICENSE",
+    "bytes": 1073,
+    "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+  },
+  "onnx-common-ThirdPartyNotices.txt": {
+    "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/2a43ec07e/ThirdPartyNotices.txt",
+    "bytes": 338088,
+    "sha256": "143764b952fdb1a7c69ce653bfba74a7744d6a8a573bfb73e235fba356c83de3"
+  },
+  "react-remove-scroll-bar-LICENSE": {
+    "url": "https://raw.githubusercontent.com/theKashey/react-remove-scroll-bar/8ca9ba5ea52de03308fe8ced94f7b159a44d28ff/LICENSE",
+    "caveat": "npm 2.3.8 gitHead b3b1287aad81def2e2ae707274b74531b61ddbaf is unavailable on GitHub; installed metadata says MIT, this original upstream text is pinned to the accessible repository HEAD, not proven release-identical.",
+    "bytes": 1093,
+    "sha256": "a79aae0c0f21990d9d963bb3c5a79cdcea9a46f8523ba55c58d7fe776b6ebc84"
+  },
+  "lame-COPYING": {
+    "url": "https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz",
+    "archiveSha256": "ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e",
+    "bytes": 25284,
+    "sha256": "bfe4a52dc4645385f356a8e83cc54216a293e3b6f1cb4f79f5fc0277abf937fd"
+  },
+  "pdfium-jpeg-LICENSE.md": {
+    "url": "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo/+/6bb85251a8382b5e07f635a981ac685cc5ab5053/LICENSE.md?format=TEXT",
+    "bytes": 5620,
+    "sha256": "96f5b328adbb78eeaaec6980d73fd558cb1e4d62560ed615646bc3cf5e532430"
+  },
+  "pdfium-png-LICENSE": {
+    "url": "https://chromium.googlesource.com/chromium/src/third_party/libpng/+/172f83835c98264e6eefdbe8ae82dc08be337ad0/LICENSE?format=TEXT",
+    "bytes": 5345,
+    "sha256": "bf5e22b9dce8464064ae17a48ea1133c3369ac9e1d80ef9e320e5219aa14ea9b"
+  },
+  "pdfium-zlib-LICENSE": {
+    "url": "https://chromium.googlesource.com/chromium/src/third_party/zlib/+/980253c1cc835c893c57b5cfc10c5b942e10bc46/LICENSE?format=TEXT",
+    "bytes": 910,
+    "sha256": "e1cfcc55c325b3f78cf55df9664abaa066e2271dffe8213347d9fccdfbac8f2c"
+  },
+  "libwebp-COPYING": {
+    "url": "https://raw.githubusercontent.com/webmproject/libwebp/d2e245ea9e959a5a79e1db0ed2085206947e98f2/COPYING",
+    "bytes": 1496,
+    "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf"
+  },
+  "libwebp-PATENTS": {
+    "url": "https://raw.githubusercontent.com/webmproject/libwebp/d2e245ea9e959a5a79e1db0ed2085206947e98f2/PATENTS",
+    "bytes": 1436,
+    "sha256": "cc3273e0694ea5896145e0677699b53471b03ea43021ddc50e7923fbb9f5023c"
+  },
+  "whisper-model-card.md": {
+    "url": "https://huggingface.co/onnx-community/whisper-base/raw/1846881b6b3a3024392c1eea3ad983695bc23925/README.md",
+    "bytes": 531,
+    "sha256": "60a378018182c57cf382866ddfbf0fb2b4031b3895ae932aa34ecb8ff7065a13"
+  },
+  "whisper-upstream-README.md": {
+    "url": "https://raw.githubusercontent.com/openai/whisper/v20240930/README.md",
+    "bytes": 7814,
+    "sha256": "e43556aa4f2f10a3090b433f02fb3129cc9214e44e7d135914e6d78008b3538b"
+  },
+  "birefnet-LICENSE": {
+    "url": "https://raw.githubusercontent.com/ZhengPeng7/BiRefNet/f7079632d681ecf12161fcea8905682934e59e51/LICENSE",
+    "bytes": 1066,
+    "sha256": "92a7089e0915fc32bc40067560b398f1e6a7a5958abd7d04eda393629a5acefb"
+  },
+  "birefnet-lite-onnx-webgpu-LICENSE": {
+    "url": "https://huggingface.co/wonfy/BiRefNet_lite-ONNX-webgpu/raw/c40eaa22fb1af9edcf75c7b79d25ed8a8e901140/LICENSE",
+    "bytes": 1066,
+    "sha256": "92a7089e0915fc32bc40067560b398f1e6a7a5958abd7d04eda393629a5acefb"
+  },
+  "birefnet-lite-onnx-webgpu-model-card.md": {
+    "url": "https://huggingface.co/wonfy/BiRefNet_lite-ONNX-webgpu/raw/c40eaa22fb1af9edcf75c7b79d25ed8a8e901140/README.md",
+    "bytes": 4928,
+    "sha256": "46ad61ef1e2d30cf7b7c035dba45c309d7501ab4159e7652b52aea9af8a84c42"
+  },
+  "birefnet-lite-512-LICENSE": {
+    "url": "https://huggingface.co/studioludens/birefnet-lite-512/raw/962e67969ec6acec9c19fab76acee4f5e22e990c/LICENSE",
+    "bytes": 1106,
+    "sha256": "b5cd5faac84a0acb8a6bdb8aeef0919e528891be27216df84eab398d7c8bd2aa"
+  },
+  "birefnet-lite-512-model-card.md": {
+    "url": "https://huggingface.co/studioludens/birefnet-lite-512/raw/962e67969ec6acec9c19fab76acee4f5e22e990c/README.md",
+    "bytes": 9089,
+    "sha256": "8e4338e9e368804ae5b6fc5b7e634e405f84c7879c405f738904f47b368399cf"
+  },
+  "paddleocr-LICENSE": {
+    "url": "https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/b03f46425e8ff4442b268ce449e3eef758146cd4/LICENSE",
+    "bytes": 11376,
+    "sha256": "3840c5c0c61c294264d2dd77b8777be6ddd90121ef4e0e64abcd22edea581d6e"
+  },
+  "pp-ocrv6-small-det-model-card.md": {
+    "url": "https://huggingface.co/PaddlePaddle/PP-OCRv6_small_det_onnx/raw/28fe5895c24fd108c19eb3e8479f4ab385fbfc62/README.md",
+    "bytes": 16076,
+    "sha256": "e9403667f0f92055d8ce9e73a2beb1002fc489d9342697db74039eb7178bb5fb"
+  },
+  "pp-ocrv6-small-rec-model-card.md": {
+    "url": "https://huggingface.co/PaddlePaddle/PP-OCRv6_small_rec_onnx/raw/b8f84f0b80c529de40b4fbb3544b84fa7233a513/README.md",
+    "bytes": 16585,
+    "sha256": "7d46dbd183ac09bd5a2e6b4577dcb29240751b1c00eb6813eca308d529f86806"
+  }
+}

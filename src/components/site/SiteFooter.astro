@@ -1,0 +1,54 @@
+---
+import { Button, buttonVariants } from "@/components/ui/button";
+import { localizePath } from "@/lib/i18n/locales";
+import { m } from "@/paraglide/messages";
+import { getLocale } from "@/paraglide/runtime";
+
+interface Props {
+  wide?: boolean;
+}
+
+const { wide = false } = Astro.props;
+---
+
+<footer class="border-t">
+  <div
+    class:list={[
+      "mx-auto flex flex-wrap items-center justify-between gap-4 px-4 py-4",
+      wide ? "max-w-5xl" : "max-w-3xl",
+    ]}
+  >
+    <nav aria-label={m.footer_information()} class="-ml-3 flex flex-wrap gap-1">
+      <a
+        class={buttonVariants({ variant: "muted", size: "sm" })}
+        href={localizePath(getLocale(), "/about")}
+      >
+        {m.footer_about()}
+      </a>
+      <a
+        class={buttonVariants({ variant: "muted", size: "sm" })}
+        href={localizePath(getLocale(), "/privacy")}
+      >
+        {m.footer_privacy()}
+      </a>
+      <a
+        class={buttonVariants({ variant: "muted", size: "sm" })}
+        href={localizePath(getLocale(), "/licenses")}
+      >
+        {m.footer_licenses()}
+      </a>
+    </nav>
+    {/* 按钮静态渲染，不水合；确认对话框（React）在点击时才加载 */}
+    <Button variant="muted" size="sm" className="-mr-3" data-clear-data>
+      {m.footer_clear()}
+    </Button>
+  </div>
+</footer>
+
+<script>
+  const trigger = document.querySelector<HTMLButtonElement>("[data-clear-data]")!;
+  trigger.addEventListener("click", async () => {
+    const { openClearData } = await import("./clear-data-mount");
+    openClearData();
+  });
+</script>

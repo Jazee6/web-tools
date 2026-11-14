@@ -1,0 +1,49 @@
+---
+import type { GetStaticPaths } from "astro";
+import { WifiOffIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { defaultLocale, locales } from "@/lib/i18n/locales";
+import { m } from "@/paraglide/messages";
+
+// 离线兜底页（architecture §13 PWA）：Service Worker 安装时预缓存，断网访问未缓存的页面时显示。
+// noindex，不进 sitemap、hreflang、llms.txt 和 ⌘K 索引（它们都从目录生成，不扫描页面）。
+export const getStaticPaths = (() =>
+  locales.map((locale) => ({
+    params: { locale: locale === defaultLocale ? undefined : locale },
+  }))) satisfies GetStaticPaths;
+---
+
+<BaseLayout
+  title={`${m.offline_title()} | ${m.site_name()}`}
+  description={m.offline_description()}
+  indexable={false}
+>
+  <main class="mx-auto max-w-3xl px-4 py-16">
+    <Empty data-offline>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <WifiOffIcon />
+        </EmptyMedia>
+        <EmptyTitle>{m.offline_title()}</EmptyTitle>
+        <EmptyDescription>{m.offline_description()}</EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button data-retry>{m.offline_retry()}</Button>
+      </EmptyContent>
+    </Empty>
+  </main>
+</BaseLayout>
+
+<script>
+  document.querySelector("[data-retry]")!.addEventListener("click", () => location.reload());
+</script>

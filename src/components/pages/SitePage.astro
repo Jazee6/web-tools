@@ -1,0 +1,54 @@
+---
+import { render } from "astro:content";
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import type { SitePageNode } from "@/lib/catalog";
+import { type Locale, localizePath } from "@/lib/i18n/locales";
+import { alternates, isIndexable } from "@/lib/seo/indexing";
+import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { site } from "@/lib/site";
+import { m } from "@/paraglide/messages";
+
+import PageBreadcrumb from "./PageBreadcrumb.astro";
+
+interface Props {
+  node: SitePageNode;
+  locale: Locale;
+}
+const { node, locale } = Astro.props;
+const entry = node.entries[locale]!;
+const { Content } = await render(entry);
+const path = localizePath(locale, node.path);
+const indexable = isIndexable(node.statuses, locale);
+const crumbs = [
+  { name: m.nav_home(), path: localizePath(locale) },
+  { name: entry.data.name, path },
+];
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  indexable={indexable}
+  alternates={alternates(node.statuses, locale, node.path)}
+  markdown={indexable ? `${path}.md` : undefined}
+  jsonLd={[breadcrumbJsonLd(crumbs)]}
+>
+  <main class="typeset mx-auto max-w-3xl px-4 py-8 wrap-anywhere">
+    <PageBreadcrumb crumbs={crumbs} />
+    <h1>{entry.data.name}</h1>
+    <p>{m.page_updated({ date: entry.data.updated.toISOString().slice(0, 10) })}</p>
+    <Content />
+    {node.id === "licenses" && (
+      <>
+        <h2>{m.licenses_inventory()}</h2>
+        {/* postbuild 根据实际 client / Worker 模块生成；全文作为独立静态文本提供。 */}
+        <div data-third-party-notices></div>
+      </>
+    )}
+    <h2>{m.site_contact()}</h2>
+    <p>
+      <a href={`${site.repository}/issues`}>{m.site_github_issues()}</a>
+    </p>
+  </main>
+</BaseLayout>

@@ -1,0 +1,36 @@
+---
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import type { Crumb } from "@/lib/seo/json-ld";
+import { m } from "@/paraglide/messages";
+
+interface Props {
+  crumbs: Crumb[];
+}
+
+const { crumbs } = Astro.props;
+const parents = crumbs.slice(0, -1);
+const current = crumbs.at(-1)!;
+---
+
+<Breadcrumb aria-label={m.nav_breadcrumb()}>
+  <BreadcrumbList>
+    {parents.map((crumb) => (
+      <>
+        <BreadcrumbItem>
+          <BreadcrumbLink href={crumb.path}>{crumb.name}</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+      </>
+    ))}
+    <BreadcrumbItem>
+      <BreadcrumbPage>{current.name}</BreadcrumbPage>
+    </BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>

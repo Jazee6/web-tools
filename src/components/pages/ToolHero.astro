@@ -1,0 +1,34 @@
+---
+// Tool / Variant 页顶部：面包屑、图标、H1 和一句话答案。下方的工具卡片用负 margin 压在它的底边上。
+import type { Crumb } from "@/lib/seo/json-ld";
+
+import Backdrop from "./Backdrop.astro";
+import { toolIcon } from "./icons";
+import PageBreadcrumb from "./PageBreadcrumb.astro";
+
+interface Props {
+  crumbs: Crumb[];
+  toolId: string;
+  name: string;
+  answer: string;
+}
+
+const { crumbs, toolId, name, answer } = Astro.props;
+const Icon = toolIcon(toolId);
+---
+
+<section class="relative isolate overflow-hidden border-b">
+  <Backdrop />
+  <div class="mx-auto flex max-w-3xl flex-col gap-10 px-4 pt-6 pb-24 sm:pb-28">
+    <PageBreadcrumb crumbs={crumbs} />
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-4">
+        <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+          <Icon className="size-6" />
+        </div>
+        <h1 class="text-3xl font-semibold tracking-tighter text-balance sm:text-4xl">{name}</h1>
+      </div>
+      <p class="text-lg text-pretty text-muted-foreground">{answer}</p>
+    </div>
+  </div>
+</section>

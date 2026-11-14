@@ -1,0 +1,26 @@
+---
+import VariantPage from "@/components/pages/VariantPage.astro";
+import { isolationHeaders } from "@/lib/runtime/isolation";
+import { lookupVariant, variantCacheControl } from "@/lib/variant-ssr";
+
+import { loadBundle } from "./bundles";
+
+// Tool Variant 页的 on-demand 模式（ADR-0004）：从内容包 JSON 渲染与 static 模式相同的组件，
+// 渲染结果由 src/middleware.ts 写入 Cache API。由 astro.config.ts 按模式注入。
+export const prerender = false;
+
+const result = await lookupVariant(loadBundle, Astro.params);
+if (result.status === "redirect") return Astro.redirect(result.location, 302);
+if (result.status === "not-found") return new Response(null, { status: 404 });
+
+const { data } = result;
+Astro.response.headers.set("Cache-Control", variantCacheControl);
+// static 模式由 _headers 给隔离 Tool 的 /{tool}/* 加 COOP/COEP，SSR 的响应不经过 _headers（ADR-0008）
+if (data.crossOriginIsolated) {
+  for (const [name, value] of Object.entries(isolationHeaders)) {
+    Astro.response.headers.set(name, value);
+  }
+}
+---
+
+<VariantPage data={data} />

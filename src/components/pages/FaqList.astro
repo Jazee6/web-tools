@@ -1,0 +1,27 @@
+---
+// 原生 <details>：零 JS，折叠的内容仍在 HTML 里，搜索引擎和 FAQ JSON-LD 不受影响
+import { ChevronDownIcon } from "lucide-react";
+
+import { m } from "@/paraglide/messages";
+
+interface Props {
+  faq: { q: string; a: string }[];
+}
+
+const { faq } = Astro.props;
+---
+
+<section class="flex flex-col gap-6">
+  <h2 class="text-2xl font-semibold tracking-tight">{m.tool_faq()}</h2>
+  <div class="divide-y rounded-2xl border">
+    {faq.map(({ q, a }) => (
+      <details class="group">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-medium [&::-webkit-details-marker]:hidden">
+          <h3 class="text-base">{q}</h3>
+          <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+        </summary>
+        <p class="px-5 pb-5 text-pretty text-muted-foreground">{a}</p>
+      </details>
+    ))}
+  </div>
+</section>

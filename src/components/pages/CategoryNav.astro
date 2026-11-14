@@ -1,0 +1,28 @@
+---
+// Category 快捷导航：首页跳到页内锚点，Category 页跳到兄弟 Category，当前项高亮
+import type { LucideIcon } from "lucide-react";
+
+import { buttonVariants } from "@/components/ui/button";
+
+interface Props {
+  items: { id: string; name: string; href: string; icon: LucideIcon; count: number }[];
+  current?: string;
+  class?: string;
+}
+
+const { items, current, class: className } = Astro.props;
+---
+
+<nav class:list={["flex flex-wrap gap-2", className]}>
+  {items.map((item) => (
+    <a
+      href={item.href}
+      aria-current={item.id === current ? "page" : undefined}
+      class={buttonVariants({ variant: item.id === current ? "secondary" : "ghost", size: "sm" })}
+    >
+      <item.icon />
+      {item.name}
+      <span class="text-muted-foreground tabular-nums">{item.count}</span>
+    </a>
+  ))}
+</nav>

@@ -1,0 +1,98 @@
+---
+import { render } from "astro:content";
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { type Catalog, type CategoryNode, toolsInCategory } from "@/lib/catalog";
+import { hreflang, type Locale, localizePath } from "@/lib/i18n/locales";
+import { alternates, isIndexable } from "@/lib/seo/indexing";
+import { breadcrumbJsonLd, collectionJsonLd } from "@/lib/seo/json-ld";
+import { m } from "@/paraglide/messages";
+
+import Backdrop from "./Backdrop.astro";
+import CategoryNav from "./CategoryNav.astro";
+import { categoryIcons } from "./icons";
+import PageBreadcrumb from "./PageBreadcrumb.astro";
+import ToolGrid from "./ToolGrid";
+
+interface Props {
+  catalog: Catalog;
+  node: CategoryNode;
+  locale: Locale;
+}
+
+const { catalog, node, locale } = Astro.props;
+const entry = node.entries[locale]!;
+const data = entry.data;
+const path = localizePath(locale, node.path);
+// Draft 页面没有 .md 副本（ADR-0019）
+const indexable = isIndexable(node.statuses, locale);
+const { Content } = await render(entry);
+const Icon = categoryIcons[node.id];
+
+const items = toolsInCategory(catalog, node.id, locale).map((tool) => ({
+  id: tool.id,
+  name: tool.entries[locale]!.data.name,
+  summary: tool.entries[locale]!.data.answer,
+  path: localizePath(locale, tool.path),
+}));
+// 兄弟 Category（含自己），只列当前 Locale 有内容的
+const siblings = catalog.categories
+  .filter((category) => category.entries[locale])
+  .map((category) => ({
+    id: category.id,
+    name: category.entries[locale]!.data.name,
+    href: localizePath(locale, category.path),
+    icon: categoryIcons[category.id],
+    count: toolsInCategory(catalog, category.id, locale).length,
+  }));
+const crumbs = [
+  { name: m.nav_home(), path: localizePath(locale) },
+  { name: data.name, path },
+];
+---
+
+<BaseLayout
+  wide
+  title={data.title}
+  description={data.description}
+  indexable={indexable}
+  alternates={alternates(node.statuses, locale, node.path)}
+  markdown={indexable ? `${path}.md` : undefined}
+  jsonLd={[
+    collectionJsonLd({
+      name: data.name,
+      description: data.description,
+      path,
+      lang: hreflang[locale],
+      items,
+    }),
+    breadcrumbJsonLd(crumbs),
+  ]}
+>
+  <main>
+    <section class="relative isolate overflow-hidden border-b">
+      <Backdrop />
+      <div class="mx-auto flex max-w-5xl flex-col gap-12 px-4 pt-6 pb-14 sm:gap-16 sm:pb-20">
+        <PageBreadcrumb crumbs={crumbs} />
+        <div class="flex flex-col items-start gap-6">
+          <div class="flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+            <Icon className="size-7" />
+          </div>
+          <h1 class="bg-linear-to-b from-foreground to-foreground/65 bg-clip-text pb-1 text-4xl font-semibold tracking-tighter text-balance text-transparent sm:text-6xl">
+            {data.name}
+          </h1>
+          <p class="max-w-2xl text-lg text-pretty text-muted-foreground">{data.intro}</p>
+          <CategoryNav items={siblings} current={node.id} />
+        </div>
+      </div>
+    </section>
+
+    <div class="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-12 sm:py-16">
+      <h2 class="text-xl font-semibold tracking-tight">{m.category_tools()}</h2>
+      <ToolGrid tools={items} columns={3} />
+      <div class="typeset max-w-3xl">
+        <Content />
+      </div>
+    </div>
+  </main>
+</BaseLayout>

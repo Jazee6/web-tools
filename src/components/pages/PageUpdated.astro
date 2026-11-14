@@ -1,0 +1,14 @@
+---
+import { m } from "@/paraglide/messages";
+
+interface Props {
+  date: string;
+  datetime: string;
+}
+
+const { date, datetime } = Astro.props;
+---
+
+<p class="text-sm text-muted-foreground">
+  <time datetime={datetime}>{m.page_updated({ date })}</time>
+</p>

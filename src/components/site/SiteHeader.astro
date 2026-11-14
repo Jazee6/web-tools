@@ -1,0 +1,53 @@
+---
+import { SearchIcon, ToolboxIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
+import { defaultLocale, isLocale, localizePath } from "@/lib/i18n/locales";
+import { m } from "@/paraglide/messages";
+
+interface Props {
+  wide?: boolean;
+}
+
+const { wide = false } = Astro.props;
+const locale = isLocale(Astro.currentLocale) ? Astro.currentLocale : defaultLocale;
+---
+
+<header class="app-blur sticky top-0 z-40 border-b">
+  <div
+    class:list={[
+      "mx-auto flex h-14 items-center justify-between gap-4 px-4",
+      wide ? "max-w-5xl" : "max-w-3xl",
+    ]}
+  >
+    <a href={localizePath(locale)} class="flex items-center gap-2 font-semibold tracking-tight">
+      <ToolboxIcon className="size-5" aria-hidden="true" />
+      {m.site_name()}
+    </a>
+    {/* 按钮静态渲染，不水合；对话框（React + cmdk）在第一次打开时才加载 */}
+    <Button variant="outline" data-search-index={localizePath(locale, "/search.json")}>
+      <SearchIcon />
+      {m.search_open()}
+      <Kbd className="hidden md:inline-flex">⌘K</Kbd>
+    </Button>
+  </div>
+</header>
+
+<script>
+  const trigger = document.querySelector<HTMLButtonElement>("[data-search-index]")!;
+  const open = async () => {
+    const { toggleSearch } = await import("./search-mount");
+    toggleSearch(trigger.dataset.searchIndex!);
+  };
+  // 页面里其他打开搜索的按钮（如首页 hero）标 data-search-open，共用同一个对话框
+  for (const button of document.querySelectorAll("[data-search-index], [data-search-open]")) {
+    button.addEventListener("click", () => void open());
+  }
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      void open();
+    }
+  });
+</script>

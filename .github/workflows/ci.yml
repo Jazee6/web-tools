@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # 不需要浏览器的门禁
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run fmt:check
+      - run: bun run lint
+      - run: bun run check
+      - run: bun run check:content
+      - run: bunx vitest run --project unit --project workers
+
+  # Vitest Browser Mode 和 e2e 都在 Chromium、Firefox、WebKit 三个引擎里跑。
+  # 用 Playwright 官方镜像（浏览器和系统依赖都已预装），不在 CI 里 apt 安装；
+  # 镜像版本必须与 bun.lock 里的 @playwright/test 一致，升级时一起改。
+  browser:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      # 以 root 运行时 Firefox 会因 HOME 不属于当前用户而拒绝启动
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      # 镜像里没有 unzip，setup-bun 无法解压，改用 npm 包安装 Bun
+      - run: npm install --global bun
+      - run: bun install --frozen-lockfile
+      # 模型文件从 Hugging Face 下载，按清单缓存（scripts/fetch-models.ts，ADR-0018）
+      - uses: actions/cache@v6
+        with:
+          path: .cache/models
+          key: models-${{ hashFiles('src/tools/*/model.ts') }}
+      - run: bun run models
+      - run: bunx vitest run --project browser --project browser-isolated --project browser-model
+      - run: bun run build
+      - run: bun run check:limits
+      - run: bun run check:seo
+      # 另建一份 on-demand 模式的产物，与 static 模式逐字节对比（ADR-0004）
+      - run: bun run check:variant-modes
+      - run: bun run test:e2e
+      # LCP、CLS、TBT（architecture §15）。首屏 JS 体积在 e2e/budget.spec.ts 里断言
+      - run: bun run check:lighthouse
+
+  preview:
+    if: github.event_name == 'pull_request'
+    needs: [static, browser]
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --user 1001
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      # 镜像里没有 unzip，setup-bun 无法解压，改用 npm 包安装 Bun
+      - run: npm install --global bun
+      - run: bun install --frozen-lockfile
+      # 模型文件从 Hugging Face 下载，按清单缓存（scripts/fetch-models.ts，ADR-0018）
+      - uses: actions/cache@v6
+        with:
+          path: .cache/models
+          key: models-${{ hashFiles('src/tools/*/model.ts') }}
+      - run: bun run build
+      - name: Upload preview version
+        id: upload
+        run: |
+          bunx wrangler versions upload --preview-alias "pr-${{ github.event.number }}" | tee upload.log
+          url=$(grep -oE 'Version Preview Alias URL: https://[^ ]+' upload.log | awk '{print $NF}')
+          if [ -z "$url" ]; then
+            url=$(grep -oE 'Version Preview URL: https://[^ ]+' upload.log | awk '{print $NF}')
+          fi
+          test -n "$url"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Preview: $url" >> "$GITHUB_STEP_SUMMARY"
+      - run: bun run test:e2e
+        env:
+          BASE_URL: ${{ steps.upload.outputs.url }}
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [static, browser]
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      # 模型文件从 Hugging Face 下载，按清单缓存（scripts/fetch-models.ts，ADR-0018）
+      - uses: actions/cache@v6
+        with:
+          path: .cache/models
+          key: models-${{ hashFiles('src/tools/*/model.ts') }}
+      - run: bun run build
+      # IndexNow：部署前抓线上 sitemap 作对比基准，部署后推送新增、变更、下线的 URL；失败只告警（scripts/indexnow.ts）
+      - run: bun scripts/indexnow.ts snapshot
+        continue-on-error: true
+      - run: bun run deploy
+      - run: bun scripts/indexnow.ts submit
+        continue-on-error: true
