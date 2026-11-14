@@ -7,8 +7,8 @@ import { acceptOf as acceptOfTypes, type FileTypes } from "./file-type";
 // table 是对象数组（每列是字符串或数字），只用于输出；file 是 v.file()，accept 取自 fileType()（MIME 类型和扩展名）；
 // files 是 v.array(v.file())，有顺序，只用于输入。
 export type FieldSpec =
-  | { name: string; kind: "text" | "code" | "url" | "line"; draft?: true }
-  | { name: string; kind: "html" }
+  | { name: string; kind: "text" | "code" | "url" | "line"; draft?: true; paste?: "html" }
+  | { name: string; kind: "html"; preview?: "wide"; source?: true }
   | { name: string; kind: "pages" | "crop"; source: string }
   | { name: string; kind: "number"; remember?: false }
   | { name: string; kind: "boolean"; remember?: false }
@@ -64,9 +64,21 @@ export const describeFields = (schema: ToolSchema): FieldSpec[] =>
           }
           return { name, kind: metadata.widget, source };
         }
-        if (metadata.widget === "html") return { name, kind: "html" };
+        if (metadata.widget === "html") {
+          return {
+            name,
+            kind: "html",
+            ...(metadata.preview && { preview: metadata.preview }),
+            ...(metadata.source && { source: true as const }),
+          };
+        }
         const kind = metadata.widget ?? "text";
-        return metadata.draft ? { name, kind, draft: true } : { name, kind };
+        return {
+          name,
+          kind,
+          ...(metadata.draft && { draft: true as const }),
+          ...(metadata.paste && { paste: metadata.paste }),
+        };
       }
       case "number":
         return { name, kind: "number", ...rememberOf(base) };

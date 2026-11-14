@@ -22,6 +22,12 @@ export type FieldMetadata = {
   remember?: false;
   // true：文本字段的内容作为草稿自动存在访客浏览器本地，刷新后恢复（长文写作类 Tool）
   draft?: true;
+  // html：文本字段粘贴时，剪贴板里有 text/html 就在光标处插入 HTML 源码（从网页、Word 复制的富文本），否则照常粘贴纯文本
+  paste?: "html";
+  // wide：html 输出的预览铺满输出区宽度（默认按手机宽度）；以 <!doctype 开头的完整文档直接预览
+  preview?: "wide";
+  // true：html 输出除了预览，还有一个显示 HTML 源码的标签页（转换类 Tool，访客要看、要挑选源码）
+  source?: true;
   // 下拉选项是语言代码（BCP 47）：选项名由 Intl.DisplayNames 按当前 Locale 生成并按名称排序，
   // 内容 frontmatter 只需给不是语言代码的选项（如 auto）写标签
   languageNames?: boolean;

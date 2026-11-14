@@ -1,5 +1,6 @@
 import { useForm, useStore } from "@tanstack/react-form";
 import {
+  type ClipboardEvent,
   lazy,
   Suspense,
   useCallback,
@@ -115,6 +116,21 @@ const PageEditor = lazy(() => import("./PageEditor"));
 const CropEditor = lazy(() => import("./CropEditor"));
 // 裁剪编辑器按这几个同名字段显示预览；它们变了，原来的裁剪区域不再适用
 const cropContextFields = ["rotate", "flipHorizontal", "flipVertical", "aspect"];
+
+// 字段 paste: "html"：剪贴板里有 text/html（从网页、Word 复制的富文本）就在光标处插入 HTML 源码。
+// insertText 保留撤销历史并触发 input 事件；不支持时退回手动拼接
+const pasteHtml = (event: ClipboardEvent<HTMLTextAreaElement>) => {
+  const html = event.clipboardData.getData("text/html");
+  if (!html) return;
+  event.preventDefault();
+  const target = event.currentTarget;
+  if (document.execCommand("insertText", false, html)) return;
+  const { selectionStart, selectionEnd, value } = target;
+  const setValue = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")!.set!;
+  setValue.call(target, value.slice(0, selectionStart) + html + value.slice(selectionEnd));
+  target.selectionStart = target.selectionEnd = selectionStart + html.length;
+  target.dispatchEvent(new Event("input", { bubbles: true }));
+};
 const RunProgress = lazy(() => import("./RunProgress"));
 // 只有少数 Tool 有开关字段，只有 Server-assisted Tool 用 Turnstile，都不进其他 Tool 页的首屏（architecture §15）
 const Switch = lazy(() =>
@@ -668,6 +684,7 @@ export function ToolForm({
             variant={spec.kind === "code" ? (split ? "editor" : "code") : "default"}
             onBlur={field.handleBlur}
             onChange={(event) => onChange(event.target.value)}
+            onPaste={spec.paste === "html" ? pasteHtml : undefined}
           />
         );
       case "number":

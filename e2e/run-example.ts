@@ -54,11 +54,11 @@ export const expectOutput = async (page: Page, tool: AnyTool, output: Record<str
       continue;
     }
     if (spec.kind === "html") {
-      // 富文本输出在 iframe 的 srcdoc 里预览
+      // 富文本输出在 iframe 的 srcdoc 里预览；片段包在 body 里，完整文档（<!doctype 开头）原样预览
       const source = isExamplePattern(value) ? value.pattern : RegExp.escape(String(value));
       await expect(field.locator("iframe")).toHaveAttribute(
         "srcdoc",
-        new RegExp(`<body>(?:${source})</body>`),
+        new RegExp(`<body>(?:${source})</body>|^(?:${source})$`),
       );
       continue;
     }

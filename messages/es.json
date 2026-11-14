@@ -21,6 +21,8 @@
   "tool_copied": "Copiado",
   "tool_copy_rich": "Copiar texto enriquecido",
   "tool_copy_html": "Copiar HTML",
+  "tool_view_preview": "Vista previa",
+  "tool_view_source": "HTML",
   "tool_copied_rich": "Copiado. Pégalo en tu editor.",
   "tool_copy_failed": "No se pudo copiar. Permite el acceso al portapapeles e inténtalo de nuevo.",
   "tool_output_empty": "El resultado aparece aquí mientras escribes.",

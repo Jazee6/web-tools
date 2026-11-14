@@ -21,6 +21,8 @@
   "tool_copied": "已复制",
   "tool_copy_rich": "复制富文本",
   "tool_copy_html": "复制 HTML",
+  "tool_view_preview": "预览",
+  "tool_view_source": "HTML",
   "tool_copied_rich": "已复制，粘贴到编辑器即可。",
   "tool_copy_failed": "复制失败。请允许访问剪贴板后重试。",
   "tool_output_empty": "输入内容后，结果会显示在这里。",

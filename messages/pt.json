@@ -21,6 +21,8 @@
   "tool_copied": "Copiado",
   "tool_copy_rich": "Copiar texto formatado",
   "tool_copy_html": "Copiar HTML",
+  "tool_view_preview": "Pré-visualização",
+  "tool_view_source": "HTML",
   "tool_copied_rich": "Copiado. Cole no seu editor.",
   "tool_copy_failed": "Não foi possível copiar. Permita o acesso à área de transferência e tente novamente.",
   "tool_output_empty": "O resultado aparece aqui enquanto você digita.",

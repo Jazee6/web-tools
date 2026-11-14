@@ -59,6 +59,7 @@ const tanstackDevtoolsStub = fileURLToPath(
 const tanstackFormGroupStub = fileURLToPath(
   new URL("src/lib/stubs/tanstack-form-group.ts", import.meta.url),
 );
+const dominoStub = fileURLToPath(new URL("src/lib/stubs/domino.ts", import.meta.url));
 
 export default defineConfig({
   site: site.url,
@@ -87,6 +88,8 @@ export default defineConfig({
         { find: /^onnxruntime-web\/webgpu$/, replacement: ortWebGpu },
         { find: /^@tanstack\/devtools-event-client$/, replacement: tanstackDevtoolsStub },
         { find: /^\.\/useFormGroup\.js$/, replacement: tanstackFormGroupStub },
+        // turndown 在服务端的 domino 不会被执行（ADR-0026）
+        { find: /^@mixmark-io\/domino$/, replacement: dominoStub },
       ],
     },
     // jSquash 和 PDFium 的 Emscripten 胶水代码用 import.meta.url 定位 .wasm，经依赖预构建后路径会失效

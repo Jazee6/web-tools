@@ -1,8 +1,8 @@
 import { lexer, type Token, type Tokens } from "marked";
 
+import { codeLanguages, type Highlight, prepareHighlight } from "@/lib/markdown/highlight";
 import type { ToolContext } from "@/lib/tool-contract/define-tool";
 
-import { type Highlight, prepareHighlight } from "./highlight";
 import { type Accent, accents, colors, flow, fonts, radius } from "./theme";
 
 // 公众号编辑器会去掉 <style>、class 和外链，所以每个元素都带内联样式；
@@ -237,7 +237,7 @@ class Renderer {
   }
 
   private code(token: Tokens.Code): string {
-    const lines = this.highlight(token.text, token.lang);
+    const lines = this.highlight.tokens(token.text, token.lang);
     const body = lines
       ? lines
           .map((line) =>
@@ -507,19 +507,6 @@ const withMarginTop = (html: string, top: string) =>
     }
     return `${open}margin-top:${top};${rules}"`;
   });
-
-const codeLanguages = (tokens: Token[]): (string | undefined)[] => {
-  const langs: (string | undefined)[] = [];
-  const walk = (list: Token[]) => {
-    for (const token of list) {
-      if (token.type === "code") langs.push((token as Tokens.Code).lang);
-      if (token.type === "list") for (const item of (token as Tokens.List).items) walk(item.tokens);
-      else if ("tokens" in token && Array.isArray(token.tokens)) walk(token.tokens);
-    }
-  };
-  walk(tokens);
-  return langs;
-};
 
 export const formatWechat = async (
   input: { markdown: string; accent: Accent },

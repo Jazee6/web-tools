@@ -21,6 +21,8 @@
   "tool_copied": "Copied",
   "tool_copy_rich": "Copy rich text",
   "tool_copy_html": "Copy HTML",
+  "tool_view_preview": "Preview",
+  "tool_view_source": "HTML",
   "tool_copied_rich": "Copied. Paste it into your editor.",
   "tool_copy_failed": "Couldn't copy. Allow clipboard access and try again.",
   "tool_output_empty": "The result appears here as you type.",

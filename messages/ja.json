@@ -21,6 +21,8 @@
   "tool_copied": "コピーしました",
   "tool_copy_rich": "リッチテキストをコピー",
   "tool_copy_html": "HTML をコピー",
+  "tool_view_preview": "プレビュー",
+  "tool_view_source": "HTML",
   "tool_copied_rich": "コピーしました。エディターに貼り付けてください。",
   "tool_copy_failed": "コピーできませんでした。クリップボードへのアクセスを許可して、もう一度お試しください。",
   "tool_output_empty": "入力すると、ここに結果が表示されます。",

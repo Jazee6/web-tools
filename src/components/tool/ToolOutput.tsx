@@ -219,7 +219,13 @@ export default function ToolOutput({
   if (spec.kind === "html") {
     return (
       <Suspense>
-        <HtmlOutput name={spec.name} label={title} value={String(value ?? "")} />
+        <HtmlOutput
+          name={spec.name}
+          label={title}
+          value={String(value ?? "")}
+          wide={spec.preview === "wide"}
+          source={spec.source === true}
+        />
       </Suspense>
     );
   }
