@@ -13,6 +13,7 @@ import {
 import * as v from "valibot";
 
 import { Button } from "@/components/ui/button";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
 import {
   Field,
   FieldContent,
@@ -131,8 +132,6 @@ const pasteHtml = (event: ClipboardEvent<HTMLTextAreaElement>) => {
   target.dispatchEvent(new Event("input", { bubbles: true }));
 };
 const RunProgress = lazy(() => import("./RunProgress"));
-// 只有分栏的 Tool 用占位，不进其他 Tool 页的首屏
-const OutputPlaceholder = lazy(() => import("./OutputPlaceholder"));
 // 只有少数 Tool 有开关字段，只有 Server-assisted Tool 用 Turnstile，都不进其他 Tool 页的首屏（architecture §15）
 const Switch = lazy(() =>
   import("@/components/ui/switch").then((module) => ({ default: module.Switch })),
@@ -903,9 +902,9 @@ export function ToolForm({
         ) : (
           split &&
           !runError && (
-            <Suspense>
-              <OutputPlaceholder />
-            </Suspense>
+            <Empty className="border">
+              <EmptyDescription>{m.tool_output_empty()}</EmptyDescription>
+            </Empty>
           )
         )}
       </div>
