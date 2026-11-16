@@ -30,6 +30,10 @@ const fill = async (page: Page, name: string, kind: string, value: unknown) => {
       await expect(field.locator("[data-crop-editor]")).toBeVisible({ timeout: 30_000 });
       await field.locator("input").fill(String(value));
       return;
+    case "color":
+      // 拾色器旁的 hex 输入框
+      await field.locator('input[type="text"]').fill(String(value));
+      return;
     default:
       await field.locator("textarea, input").fill(String(value));
   }
@@ -90,7 +94,9 @@ export const runExample = async (
   const input = { ...v.getDefaults(tool.input), ...example.input } as Record<string, unknown>;
   for (const spec of describeFields(tool.input)) {
     if (spec.kind === "file" || spec.kind === "files") {
-      const names = [example.files![spec.name]].flat();
+      // 可选的文件字段 example 可以不给
+      if (example.files?.[spec.name] === undefined) continue;
+      const names = [example.files[spec.name]].flat();
       await page
         .locator(`[data-field="${spec.name}"] input[type="file"]`)
         .setInputFiles(names.map((name) => `src/tools/${tool.id}/examples/${name}`));

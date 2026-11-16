@@ -15,7 +15,8 @@ export type FieldMetadata = {
   // crop：裁剪区域（lib/image/crop.ts 的 "x, y, width, height"），单行文本加拖拽裁剪框；cropOf 是提供图片的文件字段，
   // 编辑器按同一表单里的 rotate、flipHorizontal、flipVertical、aspect 字段显示预览（字段可以没有）
   // html：只用于输出，显示公众号排版之类的富文本预览，可复制成富文本或 HTML 源码
-  widget?: "code" | "url" | "line" | "pages" | "crop" | "html";
+  // color：#RRGGBB 颜色，拾色器加 hex 输入框；schema 里用 v.regex(/^#[0-9a-f]{6}$/i) 校验
+  widget?: "code" | "url" | "line" | "pages" | "crop" | "html" | "color";
   pagesOf?: string;
   cropOf?: string;
   // false：数字、开关、下拉字段不记作本地偏好（如只对当前文件有意义的旋转）
@@ -31,6 +32,9 @@ export type FieldMetadata = {
   // 下拉选项是语言代码（BCP 47）：选项名由 Intl.DisplayNames 按当前 Locale 生成并按名称排序，
   // 内容 frontmatter 只需给不是语言代码的选项（如 auto）写标签
   languageNames?: boolean;
+  // scan：单图片文件字段可以用摄像头取景，逐帧作为输入自动运行（不计遥测、不显示错误），
+  // 第一次成功就关闭摄像头并把那一帧留作输入（ADR-0025）。帧是 JPEG，字段的 fileType 必须接受 image/jpeg
+  camera?: "scan";
 };
 
 // 进度阶段：默认是处理中；download 是首次使用时下载模型
@@ -114,7 +118,7 @@ export interface ToolDefinition<
     requires?: readonly Capability[];
   };
   // 页面表单的可选形态：live 是输入变化后自动运行（防抖），不显示提交按钮；
-  // split 是桌面端左输入、右输出的分栏，移动端上下堆叠。只给轻量、输出是文本的 Tool 用
+  // split 是桌面端左输入、右输出的分栏，移动端上下堆叠。只给每次运行都很快的轻量 Tool 用
   form?: { live?: boolean; split?: boolean };
   agent: {
     webmcp: boolean;

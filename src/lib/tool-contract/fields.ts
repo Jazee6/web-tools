@@ -5,16 +5,18 @@ import { acceptOf as acceptOfTypes, type FileTypes } from "./file-type";
 
 // 表单派生只支持轻量 Tool 用到的基本类型；遇到其他类型直接报错，避免静默渲染成错误控件。
 // table 是对象数组（每列是字符串或数字），只用于输出；file 是 v.file()，accept 取自 fileType()（MIME 类型和扩展名）；
-// files 是 v.array(v.file())，有顺序，只用于输入。
+// files 是 v.array(v.file())，有顺序，只用于输入。file 的 optional 表示可以不选（表单给出移除按钮）。
 export type FieldSpec =
   | { name: string; kind: "text" | "code" | "url" | "line"; draft?: true; paste?: "html" }
   | { name: string; kind: "html"; preview?: "wide"; source?: true }
+  | { name: string; kind: "color" }
   | { name: string; kind: "pages" | "crop"; source: string }
   | { name: string; kind: "number"; remember?: false }
   | { name: string; kind: "boolean"; remember?: false }
   | { name: string; kind: "select"; options: string[]; languageNames?: boolean; remember?: false }
   | { name: string; kind: "table"; columns: string[] }
-  | { name: string; kind: "file" | "files"; accept: string[] };
+  | { name: string; kind: "file"; accept: string[]; optional?: true; camera?: "scan" }
+  | { name: string; kind: "files"; accept: string[] };
 
 type AnySchema = v.GenericSchema & {
   wrapped?: AnySchema;
@@ -72,6 +74,7 @@ export const describeFields = (schema: ToolSchema): FieldSpec[] =>
             ...(metadata.source && { source: true as const }),
           };
         }
+        if (metadata.widget === "color") return { name, kind: "color" };
         const kind = metadata.widget ?? "text";
         return {
           name,
@@ -84,8 +87,16 @@ export const describeFields = (schema: ToolSchema): FieldSpec[] =>
         return { name, kind: "number", ...rememberOf(base) };
       case "boolean":
         return { name, kind: "boolean", ...rememberOf(base) };
-      case "file":
-        return { name, kind: "file", accept: acceptOf(base) };
+      case "file": {
+        const metadata = v.getMetadata(base) as FieldMetadata;
+        return {
+          name,
+          kind: "file",
+          accept: acceptOf(base),
+          ...((entry as AnySchema).type === "optional" && { optional: true as const }),
+          ...(metadata.camera && { camera: metadata.camera }),
+        };
+      }
       case "picklist": {
         const metadata = v.getMetadata(base) as FieldMetadata;
         const spec: FieldSpec = {

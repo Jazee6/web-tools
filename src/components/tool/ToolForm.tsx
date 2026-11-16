@@ -114,6 +114,11 @@ const FilePreview = lazy(() => import("./FilePreview"));
 const PageEditor = lazy(() => import("./PageEditor"));
 // 只有裁剪区域字段用，选了图片后才加载
 const CropEditor = lazy(() => import("./CropEditor"));
+// 只有颜色字段用
+const ColorInput = lazy(() => import("./ColorInput"));
+// 只有能用摄像头或可选的文件字段用；取景画面在点开摄像头后才加载
+const FileActions = lazy(() => import("./FileActions"));
+const CameraScan = lazy(() => import("./CameraScan"));
 // 裁剪编辑器按这几个同名字段显示预览；它们变了，原来的裁剪区域不再适用
 const cropContextFields = ["rotate", "flipHorizontal", "flipVertical", "aspect"];
 
@@ -233,6 +238,10 @@ export function ToolForm({
   const formRef = useRef<HTMLFormElement>(null);
   // 水合后探测到的缺失能力；有缺失时用 Empty 代替表单
   const [missing, setMissing] = useState<Capability[]>([]);
+  // 正在用摄像头取景的文件字段
+  const [camera, setCamera] = useState<string>();
+  // 文件输入不能受控：值被代码换掉（摄像头的帧、移除）时换 key 重建，清掉原来显示的文件名
+  const [fileInputKeys, setFileInputKeys] = useState<Record<string, number>>({});
 
   // 服务端与水合阶段为 false，水合完成后为 true（e2e 据此等待可交互）
   const hydrated = useSyncExternalStore(
@@ -736,37 +745,98 @@ export function ToolForm({
           </Select>
         );
       }
-      case "file":
-        // 文件输入不能受控，只把选中的 File 交给表单；图片 / 视频在下方预览
+      case "file": {
+        const setFile = (file: File | undefined) => {
+          onChange(file);
+          // 换了文件，原来的页面排列、裁剪区域不再适用
+          for (const linked of fields) {
+            if (
+              (linked.kind === "pages" || linked.kind === "crop") &&
+              linked.source === spec.name
+            ) {
+              form.setFieldValue(linked.name, "" as never);
+            }
+          }
+        };
+        const scanning = camera === spec.name;
+        const resetFileInput = () =>
+          setFileInputKeys((keys) => ({ ...keys, [spec.name]: (keys[spec.name] ?? 0) + 1 }));
+        const input = (
+          // 文件输入不能受控，只把选中的 File 交给表单；图片 / 视频在下方预览
+          <Input
+            key={fileInputKeys[spec.name] ?? 0}
+            id={id}
+            name={field.name}
+            type="file"
+            accept={(variant?.accept[spec.name] ?? spec.accept).join(",")}
+            aria-invalid={invalid}
+            onBlur={field.handleBlur}
+            onChange={(event) => {
+              setCamera(undefined);
+              setFile(event.target.files?.[0]);
+            }}
+          />
+        );
         return (
           <>
-            <Input
-              id={id}
-              name={field.name}
-              type="file"
-              accept={(variant?.accept[spec.name] ?? spec.accept).join(",")}
-              aria-invalid={invalid}
-              onBlur={field.handleBlur}
-              onChange={(event) => {
-                onChange(event.target.files?.[0]);
-                // 换了文件，原来的页面排列、裁剪区域不再适用
-                for (const linked of fields) {
-                  if (
-                    (linked.kind === "pages" || linked.kind === "crop") &&
-                    linked.source === spec.name
-                  ) {
-                    form.setFieldValue(linked.name, "" as never);
-                  }
-                }
-              }}
-            />
-            {/* 有裁剪编辑器时图片显示在编辑器里，不再重复预览 */}
-            {field.state.value instanceof File && !croppedFiles.has(spec.name) && (
+            {spec.optional || spec.camera ? (
+              <div className="flex gap-2">
+                {input}
+                {/* 水合前的占位与摄像头按钮同高，字段不跳动 */}
+                <Suspense fallback={spec.camera && <div className="h-9 w-36 shrink-0" />}>
+                  <FileActions
+                    camera={spec.camera === "scan"}
+                    scanning={scanning}
+                    onToggleCamera={() => setCamera(scanning ? undefined : spec.name)}
+                    removable={spec.optional === true && field.state.value instanceof File}
+                    onRemove={() => {
+                      setFile(undefined);
+                      resetFileInput();
+                    }}
+                  />
+                </Suspense>
+              </div>
+            ) : (
+              input
+            )}
+            {scanning && (
+              <Suspense>
+                <CameraScan
+                  tool={tool}
+                  field={spec.name}
+                  values={() => form.state.values}
+                  onDetected={(file) => {
+                    setCamera(undefined);
+                    setFile(file);
+                    resetFileInput();
+                  }}
+                  onClose={() => setCamera(undefined)}
+                />
+              </Suspense>
+            )}
+            {/* 有裁剪编辑器时图片显示在编辑器里，不再重复预览；取景时不显示上一张 */}
+            {field.state.value instanceof File && !croppedFiles.has(spec.name) && !scanning && (
               <Suspense>
                 <FilePreview file={field.state.value} size="lg" />
               </Suspense>
             )}
           </>
+        );
+      }
+      case "color":
+        return (
+          // 占位与输入框同尺寸，水合时字段不折叠
+          <Suspense fallback={<div className="h-9 w-full rounded-4xl bg-input/50" />}>
+            <ColorInput
+              id={id}
+              name={field.name}
+              label={label?.label ?? spec.name}
+              value={String(field.state.value)}
+              invalid={invalid}
+              onBlur={field.handleBlur}
+              onChange={onChange}
+            />
+          </Suspense>
         );
       case "files":
         return (

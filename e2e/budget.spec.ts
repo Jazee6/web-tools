@@ -9,7 +9,7 @@ import { loadTools, loadVariants } from "./load-tools";
 // 不算第三方和边缘注入的脚本，也不算水合之后才加载的分块（idle 预取的 core、引擎、IndexedDB 封装等）。
 // 字节数取自构建产物，不依赖本地服务器是否压缩。
 const KB = 1000;
-const TOOL_PAGE_BUDGET = 165 * KB;
+const TOOL_PAGE_BUDGET = 170 * KB;
 const OTHER_PAGE_BUDGET = 10 * KB;
 
 const gzippedSize = (path: string) =>

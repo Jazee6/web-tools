@@ -34,12 +34,19 @@ describe.each(tools.map((tool) => [tool.id, tool] as const))("%s", (_id, tool) =
     expect(tool.agent.remote).toBe(false);
   });
 
+  // 必填的文件字段每个 example 都要给；可选的文件字段（如生成二维码时的 Logo）可以不给
   it("names example files for file inputs only", () => {
-    const fileFields = describeFields(tool.input)
-      .filter((field) => field.kind === "file" || field.kind === "files")
+    const fileFields = describeFields(tool.input).filter(
+      (field) => field.kind === "file" || field.kind === "files",
+    );
+    const required = fileFields
+      .filter((field) => !(field.kind === "file" && field.optional))
       .map((field) => field.name);
+    const all = fileFields.map((field) => field.name);
     for (const example of tool.examples) {
-      expect(Object.keys(example.files ?? {}).toSorted()).toEqual(fileFields.toSorted());
+      const named = Object.keys(example.files ?? {});
+      expect(named).toEqual(expect.arrayContaining(required));
+      expect(all).toEqual(expect.arrayContaining(named));
     }
   });
 

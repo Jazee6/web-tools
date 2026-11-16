@@ -54,6 +54,22 @@ describe("describeFields", () => {
     expect(() => describeFields(v.object({ crop }))).toThrow(/单文件字段/);
   });
 
+  it("derives color fields, optional files and camera scanning", () => {
+    const image = fileType({ "image/jpeg": [".jpg"] });
+    const fields = describeFields(
+      v.object({
+        color: v.pipe(v.string(), v.metadata({ widget: "color" })),
+        logo: v.optional(v.pipe(v.file(), image)),
+        photo: v.pipe(v.file(), image, v.metadata({ camera: "scan" })),
+      }),
+    );
+    expect(fields).toEqual([
+      { name: "color", kind: "color" },
+      { name: "logo", kind: "file", accept: ["image/jpeg", ".jpg"], optional: true },
+      { name: "photo", kind: "file", accept: ["image/jpeg", ".jpg"], camera: "scan" },
+    ]);
+  });
+
   it("leaves fields marked remember: false out of the preferences", () => {
     const keep = { remember: false } as const;
     const fields = describeFields(
