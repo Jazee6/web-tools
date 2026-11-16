@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-11-09
+updated: 2026-11-16
 title: "Consulta DNS – Comprueba registros A, MX, TXT y más en línea"
 description: "Consulta los registros A, AAAA, CNAME, MX, TXT, NS, SOA y CAA de cualquier dominio con el DNS de Cloudflare o Google. Gratis y directo desde tu navegador."
 name: "Consulta DNS"
@@ -65,7 +65,7 @@ La herramienta envía una consulta DNS del dominio y el tipo de registro al reso
 
 ## Opciones y límites
 
-- **Dominio:** un nombre de dominio o una URL, de hasta 2.048 caracteres. El esquema, la ruta y el puerto se ignoran, y un nombre internacionalizado se convierte a punycode (bücher.example pasa a xn--bcher-kva.example).
+- **Dominio:** un nombre de dominio o una URL, de hasta 2048 caracteres. El esquema, la ruta y el puerto se ignoran, y un nombre internacionalizado se convierte a punycode (bücher.example pasa a xn--bcher-kva.example).
 - **Tipos de registro:** A, AAAA, CNAME, MX, TXT, NS, SOA y CAA. No se admiten las consultas inversas (PTR) ni los registros DNSSEC.
 - **Resolvedores:** solo Cloudflare y Google, sin posibilidad de escribir el tuyo. La herramienta no indica si la respuesta se validó con DNSSEC.
 - **Tiempo de espera:** una consulta que no recibe respuesta en 10 segundos falla.

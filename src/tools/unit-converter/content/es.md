@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-11-09
+updated: 2026-11-16
 title: "Conversor de unidades – Longitud, peso, temperatura y volumen"
 description: "Convierte longitud, masa, temperatura, volumen, área, velocidad, tiempo y tamaño de datos entre unidades métricas e imperiales. Gratis y privado, en tu navegador."
 name: "Conversor de unidades"
@@ -124,9 +124,9 @@ faq:
   - q: "¿Qué unidades se pueden convertir?"
     a: "Longitud (mm, cm, m, km, in, ft, yd, mi), masa (g, kg, tonelada métrica, oz, lb), temperatura (Celsius, Fahrenheit, Kelvin), volumen (mL, L, fl oz, cup, gal), área (m², km², ha, ft², ac, mi²), velocidad (m/s, km/h, mph, kn), tiempo (ms, s, min, h, d, wk) y tamaño de datos (B, KB, MB, GB, TB, KiB, MiB, GiB). Solo se puede convertir dentro de un mismo grupo."
   - q: "¿Los galones y las onzas son estadounidenses o imperiales?"
-    a: "Son del sistema estadounidense. Una onza líquida son 29,5735 mL, una taza 236,588 mL y un galón 3,785 L; el galón imperial (4,546 L) no está incluido. La onza y la libra de masa son las unidades avoirdupois internacionales: 1 lb son exactamente 0,45359237 kg, y la milla es la milla internacional de 1.609,344 m."
+    a: "Son del sistema estadounidense. Una onza líquida son 29,5735 mL, una taza 236,588 mL y un galón 3,785 L; el galón imperial (4,546 L) no está incluido. La onza y la libra de masa son las unidades avoirdupois internacionales: 1 lb son exactamente 0,45359237 kg, y la milla es la milla internacional de 1609,344 m."
   - q: "¿Qué diferencia hay entre KB y KiB?"
-    a: 'KB, MB, GB y TB son unidades decimales: 1 KB son 1.000 bytes. KiB, MiB y GiB son unidades binarias: 1 KiB son 1.024 bytes. Los fabricantes de almacenamiento suelen contar en decimal y los sistemas operativos suelen mostrar tamaños binarios, por eso un disco de "1 TB" aparece como unos 931 GiB.'
+    a: 'KB, MB, GB y TB son unidades decimales: 1 KB son 1000 bytes. KiB, MiB y GiB son unidades binarias: 1 KiB son 1024 bytes. Los fabricantes de almacenamiento suelen contar en decimal y los sistemas operativos suelen mostrar tamaños binarios, por eso un disco de "1 TB" aparece como unos 931 GiB.'
   - q: "¿Qué precisión tiene el resultado?"
     a: "El resultado tiene hasta 10 cifras significativas, sin ceros finales, así que 1 m en millas es 0,0006213711922. Los números muy grandes o muy pequeños pueden aparecer en forma exponencial, como 1e-7 para 0,0000001."
   - q: "¿Cómo se convierte la temperatura?"

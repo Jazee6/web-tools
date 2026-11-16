@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-11-14
+updated: 2026-11-16
 title: Excel a tabla Markdown – Pega celdas de tu hoja de cálculo online
 description: Copia celdas de Excel o Google Sheets y pégalas para obtener una tabla Markdown, sin exportar a CSV. Gratis, y tus datos nunca salen de tu dispositivo.
 name: Excel a tabla Markdown
@@ -38,7 +38,7 @@ Una tabla Markdown necesita texto sin formato, y el portapapeles ya lo tiene. La
 
 ## Opciones y límites
 
-- **Tamaño del rango:** hasta 200.000 caracteres de celdas copiadas, suficiente para miles de celdas cortas.
+- **Tamaño del rango:** hasta 200 000 caracteres de celdas copiadas, suficiente para miles de celdas cortas.
 - **Qué se copia:** solo los valores que se muestran, así que define en la hoja el formato de números, las fechas y el redondeo antes de copiar.
 - **Filas en blanco:** se omiten; una fila más corta que las demás recibe celdas vacías al final.
 - **Números:** elige Derecha como Alineación cuando la tabla sea sobre todo de números, para que queden alineados en la tabla renderizada.

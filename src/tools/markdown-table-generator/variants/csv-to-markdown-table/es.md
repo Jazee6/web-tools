@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-11-14
+updated: 2026-11-16
 title: Conversor de CSV a tabla Markdown – Gratis y online
 description: "Pega el contenido de un archivo CSV y obtén una tabla Markdown de GitHub. Admite campos entre comillas con comas, comillas y saltos de línea. Gratis y sin subir nada."
 name: CSV a tabla Markdown
@@ -17,7 +17,7 @@ faq:
   - q: ¿Por qué aparece <br> en algunas celdas?
     a: Un campo CSV entre comillas puede ocupar varias líneas, pero una fila de tabla Markdown no. Cada salto de línea dentro de un campo se convierte en <br>, que GitHub y la mayoría de los visores de Markdown muestran como un salto de línea dentro de la celda.
   - q: ¿Puedo convertir un CSV con miles de filas?
-    a: Hasta 200.000 caracteres de CSV, que equivalen a unos pocos miles de filas cortas. Una tabla Markdown tan grande es difícil de leer, así que para conjuntos de datos grandes conviene enlazar al archivo CSV.
+    a: Hasta 200 000 caracteres de CSV, que equivalen a unos pocos miles de filas cortas. Una tabla Markdown tan grande es difícil de leer, así que para conjuntos de datos grandes conviene enlazar al archivo CSV.
 table:
   caption: Cómo quedan los campos CSV en las celdas de la tabla Markdown
   columns:
@@ -39,7 +39,7 @@ El CSV parece sencillo hasta que un valor contiene una coma, una comilla o un sa
 
 ## Opciones y límites
 
-- **Tamaño del CSV:** hasta 200.000 caracteres.
+- **Tamaño del CSV:** hasta 200 000 caracteres.
 - **Encabezado:** la primera fila del CSV pasa a ser la fila de encabezado; si desactivas La primera fila es el encabezado, se añade en su lugar una fila de encabezado vacía.
 - **Archivos irregulares:** las filas con menos campos que la más larga reciben celdas vacías al final, y las líneas vacías se omiten.
 - **Separadores:** solo comas. Este ajuste predefinido no divide archivos separados por punto y coma ni por tabulaciones.

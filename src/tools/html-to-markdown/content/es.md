@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-11-14
+updated: 2026-11-16
 title: HTML a Markdown – Convierte HTML y texto enriquecido en Markdown
 description: Pega código HTML o copia texto enriquecido de una web, Word o Google Docs y obtén Markdown limpio con tablas. Gratis y privado — funciona en tu navegador.
 name: HTML a Markdown
@@ -38,7 +38,7 @@ El conversor lee tu HTML con el propio analizador HTML de tu navegador y lo conv
 
 ## Opciones y límites
 
-- **Entrada:** fragmentos HTML o páginas completas, hasta 1.000.000 de caracteres.
+- **Entrada:** fragmentos HTML o páginas completas, hasta 1 000 000 de caracteres.
 - **Pegar:** el texto enriquecido se pega como su HTML cuando el portapapeles lo tiene; el texto sin formato se pega sin cambios.
 - **Se elimina:** scripts, estilos, noscript, iframes, plantillas y el head de la página. La navegación, las cabeceras y los pies de página se convierten como cualquier otro contenido.
 - **Tablas:** la primera fila es siempre la fila de encabezado; una celda que ocupa varias filas no se repite, y una tabla dentro de una celda acaba como texto en esa celda.

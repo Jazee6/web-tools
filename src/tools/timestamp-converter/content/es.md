@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-10-30
+updated: 2026-11-16
 title: Conversor de marcas de tiempo – Convierte Unix a fecha y fecha a Unix
 description: "Convierte una marca de tiempo Unix en fecha, o una fecha en segundos Unix, en cualquier zona horaria. Gratis y privado: se procesa en tu navegador y no se sube nada."
 name: Conversor de marcas de tiempo
@@ -41,7 +41,7 @@ faq:
   - q: ¿Se sube lo que escribo a un servidor?
     a: No. La conversión se hace por completo en tu navegador, así que lo que escribes nunca sale de tu dispositivo. Incluso puedes usar la página sin conexión una vez cargada.
   - q: ¿Mi marca de tiempo está en segundos o en milisegundos?
-    a: Una marca de tiempo Unix actual tiene 10 dígitos en segundos (1700000000) y 13 dígitos en milisegundos (1700000000000). Detectar automáticamente interpreta como milisegundos los valores de 100.000.000.000 o más, y como segundos los menores. Por eso los valores en milisegundos anteriores al 1973-03-03 parecen segundos; para esos, elige Milisegundos tú mismo.
+    a: Una marca de tiempo Unix actual tiene 10 dígitos en segundos (1700000000) y 13 dígitos en milisegundos (1700000000000). Detectar automáticamente interpreta como milisegundos los valores de 100 000 000 000 o más, y como segundos los menores. Por eso los valores en milisegundos anteriores al 1973-03-03 parecen segundos; para esos, elige Milisegundos tú mismo.
   - q: ¿En qué zona horaria está una fecha sin desfase?
     a: En UTC. Una fecha como 2024-02-29 12:30:00 no tiene zona, así que se lee como UTC en lugar de deducirla de tu dispositivo. Para convertir una hora local, añade su desfase, por ejemplo 2024-02-29 12:30:00+08:00, o usa Z para UTC.
   - q: ¿Qué cambia el campo Zona horaria?
@@ -59,7 +59,7 @@ El tiempo Unix cuenta los segundos desde el 1970-01-01 00:00:00 UTC, sin contar 
 ## Opciones y límites
 
 - **Entrada:** una marca de tiempo o una fecha cada vez. Las fechas se comprueban con el calendario, incluidos los años bisiestos. Las fracciones de segundo más allá de los milisegundos se descartan en las fechas y se redondean en los números.
-- **Unidad:** solo se aplica a los números. Detectar automáticamente pasa de segundos a milisegundos en 100.000.000.000.
+- **Unidad:** solo se aplica a los números. Detectar automáticamente pasa de segundos a milisegundos en 100 000 000 000.
 - **Rango:** instantes desde 0001-01-01T00:00:00Z hasta 9999-12-31T23:59:59.999Z.
 - **Zonas horarias:** nombres IANA como Asia/Shanghai, o UTC. Los desfases de fechas pasadas siguen los datos de zonas horarias integrados en tu navegador.
 - **Sin hora actual:** la herramienta no lee tu reloj ni compara el resultado con el momento presente.

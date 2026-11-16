@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-11-14
+updated: 2026-11-16
 title: Generador de tablas Markdown – CSV y Excel a tabla Markdown online
 description: Convierte CSV, celdas copiadas de Excel o Google Sheets o una tabla Markdown desordenada en una tabla Markdown bien alineada. Gratis y privado — funciona en tu navegador.
 name: Generador de tablas Markdown
@@ -58,7 +58,7 @@ El generador lee tus datos como CSV según el [RFC 4180](https://www.rfc-editor.
 
 ## Opciones y límites
 
-- **Datos de la tabla:** hasta 200.000 caracteres. Las líneas en blanco se omiten y las filas con menos celdas que la más larga se completan con celdas vacías.
+- **Datos de la tabla:** hasta 200 000 caracteres. Las líneas en blanco se omiten y las filas con menos celdas que la más larga se completan con celdas vacías.
 - **CSV:** solo las comas separan campos. Los archivos separados por punto y coma, habituales en algunas versiones europeas de Excel, no se dividen; guárdalos con comas o pega las celdas desde la hoja de cálculo.
 - **Alineación:** una misma alineación para todas las columnas, o Sin definir para dejar sin alinear las columnas de CSV y TSV y conservar la alineación de una tabla Markdown.
 - **Celdas:** se quitan los espacios al principio y al final. En las celdas de CSV y TSV solo se escapa | y los saltos de línea se convierten en <br>; el Markdown o el HTML que contengan, como **negrita**, se conserva y se muestra.

@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-10-29
+updated: 2026-11-16
 title: Comprobador de cabeceras HTTP – Ver cabeceras y redirecciones
 description: "Consulta el código de estado HTTP, las cabeceras de respuesta y la cadena de redirecciones de cualquier URL pública. Gratis, al instante, sin registro y sin guardar nada."
 name: Comprobador de cabeceras HTTP
@@ -28,7 +28,7 @@ output:
       status: Estado
       url: URL
 errors:
-  invalid_url: Esta no es una URL válida. Introduce una dirección que empiece por http:// o https:// y tenga hasta 2.048 caracteres.
+  invalid_url: Esta no es una URL válida. Introduce una dirección que empiece por http:// o https:// y tenga hasta 2048 caracteres.
   blocked_url: "No se puede comprobar esta dirección. No se permiten direcciones privadas, locales ni puertos no estándar: usa una URL pública http:// o https:// en el puerto 80 o 443."
   timeout: El servidor tardó demasiado en responder. Comprueba que el sitio esté en línea y vuelve a intentarlo en un momento.
   fetch_failed: No se pudo conectar con el servidor. Comprueba que la URL esté bien escrita y que el sitio esté en línea, y vuelve a intentarlo.
@@ -58,7 +58,7 @@ Envía una solicitud HEAD ([RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#nam
 
 - **Redirecciones:** se siguen hasta 5 saltos y cada uno se vuelve a validar antes de solicitarlo.
 - **Tiempo de espera:** toda la comprobación, redirecciones incluidas, debe terminar en 8 segundos.
-- **Direcciones:** solo URL públicas `http://` y `https://` de hasta 2.048 caracteres, en los puertos predeterminados 80 y 443.
+- **Direcciones:** solo URL públicas `http://` y `https://` de hasta 2048 caracteres, en los puertos predeterminados 80 y 443.
 - **Límites de uso:** unas pocas comprobaciones por minuto por visitante y un tope por sitio de destino.
 - **No incluye:** el contenido de la página, las cookies de tu navegador ni detalles de protocolo HTTP/2 o HTTP/3.
 

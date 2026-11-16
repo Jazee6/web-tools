@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-11-09
+updated: 2026-11-16
 title: Probador de expresiones regulares – Prueba regex de JavaScript
 description: "Prueba una expresión regular de JavaScript con tu texto y lista cada coincidencia con su posición y sus grupos de captura. Gratis y privado: se procesa en tu navegador."
 name: Probador de expresiones regulares
@@ -28,7 +28,7 @@ output:
 errors:
   invalid_pattern: Este patrón no es una expresión regular válida de JavaScript. Revisa que los corchetes y paréntesis estén equilibrados, que no haya un cuantificador sin nada delante, que no sobre una barra invertida y que los indicadores se puedan combinar; u y v, por ejemplo, no.
   invalid_flags: Estos indicadores no son válidos. Usa solo d, g, i, m, s, u, v e y, cada uno como máximo una vez.
-  text_too_long: El texto supera los 100.000 caracteres. Prueba el patrón con una muestra más corta.
+  text_too_long: El texto supera los 100 000 caracteres. Prueba el patrón con una muestra más corta.
 steps:
   - Escribe la expresión regular en Patrón, sin las barras que la rodean.
   - Mantén los Indicadores como están (g encuentra todas las coincidencias) o cámbialos, por ejemplo a gi para ignorar mayúsculas y minúsculas.
@@ -55,7 +55,7 @@ La herramienta construye una expresión regular a partir de tu patrón y tus ind
 
 ## Opciones y límites
 
-- **Entrada:** un patrón de hasta 1.000 caracteres y un texto de hasta 100.000 caracteres. Ninguno puede estar vacío.
+- **Entrada:** un patrón de hasta 1000 caracteres y un texto de hasta 100 000 caracteres. Ninguno puede estar vacío.
 - **Tamaño del resultado:** el recuento incluye todas las coincidencias, pero la tabla muestra solo las 200 primeras.
 - **Posición:** se cuenta en unidades de código UTF-16, como JavaScript cuenta los índices de las cadenas, así que un emoji ocupa dos posiciones.
 - **Diferencias entre navegadores:** el indicador v y algo de sintaxis más reciente solo funcionan en navegadores actuales. Un patrón que un navegador rechaza por inválido puede ser aceptado por otro.

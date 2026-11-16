@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-11-14
+updated: 2026-11-16
 title: Formateador para WeChat – Markdown a artículos de WeChat en línea
 description: Escribe tu artículo en Markdown y cópialo como texto enriquecido con el estilo del editor de cuentas oficiales de WeChat. Gratis y privado, en tu navegador.
 name: Formateador para WeChat
@@ -51,7 +51,7 @@ El editor de cuentas oficiales de WeChat elimina las hojas de estilo y los nombr
 
 ## Opciones y límites
 
-- **Markdown:** CommonMark más las tablas, listas de tareas y tachado de GitHub, hasta 200.000 caracteres. Los elementos de las listas de tareas muestran ☑ o ☐ porque el editor elimina las casillas.
+- **Markdown:** CommonMark más las tablas, listas de tareas y tachado de GitHub, hasta 200 000 caracteres. Los elementos de las listas de tareas muestran ☑ o ☐ porque el editor elimina las casillas.
 - **Color de acento:** neutro, azul, verde, naranja, rojo, rosa, violeta o amarillo. Colorea la barra junto al encabezado de nivel 2, los bordes de las citas, el código en línea, los enlaces de WeChat y los números de referencia; el texto del cuerpo se mantiene casi negro.
 - **Enlaces:** los enlaces a mp.weixin.qq.com siguen siendo clicables; los demás enlaces http y https se convierten en referencias numeradas al final del artículo. Los otros enlaces conservan solo su texto.
 - **Imágenes:** solo direcciones http y https; de cualquier otra se conserva solo el texto alternativo.

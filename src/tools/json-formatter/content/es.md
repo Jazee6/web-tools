@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-10-29
+updated: 2026-11-16
 title: Formateador JSON – Formatea, valida y minifica JSON online
 description: "Pega JSON para embellecerlo, validarlo, minificarlo u ordenar sus claves. Gratis, instantáneo y privado: los datos se procesan en tu navegador y nunca se suben."
 name: Formateador JSON
@@ -39,7 +39,7 @@ faq:
   - q: ¿Por qué dice el formateador que mi JSON no es válido?
     a: Las causas habituales son comas finales, comillas simples en lugar de dobles, claves sin comillas, comentarios y valores como NaN o undefined. Están permitidos en JavaScript, pero no en JSON. El mensaje de error muestra qué rechazó el analizador y dónde.
   - q: ¿Se conservan con exactitud los números muy grandes?
-    a: Los números se analizan como coma flotante estándar de 64 bits, así que los enteros mayores que 9.007.199.254.740.991 pueden perder precisión. Si trabajas con identificadores grandes, guárdalos como cadenas.
+    a: Los números se analizan como coma flotante estándar de 64 bits, así que los enteros mayores que 9 007 199 254 740 991 pueden perder precisión. Si trabajas con identificadores grandes, guárdalos como cadenas.
 ---
 
 ## Qué hace este formateador JSON

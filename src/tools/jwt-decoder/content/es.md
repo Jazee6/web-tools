@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-10-29
+updated: 2026-11-16
 title: Decodificador de JWT – Decodifica el encabezado y los claims
 description: "Decodifica un JWT y lee su encabezado, claims y firma, con exp, nbf e iat en hora UTC. Gratis y privado: se procesa en tu navegador y no se sube nada."
 name: Decodificador de JWT
@@ -53,7 +53,7 @@ Un JSON Web Token ([RFC 7519](https://www.rfc-editor.org/rfc/rfc7519)) son tres 
 - **Solo decodifica:** nunca se comprueba la firma, y la herramienta no obtiene claves ni compara el token con la hora actual.
 - **Tokens firmados:** se pueden decodificar tokens de tres partes, incluidos los que no están firmados y tienen la firma vacía. Los tokens cifrados de cinco partes (JWE) se rechazan.
 - **Formato estricto:** el encabezado y la carga útil deben ser objetos JSON. No se aceptan los caracteres del Base64 estándar (+, / y =) en lugar de base64url.
-- **Números grandes:** los valores de los claims se muestran como números de JavaScript, así que los enteros mayores que 9.007.199.254.740.991 pueden perder precisión.
+- **Números grandes:** los valores de los claims se muestran como números de JavaScript, así que los enteros mayores que 9 007 199 254 740 991 pueden perder precisión.
 - **Tamaño:** solo lo limita la memoria de tu dispositivo.
 
 ## Privacidad

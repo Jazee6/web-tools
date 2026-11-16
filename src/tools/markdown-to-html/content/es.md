@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-11-14
+updated: 2026-11-16
 title: Markdown a HTML – Convierte Markdown y previsualiza el HTML online
 description: Convierte Markdown en HTML limpio con ID de encabezado, un documento HTML completo opcional y resaltado de sintaxis. Gratis y privado — funciona en tu navegador.
 name: Markdown a HTML
@@ -52,7 +52,7 @@ El conversor analiza tu Markdown con [marked](https://marked.js.org/), según [C
 
 ## Opciones y límites
 
-- **Markdown:** hasta 200.000 caracteres.
+- **Markdown:** hasta 200 000 caracteres.
 - **HTML sin procesar:** se conserva sin cambios y sin sanear. Los scripts nunca se ejecutan en la vista previa, pero forman parte del resultado.
 - **ID de encabezado:** activados por defecto, con las reglas de anclas de GitHub; los encabezados repetidos reciben -1, -2, y los que se quedan vacíos tras aplicarlas no reciben ninguno.
 - **Documento HTML completo:** desactivado por defecto; añade un doctype, un título tomado del primer encabezado 1 y una hoja de estilos predeterminada.

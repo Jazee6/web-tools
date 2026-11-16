@@ -1,6 +1,6 @@
 ---
 review: reviewed
-updated: 2026-11-14
+updated: 2026-11-16
 title: Imagen a texto – Extrae texto de fotos y capturas (OCR) online
 description: "Copia el texto de una foto, captura o escaneo en español, inglés, chino, japonés y otros idiomas con alfabeto latino. Gratis y privado: el OCR se ejecuta en tu navegador."
 name: Imagen a texto
@@ -37,7 +37,7 @@ faq:
 
 ## Cómo funciona la extracción de texto
 
-La herramienta decodifica la imagen con el decodificador integrado de tu navegador, o con una versión WebAssembly de libheif para HEIC, y ejecuta dos modelos de código abierto de PP-OCRv6, de PaddleOCR (licencia Apache-2.0), con ONNX Runtime en un hilo en segundo plano. El modelo de detección marca dónde hay texto; cada zona se convierte en un recuadro, que puede estar inclinado. Después, el modelo de reconocimiento lee cada recuadro, línea a línea: el recuadro se recorta de la imagen a resolución completa y se redimensiona a 48 píxeles de alto (las líneas muy largas se comprimen a un máximo de 3.200 píxeles de ancho), y las líneas se ordenan para la lectura: de arriba abajo y, dentro de una línea, de izquierda a derecha.
+La herramienta decodifica la imagen con el decodificador integrado de tu navegador, o con una versión WebAssembly de libheif para HEIC, y ejecuta dos modelos de código abierto de PP-OCRv6, de PaddleOCR (licencia Apache-2.0), con ONNX Runtime en un hilo en segundo plano. El modelo de detección marca dónde hay texto; cada zona se convierte en un recuadro, que puede estar inclinado. Después, el modelo de reconocimiento lee cada recuadro, línea a línea: el recuadro se recorta de la imagen a resolución completa y se redimensiona a 48 píxeles de alto (las líneas muy largas se comprimen a un máximo de 3200 píxeles de ancho), y las líneas se ordenan para la lectura: de arriba abajo y, dentro de una línea, de izquierda a derecha.
 
 ## Opciones y límites
 
@@ -46,7 +46,7 @@ La herramienta decodifica la imagen con el decodificador integrado de tu navegad
 - **Idiomas:** chino (simplificado y tradicional), japonés, inglés y otros idiomas con alfabeto latino, sin tener que elegir el idioma. No se admiten el coreano ni las escrituras cirílica, árabe, hebrea, tailandesa o devanagari.
 - **Orientación:** el texto inclinado se endereza, y una línea cuya altura sea al menos 1,5 veces su anchura se gira 90° en sentido antihorario antes de leerla; la escritura vertical puede leerse mal. El texto boca abajo no se corrige y puede leerse mal.
 - **Diseño:** no se conservan las columnas, las tablas ni el formato.
-- **Tamaño:** para buscar el texto, la imagen se reduce hasta que su lado mayor mide como mucho 2.048 píxeles; el texto muy pequeño de una imagen grande puede pasarse por alto, así que recórtala antes al texto. Se examinan como máximo 1.000 zonas candidatas, así que en una imagen muy recargada puede quedar texto sin leer.
+- **Tamaño:** para buscar el texto, la imagen se reduce hasta que su lado mayor mide como mucho 2048 píxeles; el texto muy pequeño de una imagen grande puede pasarse por alto, así que recórtala antes al texto. Se examinan como máximo 1000 zonas candidatas, así que en una imagen muy recargada puede quedar texto sin leer.
 - **Navegadores:** JPEG, PNG, WebP y AVIF los decodifica tu navegador, así que funcionan donde el navegador los admite; HEIC usa libheif. Los modelos se ejecutan en la CPU, con varios hilos cuando el navegador lo permite.
 - **Descarga:** unos 60 MB la primera vez (dos modelos de 10 MB y 21 MB, más ONNX Runtime, que comparten las demás herramientas de IA del sitio).
 
