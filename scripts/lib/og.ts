@@ -60,13 +60,6 @@ const cjkFonts = (locale: Locale, text: string): Font[] => {
     );
 };
 
-const latinFonts: Font[] = ["latin", "latin-ext"].map((subset) => ({
-  name: "Inter",
-  data: readFileSync(
-    `node_modules/@fontsource-variable/inter/files/inter-${subset}-wght-normal.woff2`,
-  ),
-}));
-
 export interface OgCard {
   locale: Locale;
   siteName: string;
@@ -79,7 +72,8 @@ const renderer = new Renderer();
 
 export const renderOgImage = async (card: OgCard): Promise<Buffer> => {
   const cjk = cjkFamily[card.locale]?.name;
-  const fontFamily = ["Inter", ...(cjk ? [cjk] : []), "sans-serif"].join(", ");
+  // Takumi bundles a Latin fallback; only CJK needs additional fonts.
+  const fontFamily = [...(cjk ? [cjk] : []), "sans-serif"].join(", ");
   return renderer.render(
     {
       type: "container",
@@ -122,7 +116,7 @@ export const renderOgImage = async (card: OgCard): Promise<Buffer> => {
     {
       width: OG_WIDTH,
       height: OG_HEIGHT,
-      fonts: [...latinFonts, ...cjkFonts(card.locale, Object.values(card).join(""))],
+      fonts: cjkFonts(card.locale, Object.values(card).join("")),
       lang: card.locale === "zh" ? "zh-Hans" : card.locale,
     },
   );

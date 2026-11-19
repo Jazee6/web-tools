@@ -173,19 +173,13 @@ export const generateLicenses = (root: string) => {
       .map((key) => key.slice(name.length + 1));
     checkVersion(name, version, installed.length ? installed.join(", ") : undefined);
   }
-  // 字体在 CSS 或栅格图中使用，不出现在 JS chunk.modules。
-  for (const name of [
-    "@fontsource-variable/inter",
-    "@fontsource/noto-sans-sc",
-    "@fontsource/noto-sans-jp",
-  ]) {
+  // CJK 字体仅用于 OG 栅格图，不出现在 JS chunk.modules。
+  for (const name of ["@fontsource/noto-sans-sc", "@fontsource/noto-sans-jp"]) {
     const dir = resolve("node_modules", name);
     const { version } = readJson(join(dir, "package.json"));
     packages.set(`${name}@${version}`, {
       dir,
-      chunks: new Set([
-        name.includes("inter") ? "_astro/*.woff2 (CSS)" : "og/*.png (rasterized only)",
-      ]),
+      chunks: new Set(["og/*.png (rasterized only)"]),
     });
   }
   // CSS 的 @import 会被 Tailwind 合并，未必留下 JS 模块；从真实样式入口补齐这些包。

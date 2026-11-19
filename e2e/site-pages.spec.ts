@@ -64,7 +64,6 @@ test("license evidence and full English texts are served statically", async ({ r
     "onnxruntime-web",
     "fflate",
     "react",
-    "@fontsource-variable/inter",
     "@fontsource/noto-sans-sc",
     "@fontsource/noto-sans-jp",
     "tailwindcss",
@@ -74,6 +73,7 @@ test("license evidence and full English texts are served statically", async ({ r
     "rolldown",
   ])
     expect(names).toContain(name);
+  expect(names.some((name: string) => name.startsWith("@fontsource-variable/"))).toBe(false);
   for (const name of ["LAME", "libheif-js", "mediabunny", "@mediabunny/mp3-encoder"]) {
     const c = inventory.components.find((item: { name: string }) => item.name === name);
     expect(c.source).toMatch(/^https:/);

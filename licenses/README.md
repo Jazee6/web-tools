@@ -9,7 +9,7 @@
 - 构建中间文件 `.astro/client-modules.jsonl`；生成文件 `/third-party-notices/inventory.json` 记录组件、所属 chunk、许可全文路径、源码链接，以及 WASM、字体、模型、超过 100 KB 的 JS 的字节数和 SHA-256。独立 WASM / 字体按 SHA-256 反向匹配已安装文件；内联 libheif / LAME 按 Worker 模块归属。模型切片对应各 Tool `model.ts`（`speech-to-text`、`background-remover`、`image-to-text`）的固定下载清单；ORT 的 WASM 清单在 `src/lib/runtime/ort-wasm.ts`。
 - 包版本从每个真实模块所属的 `node_modules/**/package.json` 读取，包括嵌套的 `onnxruntime-common` 和 `squoosh-oxipng` manifest。原生补充条目显示 `父包@版本`，不是声称该数值是原生库版本。LAME 版本从已安装 MP3 包 README 提取；模型显示固定 revision。硬编码的已核对版本只用于发现升级：版本漂移只发 warning（构建继续，postbuild 结束时汇总，读不到 LAME 版本时显示 unknown），提醒重新核对许可证文本和源码链接；缺失许可证全文或无法归属才让构建失败。硬编码版本不作为显示数据源。
 - CSS 入口的第三方 `@import` 会被 Tailwind 合并，不能只靠 JS 模块图；构建另外读取实际 `src/**/*.css` 的包导入（Tailwind CSS、tw-animate-css、shadcn），归属到输出 CSS，并复制对应已安装包的 MIT 原文。`inventory.json` 也记录输出 CSS 的字节数和 SHA-256。
-- Inter 字体按实际 CSS 资产核对；fontsource Noto Sans SC / JP 是 OG 构建输入，只有栅格图分发，不把字体文件误列成浏览器下载。`src/sw.ts` 的 Bun 构建只含本站模块。
+- 网页使用系统字体；fontsource Noto Sans SC / JP 是 OG 构建输入，只有栅格图分发，不把字体文件误列成浏览器下载。`src/sw.ts` 的 Bun 构建只含本站模块。
 - 许可证正文从已安装包原样复制。包未包含的原生全文 / 通知收集在 `upstream/`，固定来源 URL、原始字节数、SHA-256 在 `upstream/sources.json`，构建验证其完整性。此目录排除自动格式化，不能重排或翻译原文。
 - MPL 的 Mediabunny / MP3 wrapper 源码链接为对应已安装版本的 npm 源码包（包含 `src/`）；LAME 源码链接按 README 中的版本生成，读不到版本时指向上游目录、版本显示 unknown，缺失 README 时不附构建说明链接；当前安装包 README 含 Emscripten 构建 / 静态链接命令；libheif 与 libde265 提供固定原生源码链接。链接不等于替换 / 重新链接义务已履行。
 
@@ -27,7 +27,7 @@
 | BiRefNet_lite（Background Remover） | 权重 MIT（上游 BiRefNet 固定 commit 的 LICENSE）；两个固定 revision 的社区 ONNX 导出各附 LICENSE 与模型卡。训练集 DIS5K 的使用条款只许非商用研究，风险与取舍见 ADR-0022。                                                                                                                                                                                            |
 | PP-OCRv6 small（Image to Text）     | 检测与识别两个模型均为 PaddlePaddle 官方 Hugging Face 仓库发布的 ONNX，固定 revision，模型卡标注 Apache-2.0；仓库无独立 LICENSE，附 PaddleOCR v3.7.0 tag 的 Apache-2.0 全文与两份模型卡。见 ADR-0023。                                                                                                                                                               |
 | fflate、React / React DOM 等        | 真实模块清单中的全部 JS 包逐项附本地原文，包括 TanStack、Base UI、Floating UI、Radix、Valibot、Lucide 等；不能仅限本表。                                                                                                                                                                                                                                             |
-| Inter / Noto Sans SC / Noto Sans JP | 三个 fontsource 包本地 OFL 原文，版本读 manifest。                                                                                                                                                                                                                                                                                                                   |
+| Noto Sans SC / Noto Sans JP         | 两个 fontsource 包本地 OFL 原文，版本读 manifest。                                                                                                                                                                                                                                                                                                                   |
 
 ## 尚未证明的事项（保持开放）
 
