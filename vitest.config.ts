@@ -16,13 +16,18 @@ const isolatedTests = ["src/tools/contract.browser.test.ts"];
 // - Background Remover：一个页面里依次加载两个 BiRefNet（约 220 MB）并跑 1024² 推理，跟在其他浏览器测试后面会把浏览器拖死
 const modelTests = ["src/tools/background-remover/core.browser.test.ts"];
 
+const qrWorkerDeps = ["uqr", "zxing-wasm/reader"];
+
 const browserProject = (
   name: string,
   groupOrder: number,
   files: { include?: string[]; exclude?: string[] },
+  workerDeps: string[],
 ) => ({
   extends: true,
   optimizeDeps: {
+    // Worker 依赖可能到测试执行时才被 Vite 发现；提前预打包，避免中途重载测试页。
+    include: workerDeps,
     exclude: [
       "@jsquash/jpeg",
       "@jsquash/webp",
@@ -67,9 +72,24 @@ export default defineConfig({
         },
       },
       // WASM / WebCodecs / WebGPU 路径在真实浏览器里测（architecture §18）；isolatedTests 在另一个 project 里，用另一组浏览器
-      browserProject("browser", 1, { exclude: [...isolatedTests, ...modelTests] }),
-      browserProject("browser-isolated", 2, { include: isolatedTests }),
-      browserProject("browser-model", 3, { include: modelTests }),
+      browserProject("browser", 1, { exclude: [...isolatedTests, ...modelTests] }, qrWorkerDeps),
+      browserProject("browser-isolated", 2, { include: isolatedTests }, [
+        ...qrWorkerDeps,
+        "@huggingface/transformers",
+        "@mediabunny/mp3-encoder",
+        "libheif-js/libheif-wasm/libheif-bundle.mjs",
+        "marked",
+        "mediabunny",
+        "onnxruntime-web/webgpu",
+        "shiki/core",
+        "shiki/engine/javascript",
+        "shiki/langs",
+        "shiki/themes/github-dark.mjs",
+        "shiki/themes/github-light.mjs",
+        "shiki/themes/one-dark-pro.mjs",
+        "shiki/themes/vitesse-light.mjs",
+      ]),
+      browserProject("browser-model", 3, { include: modelTests }, []),
       {
         extends: true,
         plugins: [
